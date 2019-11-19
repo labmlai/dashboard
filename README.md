@@ -1,2 +1,1 @@
-# lab_dashboard
-A web UI for https://github.com/vpj/lab
+# 🎛 A gui for [lab](https://github.com/vpj/lab) 🚧
