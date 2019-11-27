@@ -10,9 +10,13 @@ let db = new sqlite.Database(dbPath, (err) => {
 let sql = `SELECT * FROM scalars`
 
 db.all(sql, [], (err, rows) => {
-    console.log(err)
-    console.log(rows)
-    getCurrentStep()
+    // console.log(err)
+    // console.log(rows)
+    db.all('SELECT * FROM indicators', [], (err, rows) => {
+        console.log(err)
+        console.log(rows)
+        getCurrentStep()
+    })
 })
 
 /* It will connect to db during query if the DB didn't exist before */
