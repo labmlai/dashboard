@@ -15,6 +15,7 @@ db.all(sql, [], (err, rows) => {
     getCurrentStep()
 })
 
+/* It will connect to db during query if the DB didn't exist before */
 function getCurrentStep() {
     db.all('SELECT MAX(step) FROM scalars', [], (err, rows) => {
         console.log(err)
