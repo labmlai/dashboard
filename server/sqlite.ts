@@ -12,5 +12,13 @@ let sql = `SELECT * FROM scalars`
 db.all(sql, [], (err, rows) => {
     console.log(err)
     console.log(rows)
+    getCurrentStep()
 })
 
+function getCurrentStep() {
+    db.all('SELECT MAX(step) FROM scalars', [], (err, rows) => {
+        console.log(err)
+        console.log(rows)
+        setTimeout(getCurrentStep, 300)
+    })
+}
