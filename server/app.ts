@@ -1,11 +1,9 @@
-import { NodeHttpServerPort } from "./io"
-import * as http from "http"
-import * as zlib from "zlib"
+import { NodeHttpServerPort } from "./io_node"
 import * as URL from "url"
 import * as PATH from "path"
 import * as FS from "fs"
 
-let server = new NodeHttpServerPort(8082, http, null, zlib)
+let server = new NodeHttpServerPort(8082, null, true)
 server.handleRequest = function (req, res) {
     let url = URL.parse(req.url)
     if (url.pathname === '/api') {
