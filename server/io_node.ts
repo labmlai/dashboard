@@ -36,7 +36,7 @@ class NodeHttpPort extends Port {
         };
     }
 
-    _onRequest(res) {
+    _onRequest(res: HTTP.IncomingMessage) {
         let data = '';
         //LOG 'STATUS: ' + res.statusCode
         //LOG 'HEADERS: ' + JSON.stringify res.headers

@@ -18,7 +18,7 @@ class IOResponse {
     queue: Array<ResponseItem>
     fresh: boolean
 
-    constructor(data, port: Port, options: PortOptions) {
+    constructor(data: CallPacket | PollPacket, port: Port, options: PortOptions) {
         this.id = data.id;
         this.port = port;
         this.options = options
@@ -305,7 +305,7 @@ abstract class Port {
         return this.errorCallback(msg, options);
     }
 
-    onHandleError(msg: string, data: Data, options: PortOptions) {
+    onHandleError(msg: string, data: CallPacket | PollPacket, options: PortOptions) {
         this.errorCallback(msg, data);
         let response = new IOResponse(data, this, options);
         return response.fail(msg);
@@ -390,7 +390,7 @@ abstract class Port {
     }
 
     // Create Call object
-    _createCall(method: string, data: any, callbacks: CallCallbacks, options: PacketOptions): CallPacket {
+    private _createCall(method: string, data: any, callbacks: CallCallbacks, options: PacketOptions): CallPacket {
         let call = new Call(`${this.id}-${this.callsCounter}`,
             method, data, callbacks, options, this);
         this.callsCounter++;
@@ -409,7 +409,7 @@ abstract class Port {
     }
 
     // Create Response object
-    _createResponse(response: IOResponse, status: Status, data: Data, options): ResponsePacket {
+    private _createResponse(response: IOResponse, status: Status, data: Data, options): ResponsePacket {
         let params: ResponsePacket = {
             type: 'response',
             id: response.id,
@@ -429,7 +429,7 @@ abstract class Port {
     }
 
     // Handle incoming message
-    _handleMessage(data: MessagePacket, options: PortOptions = {}, last: boolean = true): void {
+    protected _handleMessage(data: MessagePacket, options: PortOptions = {}, last: boolean = true): void {
         switch (data.type) {
             case 'list':
                 data = <PacketList>data
@@ -501,131 +501,9 @@ abstract class Port {
 
 };
 
-// WorkerPort class
-class WorkerPort extends Port {
-    worker: Worker
-
-    constructor(worker) {
-        super();
-        this.worker = worker;
-        this.worker.onmessage = this._onMessage.bind(this);
-    }
-
-    //@worker.onerror = @onCallError.bind this
-    _send(data: CallPacket) {
-        let dd = data.data
-        let transferList
-        if ((dd != null) && (dd._transferList != null)) {
-            transferList = dd._transferList;
-            delete dd._transferList;
-        } else {
-            transferList = [];
-        }
-        return this.worker.postMessage(data, transferList);
-    }
-
-    _respond(data: ResponsePacket, portOptions: PortOptions, callback: SimpleCallback) {
-        let dd = data.data;
-        let transferList
-        if ((dd != null) && (dd._transferList != null)) {
-            transferList = dd._transferList;
-            delete dd._transferList;
-        } else {
-            transferList = [];
-        }
-        this.worker.postMessage(data, transferList);
-        if(typeof callback === "function") callback();
-    }
-
-    _onMessage(e) {
-        return this._handleMessage(e.data);
-    }
-
-};
-
-// FramePort class
-class FramePort extends Port {
-    source: Window
-    dest: Window
-
-    constructor(source, dest) {
-        super();
-        this.source = source;
-        this.dest = dest;
-        this.source.addEventListener('message', this._onMessage.bind(this));
-    }
-
-    _send(data: CallPacket) {
-        return this.dest.postMessage(data, '*');
-    }
-
-    _respond(data: ResponsePacket | PacketList, portOptions: PortOptions, callback: SimpleCallback) {
-        this.dest.postMessage(data, '*');
-        return typeof callback === "function" ? callback() : void 0;
-    }
-
-    _onMessage(e) {
-        return this._handleMessage(e.data);
-    }
-
-};
-
-class WebSocketPort extends Port {
-    socket: WebSocket
-
-    constructor(socket) {
-        super();
-        this.socket = socket;
-        this.socket.onmessage(this._onMessage.bind(this));
-    }
-
-    _send(data: CallPacket) {
-        return this.socket.send(JSON.stringify(data));
-    }
-
-    _respond(data: ResponsePacket | PacketList, portOptions: PortOptions, callback) {
-        this.socket.send(JSON.stringify(data));
-        return typeof callback === "function" ? callback() : void 0;
-    }
-
-    _onMessage(e) {
-        return this._handleMessage(e.data);
-    }
-
-};
-
-// ServerSocketPort class
-class ServerSocketPort extends Port {
-    socket: WebSocket
-
-    constructor(socket) {
-        super();
-        this.socket = socket;
-        this.socket.onopen(this._onConnection.bind(this));
-    }
-
-    _send(data: CallPacket) {
-        throw Error()
-    }
-
-    _respond(data: ResponsePacket | PacketList, portOptions: PortOptions, callback: SimpleCallback) {
-        throw Error()
-    }
-
-
-    _onConnection(socket) {
-        return new WebSocketPort(socket,
-            // {handlers: this.handlers}
-        );
-    }
-
-};
-
-
-
-
-export { LOG, ERROR_LOG,
-     ResponsePacket, PacketList, CallPacket, PollPacket,
-     Port, WorkerPort, FramePort, CallCallbacks,
-     PortOptions, SimpleCallback,
-      WebSocketPort, ServerSocketPort }
+export {
+    LOG, ERROR_LOG,
+    ResponsePacket, PacketList, CallPacket, PollPacket,
+    Port, CallCallbacks,
+    PortOptions, SimpleCallback
+}
