@@ -391,7 +391,7 @@ abstract class Port {
     }
 
     protected _handleCall(packet: CallPacket, options: PortOptions, last: boolean): void {
-        if(this.shouldCall(packet, options)) {
+        if(!this.shouldCall(packet, options)) {
             return
         }
         if (this.handlers[packet.method] == null) {
@@ -443,7 +443,7 @@ abstract class Port {
 export {
     LOG, ERROR_LOG,
     IOResponse,
-    ResponsePacket, PacketList, CallPacket, PollPacket,
+    ResponsePacket, PacketList, CallPacket, PollPacket, Data,
     Port, CallCallbacks,
     PortOptions, SimpleCallback
 }

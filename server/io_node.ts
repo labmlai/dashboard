@@ -196,7 +196,7 @@ class NodeHttpServerPort extends Port {
         if (!this.isGZip) {
             accept = '';
         }
-        let buffer = new Buffer(JSON.stringify(data), 'utf8');
+        let buffer = Buffer.from(JSON.stringify(data), 'utf8');
         if (accept.match(/\bgzip\b/)) {
             portOptions.response.setHeader('content-encoding', 'gzip');
             ZLIB.gzip(buffer, (err, result) => {
