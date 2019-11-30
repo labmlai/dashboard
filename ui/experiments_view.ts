@@ -18,7 +18,7 @@ class ExperimentView {
             on: {click: this.onClick}
         }, $ => {
             $('h3', this.experiment.name)
-            $('span', this.experiment.lastTrialDateTime[0])
+            $('span', this.experiment.lastRunDateTime[0])
         })
 
         return this.elem

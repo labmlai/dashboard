@@ -2,14 +2,14 @@
 import { ScreenView } from "./screen"
 import { ROUTER, SCREEN } from "./app"
 import { Weya as $, WeyaElement } from "./weya"
-import { Experiment, Trial } from "./experiments"
+import { Experiment, Run } from "./experiments"
 import { getExperiments } from "./cache"
 
-class TrialView {
-    trial: Trial
+class RunView {
+    trial: Run
     elem: WeyaElement
 
-    constructor(t: Trial) {
+    constructor(t: Run) {
         this.trial = t
     }
 
@@ -57,11 +57,11 @@ class ExperimentView implements ScreenView {
     private renderExperiment() {
         this.elem.append($('div.content', $ => {
             $('h1', this.experiment.name)
-            $('span', this.experiment.lastTrialDateTime[0])
+            $('span', this.experiment.lastRunDateTime[0])
         }))
 
-        for(let t of this.experiment.trials) {
-            this.elem.append(new TrialView(t).render())
+        for(let t of this.experiment.runs) {
+            this.elem.append(new RunView(t).render())
         }
     }
 }

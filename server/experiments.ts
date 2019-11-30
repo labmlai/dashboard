@@ -1,4 +1,4 @@
-interface TrialModel {
+interface RunModel {
     comment: string
     commit: string
     commit_message: string
@@ -9,10 +9,10 @@ interface TrialModel {
     trial_time: string // '09:05:24'
 }
 
-class Trial {
-    info: TrialModel
+class Run {
+    info: RunModel
 
-    constructor(info: TrialModel) {
+    constructor(info: RunModel) {
         this.info = info
     }
 
@@ -23,22 +23,22 @@ class Trial {
 
 interface ExperimentModel {
     name: string
-    trials: TrialModel[]
+    runs: RunModel[]
 }
 
 class Experiment {
     name: string
-    trials: Trial[]
+    runs: Run[]
 
     constructor(experiment: ExperimentModel) {
         this.name = experiment.name
-        this.trials = experiment.trials.map((t) => new Trial(t))
+        this.runs = experiment.runs.map((t) => new Run(t))
     }
 
-    get lastTrialDateTime(): [string, string] {
-        if (this.trials.length > 0) {
-            return [this.trials[this.trials.length - 1].info.trial_date,
-            this.trials[this.trials.length - 1].info.trial_time]
+    get lastRunDateTime(): [string, string] {
+        if (this.runs.length > 0) {
+            return [this.runs[this.runs.length - 1].info.trial_date,
+            this.runs[this.runs.length - 1].info.trial_time]
         }
         return ['-', '-']
     }
@@ -46,7 +46,7 @@ class Experiment {
     toJSON(): ExperimentModel {
         return {
             name: this.name,
-            trials: this.trials.map((t) => t.toJSON())
+            runs: this.runs.map((t) => t.toJSON())
         }
     }
 }
@@ -67,11 +67,11 @@ class Experiments {
 
     sorted(): Experiment[] {
         let res: Experiment[] = []
-        for(let k in this.experiments) {
-            res[k] = this.experiments[k]
+        for (let k in this.experiments) {
+            res.push(this.experiments[k])
         }
         return res.sort((a, b) => (a.name < b.name ?
-            -1: (a.name > b.name ? 1 : 0)))
+            -1 : (a.name > b.name ? 1 : 0)))
     }
     toJSON(): ExperimentsModel {
         let res = {}
@@ -83,4 +83,4 @@ class Experiments {
     }
 }
 
-export { ExperimentModel, ExperimentsModel, TrialModel, Experiments, Experiment, Trial }
+export { ExperimentModel, ExperimentsModel, RunModel, Experiments, Experiment, Run }
