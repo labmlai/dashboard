@@ -13,10 +13,10 @@ let POLL_TYPE = {
 // Response class
 class IOResponse {
     id: string
-    port: Port
-    options: PortOptions
-    queue: Array<ResponseItem>
-    fresh: boolean
+    private port: Port
+    private options: PortOptions
+    private queue: Array<ResponseItem>
+    private fresh: boolean
 
     constructor(data: CallPacket | PollPacket, port: Port, options: PortOptions) {
         this.id = data.id;
@@ -26,7 +26,7 @@ class IOResponse {
         this.fresh = true;
     }
 
-    progress(progress, data, callback) {
+    progress(progress: number, data: Data, callback: Function) {
         this.queue.push({
             status: 'progress',
             data: data,
@@ -35,7 +35,7 @@ class IOResponse {
             },
             callback: callback
         });
-        return this._handleQueue();
+        this._handleQueue();
     }
 
     success(data: Data) {
@@ -44,7 +44,7 @@ class IOResponse {
             data: data,
             options: {}
         });
-        return this._handleQueue();
+        this._handleQueue();
     }
 
     fail(data: Data) {
@@ -53,16 +53,16 @@ class IOResponse {
             data: data,
             options: {}
         });
-        return this._handleQueue();
+        this._handleQueue();
     }
 
-    setOptions(options) {
+    setOptions(options: PortOptions) {
         this.options = options;
         this.fresh = true;
-        return this._handleQueue();
+        this._handleQueue();
     }
 
-    _multipleResponse() {
+    private _multipleResponse(): void {
         let responseList: ResponseListItem[] = [];
         let callbacks = [];
         for (let i = 0; i < this.queue.length; ++i) {
@@ -89,10 +89,10 @@ class IOResponse {
             this.port.respondMultiple(this, responseList, this.options, done);
             this.fresh = false;
         }
-        return this.queue = [];
+        this.queue = [];
     }
 
-    _handleQueue() {
+    private _handleQueue(): void {
         if (!(this.queue.length > 0)) {
             return;
         }
@@ -100,7 +100,8 @@ class IOResponse {
             return;
         }
         if (this.queue.length > 1) {
-            return this._multipleResponse();
+            this._multipleResponse();
+            return
         }
         let d = this.queue[0];
         if (this.port.isStreaming) {
@@ -109,14 +110,17 @@ class IOResponse {
             this.port.respond(this, d.status, d.data, d.options, this.options, d.callback);
             this.fresh = false;
         }
-        return this.queue = [];
+        this.queue = [];
     }
 };
 
+interface CallbackFunction {
+    (data: Data, packet?: ResponsePacket): void
+}
 interface CallCallbacks {
-    success: any
-    fail?: any
-    progress?: any
+    success: CallbackFunction
+    fail?: CallbackFunction
+    progress?: CallbackFunction
 }
 
 type Data = any
@@ -139,24 +143,24 @@ class Call {
         null;
     }
 
-    handle(data: Data, options: CallOptions) {
-        if (this.callbacks[options.status] == null) {
-            if (options.status === 'progress') {
+    handle(data: Data, packet: ResponsePacket) {
+        if (this.callbacks[packet.status] == null) {
+            if (packet.status === 'progress') {
                 return;
             }
             //Handled by caller
-            throw new Error(`No callback registered ${this.method} ${options.status}`);
+            throw new Error(`No callback registered ${this.method} ${packet.status}`);
         }
         let self = this;
         setTimeout(function () {
             try {
-                return self.callbacks[options.status](data, options);
+                return self.callbacks[packet.status](data, packet);
             } catch (error) {
                 self.port.onError(error)
             }
         }, 0);
 
-        return POLL_TYPE[options.status] != null
+        return POLL_TYPE[packet.status] == null
     }
 };
 
@@ -190,9 +194,7 @@ interface PortWrapper {
     handleResponse?: ResponseFunc
 }
 
-interface Handler {
-    (data: any, dataParent: any, response: IOResponse): void
-}
+type Handler = { (data: Data, packet: CallPacket, response: IOResponse): void }
 
 interface PortOptions {
     response?: any
@@ -201,10 +203,6 @@ interface PortOptions {
 }
 
 type Status = "success" | "progress" | "fail"
-
-interface CallOptions {
-    status: string
-}
 
 interface PacketOptions {
     progress?: number
@@ -258,12 +256,12 @@ interface SimpleCallback {
 
 abstract class Port {
     isStreaming: boolean
-    handlers: { [method: string]: Handler }
-    callsCache: { [callId: string]: Call }
-    callsCounter: number
-    id: number
-    responses: { [callId: string]: IOResponse }
-    wrappers: PortWrappers
+    private handlers: { [method: string]: Handler }
+    protected callsCache: { [callId: string]: Call }
+    private callsCounter: number
+    private id: number
+    protected responses: { [callId: string]: IOResponse }
+    protected wrappers: PortWrappers
 
     constructor() {
         this.isStreaming = true
@@ -280,8 +278,8 @@ abstract class Port {
         };
     }
 
-    abstract _send(data: CallPacket | PollPacket, callbacks: CallCallbacks)
-    abstract _respond(response: ResponsePacket | PacketList, portOptions: PortOptions, callback)
+    protected abstract _send(data: CallPacket | PollPacket, callbacks: CallCallbacks)
+    protected abstract _respond(response: ResponsePacket | PacketList, portOptions: PortOptions, callback)
 
     onError(err: Error) {
         LOG(err)
@@ -299,7 +297,7 @@ abstract class Port {
                     error: 'connectionError',
                     msg: msg,
                     options: options
-                }, {});
+                });
             }
         }
         return this.errorCallback(msg, options);
@@ -327,11 +325,17 @@ abstract class Port {
     }
 
     // Send RPC call
-    send(method: string, data: Data, callbacks: CallCallbacks, options: PacketOptions): void {
-        if ((typeof callbacks) === 'function') {
+    send(method: string, data: Data, success: Function, options?: PacketOptions): void
+    send(method: string, data: Data, callbacks: CallCallbacks, options?: PacketOptions): void
+
+    send(method: string, data: Data, f: any, options: PacketOptions = null): void {
+        let callbacks: CallCallbacks
+        if ((typeof f) === 'function') {
             callbacks = {
-                success: callbacks
+                success: f
             };
+        } else {
+            callbacks = f
         }
         for (let f of this.wrappers.send) {
             if (!f.call(this, method, data, callbacks, options)) {
@@ -409,7 +413,7 @@ abstract class Port {
     }
 
     // Create Response object
-    private _createResponse(response: IOResponse, status: Status, data: Data, options): ResponsePacket {
+    private _createResponse(response: IOResponse, status: Status, data: Data, options: PacketOptions): ResponsePacket {
         let params: ResponsePacket = {
             type: 'response',
             id: response.id,
@@ -429,52 +433,52 @@ abstract class Port {
     }
 
     // Handle incoming message
-    protected _handleMessage(data: MessagePacket, options: PortOptions = {}, last: boolean = true): void {
-        switch (data.type) {
+    protected _handleMessage(packet: MessagePacket, options: PortOptions = {}, last: boolean = true): void {
+        switch (packet.type) {
             case 'list':
-                data = <PacketList>data
-                for (let i = 0; i < data.list.length; ++i) {
-                    this._handleMessage(data.list[i], options, last && i + 1 === data.list.length);
+                packet = <PacketList>packet
+                for (let i = 0; i < packet.list.length; ++i) {
+                    this._handleMessage(packet.list[i], options, last && i + 1 === packet.list.length);
                 }
                 break
             case 'response':
                 try {
-                    this._handleResponse(<ResponsePacket>data, options, last);
+                    this._handleResponse(<ResponsePacket>packet, options, last);
                 } catch (error) {
                     this.onError(error)
                 }
                 break;
             case 'call':
                 try {
-                    this._handleCall(<CallPacket>data, options, last);
+                    this._handleCall(<CallPacket>packet, options, last);
                 } catch (error) {
                     this.onError(error)
                 }
                 break;
             case 'poll':
                 try {
-                    this._handlePoll(<PollPacket>data, options, last);
+                    this._handlePoll(<PollPacket>packet, options, last);
                 } catch (error) {
                     this.onError(error)
                 }
         }
     }
 
-    _handleCall(data: CallPacket, options: PortOptions, last: boolean): void {
+    protected _handleCall(packet: CallPacket, options: PortOptions, last: boolean): void {
         for (let f of this.wrappers.handleCall) {
-            if (!f.call(this, data, options, last)) {
+            if (!f.call(this, packet, options, last)) {
                 return;
             }
         }
-        if (this.handlers[data.method] == null) {
-            this.onHandleError(`Unknown method: ${data.method}`, data, options);
+        if (this.handlers[packet.method] == null) {
+            this.onHandleError(`Unknown method: ${packet.method}`, packet, options);
             return;
         }
-        this.responses[data.id] = new IOResponse(data, this, options);
-        this.handlers[data.method](data.data, data, this.responses[data.id]);
+        this.responses[packet.id] = new IOResponse(packet, this, options);
+        this.handlers[packet.method](packet.data, packet, this.responses[packet.id]);
     }
 
-    _handleResponse(data: ResponsePacket, options: PortOptions, last: boolean): void {
+    protected _handleResponse(data: ResponsePacket, options: PortOptions, last: boolean): void {
         for (let f of this.wrappers.handleResponse) {
             if (!f.call(this, data, options, last)) {
                 return
@@ -495,7 +499,7 @@ abstract class Port {
         }
     }
 
-    _handlePoll(data: PollPacket, options, last: boolean) {
+    protected _handlePoll(data: PollPacket, options, last: boolean) {
         return this.onHandleError("Poll not implemented", data, options);
     }
 
@@ -503,6 +507,7 @@ abstract class Port {
 
 export {
     LOG, ERROR_LOG,
+    IOResponse,
     ResponsePacket, PacketList, CallPacket, PollPacket,
     Port, CallCallbacks,
     PortOptions, SimpleCallback

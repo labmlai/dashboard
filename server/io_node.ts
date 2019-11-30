@@ -92,18 +92,18 @@ class NodeHttpPort extends Port {
         return req.end();
     }
 
-    _handleResponse(data, options, last = true) {
+    _handleResponse(packet: ResponsePacket, portOptions: PortOptions, last = true) {
         for (let f of this.wrappers.handleResponse) {
             if (!f.apply(this, arguments)) {
                 return;
             }
         }
-        if (this.callsCache[data.id] == null) {
-            this.errorCallback(`Response without call: ${data.id}`, data);
+        if (this.callsCache[packet.id] == null) {
+            this.errorCallback(`Response without call: ${packet.id}`, packet);
             return;
         }
-        let call = this.callsCache[data.id];
-        if (!call.handle(data.data, data)) {
+        let call = this.callsCache[packet.id];
+        if (!call.handle(packet.data, packet)) {
             if (!last) {
                 return;
             }

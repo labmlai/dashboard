@@ -6,13 +6,13 @@ import {
 
 // AJAX class
 class AjaxHttpPort extends Port {
-    protocol: string
-    host: string
-    port: string
-    path: string
-    url: string
+    private protocol: string
+    private host: string
+    private port: number
+    private path: string
+    private url: string
 
-    constructor(protocol: string, host: string, port: string, path: string) {
+    constructor(protocol: string, host: string, port: number, path: string) {
         super();
         this.isStreaming = false
         this.protocol = protocol;
@@ -35,7 +35,7 @@ class AjaxHttpPort extends Port {
         }
     }
 
-    _onRequest(xhr) {
+    private _onRequest(xhr) {
         let jsonData
 
         if (xhr.readyState !== 4) {
@@ -59,12 +59,12 @@ class AjaxHttpPort extends Port {
         }
     }
 
-    _respond(data: ResponsePacket | PacketList, portOptions: PortOptions, callback: SimpleCallback) {
+    protected _respond(data: ResponsePacket | PacketList, portOptions: PortOptions, callback: SimpleCallback) {
         this.errorCallback('AJAX cannot respond', data);
         return typeof callback === "function" ? callback() : void 0;
     }
 
-    _send(data: CallPacket | PollPacket) {
+    protected _send(data: CallPacket | PollPacket) {
         let dataStr = JSON.stringify(data);
         let xhr = new XMLHttpRequest;
         xhr.open('POST', this.url);
@@ -76,20 +76,20 @@ class AjaxHttpPort extends Port {
         return xhr.send(dataStr);
     }
 
-    _handleResponse(data, options, last = true): void {
+    protected _handleResponse(packet: ResponsePacket, portOptions: PortOptions, last = true): void {
         for (let f of this.wrappers.handleResponse) {
             if (!f.apply(this, arguments)) {
                 return;
             }
         }
-        if (this.callsCache[data.id] == null) {
-            this.errorCallback(`Response without call: ${data.id}`, data);
+        if (this.callsCache[packet.id] == null) {
+            this.errorCallback(`Response without call: ${packet.id}`, packet);
             return;
         }
-        let call = this.callsCache[data.id];
+        let call = this.callsCache[packet.id];
         try {
-            if (call.handle(data.data, data)) {
-                delete this.callsCache[data.id];
+            if (call.handle(packet.data, packet)) {
+                delete this.callsCache[packet.id];
             } else if (last) {
                 let params: PollPacket = {
                     type: 'poll',
@@ -102,8 +102,8 @@ class AjaxHttpPort extends Port {
                 this._send(params);
             }
         } catch (error) {
-            this.errorCallback(error.message, data);
-            delete this.callsCache[data.id];
+            this.errorCallback(error.message, packet);
+            delete this.callsCache[packet.id];
         }
     }
 };

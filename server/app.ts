@@ -1,10 +1,12 @@
 import { NodeHttpServerPort } from "./io_node"
+import {IOResponse} from "./io"
 import * as URL from "url"
 import * as PATH from "path"
 import * as FS from "fs"
+import * as HTTP from "http"
 
 let server = new NodeHttpServerPort(8082, null, true)
-server.handleRequest = function (req, res) {
+server.handleRequest = function handleRequest(req: HTTP.IncomingMessage, res: HTTP.ServerResponse) {
     let url = URL.parse(req.url)
     if (url.pathname === '/api') {
         return false;
@@ -42,6 +44,13 @@ server.handleRequest = function (req, res) {
 
     return true
 }
+
+server.on('getExperiments', (data, packet, response) => {
+  console.log('getExperiments')
+  console.log(data)
+  console.log(packet)
+  response.success("done!!")
+})
 
 server.listen()
 
