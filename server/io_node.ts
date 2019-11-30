@@ -92,11 +92,9 @@ class NodeHttpPort extends Port {
         return req.end();
     }
 
-    _handleResponse(packet: ResponsePacket, portOptions: PortOptions, last = true) {
-        for (let f of this.wrappers.handleResponse) {
-            if (!f.apply(this, arguments)) {
-                return;
-            }
+    _handleResponse(packet: ResponsePacket, portOptions: PortOptions, last: boolean) {
+        if(!this.shouldAcceptResponse(packet, portOptions)) {
+            return
         }
         if (this.callsCache[packet.id] == null) {
             this.errorCallback(`Response without call: ${packet.id}`, packet);
@@ -111,10 +109,6 @@ class NodeHttpPort extends Port {
                 type: 'poll',
                 id: call.id
             };
-            for (let k in call.options) {
-                let v = call.options[k];
-                params[k] = v;
-            }
             return this._send(params, call.callbacks);
         }
     }
@@ -224,7 +218,7 @@ class NodeHttpServerPort extends Port {
         }
     }
 
-    _sendBuffer(buf, res, callback) {
+    _sendBuffer(buf: Buffer, res: HTTP.ServerResponse, callback: Function) {
         res.setHeader('content-length', buf.length);
         if (callback != null) {
             res.once('finish', function () {
@@ -244,10 +238,8 @@ class NodeHttpServerPort extends Port {
     }
 
     _handlePoll(data: PollPacket, options: PortOptions) {
-        for (let f of this.wrappers.handleCall) {
-            if (!f.call(this, data, options, false)) {
-                return;
-            }
+        if(!this.shouldPoll(data, options)) {
+            return
         }
         if (this.responses[data.id] == null) {
             this.onHandleError(`Poll without response: ${data.id}`, data, options);

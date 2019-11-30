@@ -76,11 +76,9 @@ class AjaxHttpPort extends Port {
         return xhr.send(dataStr);
     }
 
-    protected _handleResponse(packet: ResponsePacket, portOptions: PortOptions, last = true): void {
-        for (let f of this.wrappers.handleResponse) {
-            if (!f.apply(this, arguments)) {
-                return;
-            }
+    protected _handleResponse(packet: ResponsePacket, portOptions: PortOptions, last: boolean): void {
+        if(!this.shouldAcceptResponse(packet, portOptions)) {
+            return
         }
         if (this.callsCache[packet.id] == null) {
             this.errorCallback(`Response without call: ${packet.id}`, packet);
@@ -95,10 +93,6 @@ class AjaxHttpPort extends Port {
                     type: 'poll',
                     id: call.id
                 };
-                for (let k in call.options) {
-                    let v = call.options[k];
-                    params[k] = v;
-                }
                 this._send(params);
             }
         } catch (error) {

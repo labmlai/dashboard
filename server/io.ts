@@ -26,13 +26,10 @@ class IOResponse {
         this.fresh = true;
     }
 
-    progress(progress: number, data: Data, callback: Function) {
+    progress(data: Data, callback: Function) {
         this.queue.push({
             status: 'progress',
             data: data,
-            options: {
-                progress: progress
-            },
             callback: callback
         });
         this._handleQueue();
@@ -42,7 +39,6 @@ class IOResponse {
         this.queue.push({
             status: 'success',
             data: data,
-            options: {}
         });
         this._handleQueue();
     }
@@ -51,7 +47,6 @@ class IOResponse {
         this.queue.push({
             status: 'fail',
             data: data,
-            options: {}
         });
         this._handleQueue();
     }
@@ -70,7 +65,6 @@ class IOResponse {
             responseList.push({
                 status: d.status,
                 data: d.data,
-                options: d.options
             });
             if (d.callback != null) {
                 callbacks.push(d.callback);
@@ -105,9 +99,9 @@ class IOResponse {
         }
         let d = this.queue[0];
         if (this.port.isStreaming) {
-            this.port.respond(this, d.status, d.data, d.options, this.options, d.callback);
+            this.port.respond(this, d.status, d.data, this.options, d.callback);
         } else if (this.fresh) {
-            this.port.respond(this, d.status, d.data, d.options, this.options, d.callback);
+            this.port.respond(this, d.status, d.data, this.options, d.callback);
             this.fresh = false;
         }
         this.queue = [];
@@ -131,14 +125,12 @@ class Call {
     method: string
     data: Data
     callbacks: CallCallbacks
-    options: PacketOptions
     port: Port
-    constructor(id: string, method: string, data: Data, callbacks: CallCallbacks, options: PacketOptions, port: Port) {
+    constructor(id: string, method: string, data: Data, callbacks: CallCallbacks, port: Port) {
         this.id = id;
         this.method = method;
         this.data = data;
         this.callbacks = callbacks;
-        this.options = options;
         this.port = port;
         null;
     }
@@ -164,36 +156,6 @@ class Call {
     }
 };
 
-interface RespondFunc {
-    (response: IOResponse, status: string, data: any, options: any, portOptions: PortOptions, callback: any): void
-}
-
-interface CallFunc {
-    (data: CallPacket, options: PortOptions, last: boolean): void
-}
-
-interface SendFunc {
-    (method: string, data: Data, callbacks: CallCallbacks, options: PacketOptions): void
-}
-
-interface ResponseFunc {
-    (data: ResponsePacket, options: PortOptions, last: boolean): void
-}
-
-interface PortWrappers {
-    send: SendFunc[],
-    respond: RespondFunc[]
-    handleCall: CallFunc[],
-    handleResponse: ResponseFunc[]
-}
-
-interface PortWrapper {
-    send?: SendFunc,
-    respond?: RespondFunc
-    handleCall?: CallFunc,
-    handleResponse?: ResponseFunc
-}
-
 type Handler = { (data: Data, packet: CallPacket, response: IOResponse): void }
 
 interface PortOptions {
@@ -204,50 +166,42 @@ interface PortOptions {
 
 type Status = "success" | "progress" | "fail"
 
-interface PacketOptions {
-    progress?: number
-}
-
 type MessagePacket = ResponsePacket | PacketList | CallPacket | PollPacket
 type MessageType = "poll" | "list" | "response" | "call"
 
-interface PollPacket extends PacketOptions {
+interface PollPacket {
     type: MessageType
     id: string
 }
 
-interface CallPacket extends PacketOptions {
+interface CallPacket {
     type: MessageType
     id: string
     method: string
     data: Data
 }
 
-interface ResponsePacket extends PacketOptions {
+interface ResponsePacket {
     type: MessageType
     id: string
     status: Status
     data: Data
-    // [index: string]: any
 }
 
-interface PacketList extends PacketOptions {
+interface PacketList {
     type: MessageType
     list: MessagePacket[]
-    // [index: string]: any
 }
 
 interface ResponseItem {
     status: Status
     data: Data
-    options: PacketOptions
     callback?: any
 }
 
 interface ResponseListItem {
     status: Status
     data: Data
-    options: PacketOptions
 }
 
 interface SimpleCallback {
@@ -261,7 +215,6 @@ abstract class Port {
     private callsCounter: number
     private id: number
     protected responses: { [callId: string]: IOResponse }
-    protected wrappers: PortWrappers
 
     constructor() {
         this.isStreaming = true
@@ -270,12 +223,6 @@ abstract class Port {
         this.callsCounter = 0;
         this.id = Math.floor(Math.random() * 1000);
         this.responses = {};
-        this.wrappers = {
-            send: [],
-            respond: [],
-            handleCall: [],
-            handleResponse: []
-        };
     }
 
     protected abstract _send(data: CallPacket | PollPacket, callbacks: CallCallbacks)
@@ -313,22 +260,11 @@ abstract class Port {
         return ERROR_LOG(msg, options);
     }
 
-    wrap(wrapper: PortWrapper) {
-        for (let key in wrapper) {
-            let f = wrapper[key];
-            if (this.wrappers[key] != null) {
-                this.wrappers[key].push(f);
-            } else {
-                this[key] = f;
-            }
-        }
-    }
-
     // Send RPC call
-    send(method: string, data: Data, success: Function, options?: PacketOptions): void
-    send(method: string, data: Data, callbacks: CallCallbacks, options?: PacketOptions): void
+    send(method: string, data: Data, success: Function): void
+    send(method: string, data: Data, callbacks: CallCallbacks): void
 
-    send(method: string, data: Data, f: any, options: PacketOptions = null): void {
+    send(method: string, data: Data, f: any): void {
         let callbacks: CallCallbacks
         if ((typeof f) === 'function') {
             callbacks = {
@@ -337,26 +273,35 @@ abstract class Port {
         } else {
             callbacks = f
         }
-        for (let f of this.wrappers.send) {
-            if (!f.call(this, method, data, callbacks, options)) {
-                return;
-            }
+
+        this.sendTyped(method, data, callbacks)
+    }
+
+    protected sendTyped(method: string, data: Data, callbacks: CallCallbacks) {
+        if(!this.shouldSend(method, data, callbacks)) {
+            return
         }
-        let params = this._createCall(method, data, callbacks, options);
+        let params = this._createCall(method, data, callbacks);
         this._send(params, callbacks);
     }
 
+    protected shouldSend(method: string, data: Data, callbacks: CallCallbacks): boolean {
+        return true
+    }
+
     // Respond to a RPC call
-    respond(response: IOResponse, status: Status, data: any, options: PacketOptions, portOptions: PortOptions, callback): void {
+    respond(response: IOResponse, status: Status, data: any, portOptions: PortOptions, callback): void {
         if (POLL_TYPE[status] == null) {
             delete this.responses[response.id];
         }
-        for (let f of this.wrappers.respond) {
-            if (!f.apply(this, [response, status, data, options, portOptions])) {
-                return;
-            }
+        if(!this.shouldRespond(response, status, data, portOptions)) {
+            return
         }
-        this._respond(this._createResponse(response, status, data, options), portOptions, callback);
+        this._respond(this._createResponse(response, status, data), portOptions, callback);
+    }
+
+    protected shouldRespond(response: IOResponse, status: Status, data: any, portOptions: PortOptions): boolean {
+        return true
     }
 
     respondMultiple(response: IOResponse, list: ResponseListItem[], portOptions: PortOptions, callback: any): void {
@@ -368,21 +313,10 @@ abstract class Port {
         }
         let data = [];
         for (let d of list) {
-            let cancel = false;
-            if (d.options == null) {
-                d.options = {};
+            if(!this.shouldRespond(response, d.status, d.data, portOptions)) {
+                continue
             }
-            for (let f of this.wrappers.respond) {
-                let r = f.apply(this, [response, d.status, d.data, d.options, portOptions]);
-                if (!r) {
-                    cancel = true;
-                    break;
-                }
-                if (cancel) {
-                    continue;
-                }
-            }
-            data.push(this._createResponse(response, d.status, d.data, d.options));
+            data.push(this._createResponse(response, d.status, d.data));
         }
         if (data.length === 0) {
             return;
@@ -394,9 +328,9 @@ abstract class Port {
     }
 
     // Create Call object
-    private _createCall(method: string, data: any, callbacks: CallCallbacks, options: PacketOptions): CallPacket {
+    private _createCall(method: string, data: any, callbacks: CallCallbacks): CallPacket {
         let call = new Call(`${this.id}-${this.callsCounter}`,
-            method, data, callbacks, options, this);
+            method, data, callbacks, this);
         this.callsCounter++;
         this.callsCache[call.id] = call;
         let params: CallPacket = {
@@ -405,25 +339,17 @@ abstract class Port {
             method: call.method,
             data: call.data
         };
-        for (let k in options) {
-            let v = options[k];
-            params[k] = v;
-        }
         return params;
     }
 
     // Create Response object
-    private _createResponse(response: IOResponse, status: Status, data: Data, options: PacketOptions): ResponsePacket {
+    private _createResponse(response: IOResponse, status: Status, data: Data): ResponsePacket {
         let params: ResponsePacket = {
             type: 'response',
             id: response.id,
             status: status,
             data: data
         };
-        for (let k in options) {
-            let v = options[k];
-            params[k] = v;
-        }
         return params;
     }
 
@@ -465,10 +391,8 @@ abstract class Port {
     }
 
     protected _handleCall(packet: CallPacket, options: PortOptions, last: boolean): void {
-        for (let f of this.wrappers.handleCall) {
-            if (!f.call(this, packet, options, last)) {
-                return;
-            }
+        if(this.shouldCall(packet, options)) {
+            return
         }
         if (this.handlers[packet.method] == null) {
             this.onHandleError(`Unknown method: ${packet.method}`, packet, options);
@@ -477,13 +401,20 @@ abstract class Port {
         this.responses[packet.id] = new IOResponse(packet, this, options);
         this.handlers[packet.method](packet.data, packet, this.responses[packet.id]);
     }
+    
+    protected shouldCall(packet: CallPacket, options: PortOptions): boolean {
+        return true
+    }
+
+    protected shouldPoll(packet: PollPacket, options: PortOptions): boolean {
+        return true
+    }
 
     protected _handleResponse(data: ResponsePacket, options: PortOptions, last: boolean): void {
-        for (let f of this.wrappers.handleResponse) {
-            if (!f.call(this, data, options, last)) {
-                return
-            }
+        if(!this.shouldAcceptResponse(data, options)) {
+            return
         }
+
         if (this.callsCache[data.id] == null) {
             //Cannot reply
             this.errorCallback(`Response without call: ${data.id}`, data);
@@ -497,6 +428,10 @@ abstract class Port {
             this.errorCallback(error.message, data);
             delete this.callsCache[data.id];
         }
+    }
+
+    protected shouldAcceptResponse(packet: ResponsePacket, options: PortOptions): boolean {
+        return true
     }
 
     protected _handlePoll(data: PollPacket, options, last: boolean) {
