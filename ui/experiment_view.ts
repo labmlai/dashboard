@@ -1,28 +1,28 @@
 
 import { ScreenView } from "./screen"
-import { ROUTER, SCREEN } from "./app"
+import { ROUTER, SCREEN, PORT } from "./app"
 import { Weya as $, WeyaElement } from "./weya"
-import { Experiment, Run } from "./experiments"
+import { Experiment, Run, IndicatorsModel, Indicators } from "./experiments"
 import { getExperiments } from "./cache"
 
 class RunView {
-    trial: Run
+    run: Run
     elem: WeyaElement
 
     constructor(t: Run) {
-        this.trial = t
+        this.run = t
     }
 
     render() {
         this.elem = $('div.trial', {
-            on: {click: this.onClick}
+            on: { click: this.onClick }
         }, $ => {
-            $('p', this.trial.info.comment)
-            $('p', this.trial.info.commit)
-            $('p', this.trial.info.commit_message)
-            $('p', this.trial.info.python_file)
-            $('p', this.trial.info.trial_date)
-            $('p', this.trial.info.trial_time)
+            $('p', this.run.info.comment)
+            $('p', this.run.info.commit)
+            $('p', this.run.info.commit_message)
+            $('p', this.run.info.python_file)
+            $('p', this.run.info.trial_date)
+            $('p', this.run.info.trial_time)
         })
 
         return this.elem
@@ -33,6 +33,26 @@ class RunView {
         e.stopPropagation()
     }
 
+    private async getIndicators(): Promise<Indicators> {
+        return new Promise((resolve, reject) => {
+            PORT.send('getIndicators', {
+                experimentName: this.run.experimentName,
+                runIndex: this.run.info.index
+            }, (data: IndicatorsModel, _) => {
+                resolve(new Indicators(data))
+            })
+        })
+    }
+
+    async renderIndicators() {
+        let indicators: Indicators = await this.getIndicators()
+
+        $('div.indicators', this.elem, $ => {
+            for (let k in indicators.indicators) {
+                $('p', `${k}: ${indicators.indicators[k].indicator_type}`)
+            }
+        })
+    }
 }
 
 class ExperimentView implements ScreenView {
@@ -49,7 +69,7 @@ class ExperimentView implements ScreenView {
             this.experiment = experiments.experiments[this.name]
             this.renderExperiment()
         })
-        
+
         this.elem = <HTMLElement>$('div.experiment', '')
         return this.elem
     }
@@ -60,8 +80,10 @@ class ExperimentView implements ScreenView {
             $('span', this.experiment.lastRunDateTime[0])
         }))
 
-        for(let t of this.experiment.runs) {
-            this.elem.append(new RunView(t).render())
+        for (let t of this.experiment.runs) {
+            let rv = new RunView(t);
+            this.elem.append(rv.render());
+            rv.renderIndicators()
         }
     }
 }
@@ -69,8 +91,8 @@ class ExperimentView implements ScreenView {
 export class ExperimentHandler {
     constructor() {
 
-    ROUTER.route('experiment/:name', [this.handleExperiment])
-}
+        ROUTER.route('experiment/:name', [this.handleExperiment])
+    }
 
     handleExperiment = (name: string) => {
         SCREEN.setView(new ExperimentView(name))

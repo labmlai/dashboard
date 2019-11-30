@@ -9,8 +9,18 @@ async function handleGetExperiments(data: Data, packet: CallPacket, response: IO
   response.success(experiments.toJSON())
 }
 
+async function handleGetIndicators(data: Data, packet: CallPacket, response: IOResponse) {
+  console.log('getIndicators', data, packet)
+  let getIndicators = await ExperimentsFactory.loadIndicators(data.experimentName, data.runIndex)
+  response.success(getIndicators.toJSON())
+}
+
 SERVER.on('getExperiments', (data, packet, response) => {
   handleGetExperiments(data, packet, response)
+})
+
+SERVER.on('getIndicators', (data, packet, response) => {
+  handleGetIndicators(data, packet, response)
 })
 
 SERVER.listen()

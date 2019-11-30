@@ -1,4 +1,27 @@
+interface Indicator {
+    indicator_type: string
+    is_print: boolean
+    queue_limit: number
+}
+
+interface IndicatorsModel {
+    [name: string]: Indicator
+}
+
+class Indicators {
+    indicators: { [name: string]: Indicator }
+
+    constructor(indicators: IndicatorsModel) {
+        this.indicators = indicators
+    }
+
+    toJSON(): IndicatorsModel {
+        return this.indicators
+    }
+}
+
 interface RunModel {
+    index: string
     comment: string
     commit: string
     commit_message: string
@@ -10,9 +33,11 @@ interface RunModel {
 }
 
 class Run {
+    experimentName: string
     info: RunModel
 
-    constructor(info: RunModel) {
+    constructor(experimentName: string, info: RunModel) {
+        this.experimentName = experimentName
         this.info = info
     }
 
@@ -32,7 +57,7 @@ class Experiment {
 
     constructor(experiment: ExperimentModel) {
         this.name = experiment.name
-        this.runs = experiment.runs.map((t) => new Run(t))
+        this.runs = experiment.runs.map((t) => new Run(this.name, t))
     }
 
     get lastRunDateTime(): [string, string] {
@@ -83,4 +108,8 @@ class Experiments {
     }
 }
 
-export { ExperimentModel, ExperimentsModel, RunModel, Experiments, Experiment, Run }
+export {
+    ExperimentModel, ExperimentsModel,
+    RunModel, Experiments, Experiment, Run,
+    Indicator, IndicatorsModel, Indicators
+}
