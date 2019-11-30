@@ -261,7 +261,7 @@ abstract class Port {
     }
 
     // Send RPC call
-    send(method: string, data: Data, success: Function): void
+    send(method: string, data: Data, success: CallbackFunction): void
     send(method: string, data: Data, callbacks: CallCallbacks): void
 
     send(method: string, data: Data, f: any): void {

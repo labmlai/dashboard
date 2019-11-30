@@ -43,13 +43,19 @@ interface Parameters {
 interface StylesInterface {
     [prop: string]: string | null
 }
+
 interface EventsInterface {
     [prop: string]: EventListenerOrEventListenerObject
+}
+
+interface DataInterface {
+    [prop: string]: any
 }
 
 interface AttributesInterface {
     style?: StylesInterface
     on?: EventsInterface
+    data?: DataInterface
     // Other Attributes can be string or null
     [prop: string]: string | null | StylesInterface | EventsInterface
 }
@@ -135,6 +141,12 @@ function domAPICreate(): WeyaElementFunction {
         }
     }
 
+    function setData(elem: WeyaElement, data: DataInterface) {
+        for (let k in data) {
+            elem[k] = data[k]
+        }
+    }
+
     function setAttributes(elem: WeyaElement, attrs: AttributesInterface) {
         for (let k in attrs) {
             let v = attrs[k];
@@ -145,6 +157,8 @@ function domAPICreate(): WeyaElementFunction {
                 case "on":
                     setEvents(elem, v as EventsInterface)
                     break;
+                case "data":
+                    setData(elem, v as DataInterface)
                 default:
                     if (v != null) {
                         elem.setAttribute(k, v as string)

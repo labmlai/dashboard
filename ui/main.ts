@@ -1,11 +1,14 @@
-import {Weya as $ } from "./weya"
-import {AjaxHttpPort} from "./io_ajax"
+import { ExperimentsHandler } from "./experiments_view"
+import { ROUTER } from "./app"
+import { ExperimentHandler } from "./experiment_view"
 
-$('div', document.body, $ => {
-    $('p', "Hello")
-})
+new ExperimentsHandler()
+new ExperimentHandler()
 
-let port = new AjaxHttpPort("http", "localhost", 8082, '/api')
-port.send('getExperiments', null, (data, options) => {
-    console.log('ppp', data, options)
-})
+if (document.readyState === "complete" || document.readyState === 'interactive') {
+    ROUTER.start(null, false)
+} else {
+    document.addEventListener('DOMContentLoaded', () => {
+        ROUTER.start(null, false)
+    })
+}

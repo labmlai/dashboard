@@ -35,8 +35,8 @@ class AjaxHttpPort extends Port {
         }
     }
 
-    private _onRequest(xhr) {
-        let jsonData
+    private _onRequest(xhr: XMLHttpRequest) {
+        let jsonData: any
 
         if (xhr.readyState !== 4) {
             return;

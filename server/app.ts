@@ -1,13 +1,12 @@
 import { IOResponse, CallPacket, Data } from "./io"
-import { Experiments } from "./experiments"
+import { ExperimentsFactory } from "./experiments_loader"
 import { SERVER } from "./server"
 
-let EXPERIMENTS = new Experiments()
 
 async function handleGetExperiments(data: Data, packet: CallPacket, response: IOResponse) {
   console.log('getExperiments', data, packet)
-  await EXPERIMENTS.load()
-  response.success(EXPERIMENTS.toJSON())
+  let experiments = await ExperimentsFactory.load()
+  response.success(experiments.toJSON())
 }
 
 SERVER.on('getExperiments', (data, packet, response) => {

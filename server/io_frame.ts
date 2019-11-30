@@ -9,7 +9,7 @@ class FramePort extends Port {
     source: Window
     dest: Window
 
-    constructor(source, dest) {
+    constructor(source: Window, dest: Window) {
         super();
         this.source = source;
         this.dest = dest;

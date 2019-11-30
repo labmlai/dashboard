@@ -1,23 +1,4 @@
-import * as YAML from "yaml"
-import * as FS from "fs"
-import * as PATH from "path"
-import * as UTIL from "util"
-
-let EXPERIMENTS_FOLDER = PATH.join('/Users/varuna/ml/lab3', 'logs')
-
-function getExperiemntsNames(): Promise<string[]> {
-    return new Promise((resolve, reject) => {
-        FS.readdir(EXPERIMENTS_FOLDER, (err: NodeJS.ErrnoException, files: string[]) => {
-            if (err) {
-                reject(err)
-            } else {
-                resolve(files)
-            }
-        })
-    })
-}
-
-interface TrialInfo {
+interface TrialModel {
     comment: string
     commit: string
     commit_message: string
@@ -27,10 +8,11 @@ interface TrialInfo {
     trial_date: string  // '2019-11-29',
     trial_time: string // '09:05:24'
 }
-class Trial {
-    info: TrialInfo
 
-    constructor(info: TrialInfo) {
+class Trial {
+    info: TrialModel
+
+    constructor(info: TrialModel) {
         this.info = info
     }
 
@@ -39,25 +21,29 @@ class Trial {
     }
 }
 
+interface ExperimentModel {
+    name: string
+    trials: TrialModel[]
+}
+
 class Experiment {
     name: string
     trials: Trial[]
 
-    constructor(name: string) {
-        this.name = name
+    constructor(experiment: ExperimentModel) {
+        this.name = experiment.name
+        this.trials = experiment.trials.map((t) => new Trial(t))
     }
 
-    async load(): Promise<void> {
-        this.trials = []
-        let readFile = UTIL.promisify(FS.readFile)
-        let contents = await readFile(PATH.join(EXPERIMENTS_FOLDER, this.name, 'trials.yaml'), { encoding: 'utf-8' })
-        let data: TrialInfo[] = YAML.parse(contents)
-        this.trials = data.map((d) => new Trial(d))
-
-        return null
+    get lastTrialDateTime(): [string, string] {
+        if (this.trials.length > 0) {
+            return [this.trials[this.trials.length - 1].info.trial_date,
+            this.trials[this.trials.length - 1].info.trial_time]
+        }
+        return ['-', '-']
     }
 
-    toJSON() {
+    toJSON(): ExperimentModel {
         return {
             name: this.name,
             trials: this.trials.map((t) => t.toJSON())
@@ -65,26 +51,29 @@ class Experiment {
     }
 }
 
+interface ExperimentsModel {
+    [name: string]: ExperimentModel
+}
+
 class Experiments {
     experiments: { [name: string]: Experiment }
 
-    async load(): Promise<void> {
-        if (this.experiments != null) {
-            return
-        }
+    constructor(experiments: ExperimentsModel) {
         this.experiments = {}
-        let names = await getExperiemntsNames()
-        let experiments = names.map((name) => new Experiment(name))
-        await Promise.all(experiments.map((e) => e.load()))
-
-        for (let e of experiments) {
-            this.experiments[e.name] = e
+        for (let k in experiments) {
+            this.experiments[k] = new Experiment(experiments[k])
         }
-
-        return
     }
 
-    toJSON() {
+    sorted(): Experiment[] {
+        let res: Experiment[] = []
+        for(let k in this.experiments) {
+            res[k] = this.experiments[k]
+        }
+        return res.sort((a, b) => (a.name < b.name ?
+            -1: (a.name > b.name ? 1 : 0)))
+    }
+    toJSON(): ExperimentsModel {
         let res = {}
         for (let k in this.experiments) {
             res[k] = this.experiments[k].toJSON()
@@ -94,4 +83,4 @@ class Experiments {
     }
 }
 
-export { Experiments, Experiment, Trial }
+export { ExperimentModel, ExperimentsModel, TrialModel, Experiments, Experiment, Trial }
