@@ -21,7 +21,7 @@ SERVER.handleRequest = function handleRequest(req: HTTP.IncomingMessage, res: HT
         res.end()
     }
 
-    if (path === '') {
+    if (path === '' || PATH.extname(path) == '') {
         path = 'index.html';
     }
 

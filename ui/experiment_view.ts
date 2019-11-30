@@ -2,8 +2,38 @@
 import { ScreenView } from "./screen"
 import { ROUTER, SCREEN } from "./app"
 import { Weya as $, WeyaElement } from "./weya"
-import { Experiment } from "./experiments"
+import { Experiment, Trial } from "./experiments"
 import { getExperiments } from "./cache"
+
+class TrialView {
+    trial: Trial
+    elem: WeyaElement
+
+    constructor(t: Trial) {
+        this.trial = t
+    }
+
+    render() {
+        this.elem = $('div.trial', {
+            on: {click: this.onClick}
+        }, $ => {
+            $('p', this.trial.info.comment)
+            $('p', this.trial.info.commit)
+            $('p', this.trial.info.commit_message)
+            $('p', this.trial.info.python_file)
+            $('p', this.trial.info.trial_date)
+            $('p', this.trial.info.trial_time)
+        })
+
+        return this.elem
+    }
+
+    onClick = (e: Event) => {
+        e.preventDefault()
+        e.stopPropagation()
+    }
+
+}
 
 class ExperimentView implements ScreenView {
     elem: HTMLElement
@@ -29,6 +59,10 @@ class ExperimentView implements ScreenView {
             $('h1', this.experiment.name)
             $('span', this.experiment.lastTrialDateTime[0])
         }))
+
+        for(let t of this.experiment.trials) {
+            this.elem.append(new TrialView(t).render())
+        }
     }
 }
 

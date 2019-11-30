@@ -30,7 +30,6 @@ class ExperimentView {
 
         ROUTER.navigate(`/experiment/${this.experiment.name}`)
     }
-
 }
 
 class ExperimentsView implements ScreenView {
