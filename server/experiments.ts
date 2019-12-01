@@ -58,6 +58,7 @@ class Experiment {
     constructor(experiment: ExperimentModel) {
         this.name = experiment.name
         this.runs = experiment.runs.map((t) => new Run(this.name, t))
+        this.runs.sort((a, b) => parseInt(a.info.index) - parseInt(b.info.index))
     }
 
     get lastRunDateTime(): [string, string] {

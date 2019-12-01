@@ -18,9 +18,12 @@ class RunView {
         this.elem = $('div.trial', {
             on: { click: this.onClick }
         }, $ => {
-            this.tensorboardBtn = <HTMLButtonElement>$('button', 'Tensorboard', {on: {
-                click: this.onTensorboardClick
-            }})
+            this.tensorboardBtn = <HTMLButtonElement>$('button', 'Tensorboard', {
+                on: {
+                    click: this.onTensorboardClick
+                }
+            })
+            $('p', this.run.info.index)
             $('p', this.run.info.comment)
             $('p', this.run.info.commit)
             $('p', this.run.info.commit_message)
@@ -55,6 +58,17 @@ class RunView {
         })
     }
 
+    private async getValues(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            PORT.send('getValues', {
+                experimentName: this.run.experimentName,
+                runIndex: this.run.info.index
+            }, (data: any, _) => {
+                resolve(data)
+            })
+        })
+    }
+
     private async launchTensorboard(): Promise<void> {
         return new Promise((resolve, reject) => {
             PORT.send('launchTensorboard', {
@@ -68,10 +82,12 @@ class RunView {
 
     async renderIndicators() {
         let indicators: Indicators = await this.getIndicators()
+        let values: any = await this.getValues()
 
         $('div.indicators', this.elem, $ => {
+            $('p', JSON.stringify(values))
             for (let k in indicators.indicators) {
-                $('p', `${k}: ${indicators.indicators[k].indicator_type}`)
+                // $('p', `${k}: ${indicators.indicators[k].indicator_type}`)
             }
         })
     }

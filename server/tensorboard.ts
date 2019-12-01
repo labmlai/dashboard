@@ -17,6 +17,7 @@ export class Tensorboard {
     start() {
         let paths = this.runs.map((r) => `${r.experimentName}_${r.info.index}:` +
             PATH.join(EXPERIMENTS_FOLDER, r.experimentName, r.info.index, 'tensorboard'))
+        console.log('tensorboard', [`--logdir_spec=${paths.join(',')}`, '--port', `${this.port}`])
         this.proc = spawn('tensorboard', [`--logdir_spec=${paths.join(',')}`, '--port', `${this.port}`])
         this.proc.on("close", (code, signal) => {
             console.log("Close", code, signal)
