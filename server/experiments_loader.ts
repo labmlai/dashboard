@@ -3,8 +3,7 @@ import * as FS from "fs"
 import * as PATH from "path"
 import * as UTIL from "util"
 import { Experiment, RunModel, Experiments, Indicators } from "./experiments"
-
-let EXPERIMENTS_FOLDER = PATH.join('/Users/varuna/ml/lab3', 'logs')
+import { EXPERIMENTS_FOLDER } from "./consts"
 
 class ExperimentsFactory {
     private static async getExperimentsNames(): Promise<string[]> {

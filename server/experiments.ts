@@ -68,6 +68,16 @@ class Experiment {
         return ['-', '-']
     }
 
+    getRun(index: string): Run {
+        for(let run of this.runs) {
+            if(run.info.index === index) {
+                return run
+            }
+        }
+
+        throw Error(`Unknown index ${index}`)
+    }
+
     toJSON(): ExperimentModel {
         return {
             name: this.name,

@@ -8,6 +8,7 @@ import { getExperiments } from "./cache"
 class RunView {
     run: Run
     elem: WeyaElement
+    tensorboardBtn: HTMLButtonElement
 
     constructor(t: Run) {
         this.run = t
@@ -17,6 +18,9 @@ class RunView {
         this.elem = $('div.trial', {
             on: { click: this.onClick }
         }, $ => {
+            this.tensorboardBtn = <HTMLButtonElement>$('button', 'Tensorboard', {on: {
+                click: this.onTensorboardClick
+            }})
             $('p', this.run.info.comment)
             $('p', this.run.info.commit)
             $('p', this.run.info.commit_message)
@@ -26,6 +30,13 @@ class RunView {
         })
 
         return this.elem
+    }
+
+    onTensorboardClick = (e: Event) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        this.launchTensorboard()
     }
 
     onClick = (e: Event) => {
@@ -40,6 +51,17 @@ class RunView {
                 runIndex: this.run.info.index
             }, (data: IndicatorsModel, _) => {
                 resolve(new Indicators(data))
+            })
+        })
+    }
+
+    private async launchTensorboard(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            PORT.send('launchTensorboard', {
+                experimentName: this.run.experimentName,
+                runIndex: this.run.info.index
+            }, (data: IndicatorsModel, _) => {
+                resolve()
             })
         })
     }
