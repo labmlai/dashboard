@@ -1,5 +1,5 @@
 
-import { WeyaElementFunction } from "../weya"
+import { WeyaElementFunction, WeyaTemplateFunction } from "../weya"
 
 export class KeyValue {
     classes: string
@@ -9,7 +9,7 @@ export class KeyValue {
         this.classes = classes
     }
 
-    render($: WeyaElementFunction, key: string, value: string) {
+    render($: WeyaElementFunction, key: string | WeyaTemplateFunction, value: string | WeyaTemplateFunction) {
         $(`div.key_value${this.classes}`, $ => {
             $(`label.key`, key)
             $(`span.value`, value)

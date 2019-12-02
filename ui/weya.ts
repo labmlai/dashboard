@@ -24,7 +24,7 @@ const NAMESPACES = {
 
 export type WeyaElement = HTMLElement | SVGElement;
 
-type WeyaTemplateFunction = ($: WeyaElementFunction) => void
+export type WeyaTemplateFunction = ($: WeyaElementFunction) => void
 type WeyaElementArg = (string | AttributesInterface | WeyaTemplateFunction | WeyaElement)
 export type WeyaElementFunction = (this: WeyaContext | void, ...args: WeyaElementArg[]) => WeyaElement
 

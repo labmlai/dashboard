@@ -42,6 +42,10 @@ body {
   color: $upColor;
 }
 
+.small {
+  font-size: 0.8em;
+}
+
 .experiments_list {
   margin-top: 15px;
   .experiment {
@@ -61,23 +65,27 @@ body {
 
 .experiment_single {
   .run {
+    cursor: pointer;
     padding: 5px;
     margin: 10px 0;
-    button {
-      // float: right;
-      display: none;
+    h3 {
+      margin: 0;
+      label {
+        color: $downColor;
+      }
     }
-    .secondary {
-      display: none;
-    }
-
     &:hover {
-      button {
-        display: inline-block;
-      }
-      .secondary {
-        display: block;
-      }
+      background: $upBackground;
+      // color: $upColor !important;
+    }
+  }
+}
+
+.run_single {
+  .key_value {
+    &:hover {
+      background: $upBackground;
+      color: $upColor;
     }
   }
 }
@@ -102,7 +110,7 @@ body {
 }
 
 .key_value.highlight {
-  color: $upColor;
+  color: $baseColor;
 }
 
 button {
