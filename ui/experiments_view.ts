@@ -14,11 +14,12 @@ class ExperimentView {
     }
 
     render() {
-        this.elem = $('div.experiment', {
+        this.elem = $('div.experiment.up', {
             on: {click: this.onClick}
         }, $ => {
             $('h3', this.experiment.name)
             $('span', this.experiment.lastRunDateTime[0])
+            // $('span', this.experiment.lastRunDateTime[1])
         })
 
         return this.elem
@@ -34,6 +35,7 @@ class ExperimentView {
 
 class ExperimentsView implements ScreenView {
     elem: HTMLElement
+    experimentsList: HTMLDivElement
     experiments: Experiments
 
     render(): WeyaElement {
@@ -42,7 +44,10 @@ class ExperimentsView implements ScreenView {
             this.renderExperiments()
         })
         
-        this.elem = <HTMLElement>$('div.experiments_list', '')
+        this.elem = <HTMLElement>$('div.container', $ => {
+            $('h1', 'Experiments')
+            this.experimentsList = <HTMLDivElement>$('div.experiments_list', '')
+        })
         return this.elem
     }
 
@@ -53,7 +58,7 @@ class ExperimentsView implements ScreenView {
         }
 
         for(let v of views) {
-            this.elem.append(v.render())
+            this.experimentsList.append(v.render())
         }
     }
 }

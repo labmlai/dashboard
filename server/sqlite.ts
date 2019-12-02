@@ -26,7 +26,7 @@ export class RunSQLite {
         })
     }
 
-    getMaxStep(): Promise<number> {
+    private getMaxStep(): Promise<any> {
         return new Promise((resolve, reject) => {
             this.db.get('SELECT MAX(step) FROM scalars', (err, row) => {
                 if(err) {
@@ -38,9 +38,21 @@ export class RunSQLite {
         })
     }
 
+    private getLastValues(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.db.get('SELECT * FROM scalars ORDER BY step DESC LIMIT 1', (err, row) => {
+                if(err) {
+                    reject(err)
+                } else {
+                    resolve(row)
+                }
+            })
+        })
+    }
+
     async getValues() {
         await this.loadDatabase()
-        return await this.getMaxStep()
+        return await this.getLastValues()
     }
 }
 

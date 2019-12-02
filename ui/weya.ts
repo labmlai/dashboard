@@ -26,7 +26,7 @@ export type WeyaElement = HTMLElement | SVGElement;
 
 type WeyaTemplateFunction = ($: WeyaElementFunction) => void
 type WeyaElementArg = (string | AttributesInterface | WeyaTemplateFunction | WeyaElement)
-type WeyaElementFunction = (this: WeyaContext | void, ...args: WeyaElementArg[]) => WeyaElement
+export type WeyaElementFunction = (this: WeyaContext | void, ...args: WeyaElementArg[]) => WeyaElement
 
 interface WeyaContext {
     _elem?: WeyaElement,
@@ -98,11 +98,14 @@ function getParameters(args: WeyaElementArg[]) {
         func: null,
         parent: null
     };
-    let defStr = args.length > 0 ? <string>args[0] : 'div';
+    if (args.length == 0) {
+        params.def = parseDefinition('div')
+    } else if (typeof (args[0]) == 'string') {
+        params.def = parseDefinition(args[0])
+        args = args.slice(1)
+    }
 
-    params.def = parseDefinition(defStr);
-
-    for (let arg of args.slice(1)) {
+    for (let arg of args) {
         switch (typeof arg) {
             case "function":
                 params.func = arg as WeyaTemplateFunction;
@@ -209,23 +212,29 @@ function domAPICreate(): WeyaElementFunction {
         }
 
         let elem: WeyaElement;
-        let tag = params.def.tag;
-        let ns = NAMESPACES[TAGS_DICT[tag]];
 
-        if (ns != null) {
-            elem = API.document.createElementNS(ns, tag) as WeyaElement;
+        if (params.def == null) {
+            elem = parent
         } else {
-            elem = API.document.createElement(tag);
-        }
 
-        if (params.def != null) {
-            setIdClass(elem, params.def);
-        }
-        if (params.attrs != null) {
-            setAttributes(elem, params.attrs);
-        }
-        if (parent != null) {
-            parent.appendChild(elem);
+            let tag = params.def.tag;
+            let ns = NAMESPACES[TAGS_DICT[tag]];
+
+            if (ns != null) {
+                elem = API.document.createElementNS(ns, tag) as WeyaElement;
+            } else {
+                elem = API.document.createElement(tag);
+            }
+
+            if (params.def != null) {
+                setIdClass(elem, params.def);
+            }
+            if (params.attrs != null) {
+                setAttributes(elem, params.attrs);
+            }
+            if (parent != null) {
+                parent.appendChild(elem);
+            }
         }
 
         if (params.func != null) {
