@@ -94,9 +94,13 @@ class RunView {
         let values: any = await this.getValues()
 
         $(this.indicatorsView, $ => {
+            let maxStep = 0
             for(let k in values) {
-                new KeyValue('.highlight').render($, k, `${values[k]}`)
+                new KeyValue('.highlight').render($, k, `${values[k].value}`)
+                maxStep = Math.max(values[k].step, maxStep)
             }
+            new KeyValue('.highlight').render($, 'step', `${maxStep}`)
+            
             for (let k in indicators.indicators) {
                 // $('p', `${k}: ${indicators.indicators[k].indicator_type}`)
             }

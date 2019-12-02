@@ -40,13 +40,6 @@ class ExperimentsFactory {
 
         return new Experiments(experiments)
     }
-
-    static async loadIndicators(experimentName: string, runIndex: string): Promise<Indicators> {
-        let readFile = UTIL.promisify(FS.readFile)
-        let contents = await readFile(PATH.join(EXPERIMENTS_FOLDER, experimentName, runIndex, 'indicators.yaml'),
-            { encoding: 'utf-8' })
-        return new Indicators(YAML.parse(contents))
-    }
 }
 
 export { ExperimentsFactory }

@@ -2,7 +2,7 @@ import { IOResponse, CallPacket, Data } from "./io"
 import { ExperimentsFactory } from "./experiments_loader"
 import { SERVER } from "./server"
 import { Tensorboard } from "./tensorboard"
-import { RunSQLite } from "./sqlite"
+import { RunNodeJS } from "./run_nodejs"
 
 let TENSORBOARD: Tensorboard = null
 
@@ -14,16 +14,17 @@ async function handleGetExperiments(data: Data, packet: CallPacket, response: IO
 
 async function handleGetIndicators(data: Data, packet: CallPacket, response: IOResponse) {
   console.log('getIndicators', data, packet)
-  let indicators = await ExperimentsFactory.loadIndicators(data.experimentName, data.runIndex)
+  let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
+  let run = new RunNodeJS(experiment.getRun(data.runIndex))
+  let indicators = await run.getIndicators()
   response.success(indicators.toJSON())
 }
 
 async function handleGetValues(data: Data, packet: CallPacket, response: IOResponse) {
   console.log('getValues', data, packet)
   let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
-  let run = experiment.getRun(data.runIndex)
-  let db = new RunSQLite(run)
-  response.success(await db.getValues())
+  let run = new RunNodeJS(experiment.getRun(data.runIndex))
+  response.success(await run.getValues())
 }
 
 async function handleLaunchTensorboard(data: Data, packet: CallPacket, response: IOResponse) {

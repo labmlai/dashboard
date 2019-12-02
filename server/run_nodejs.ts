@@ -1,11 +1,14 @@
 import * as sqlite3 from "sqlite3"
-import { Run } from "./experiments"
-let sqlite = sqlite3.verbose()
+import { Run, Indicators } from "./experiments"
 import * as PATH from "path"
 import * as UTIL from "util"
+import * as FS from "fs"
+import * as YAML from "yaml"
 import { EXPERIMENTS_FOLDER } from "./consts"
 
-export class RunSQLite {
+let sqlite = sqlite3.verbose()
+
+export class RunNodeJS {
     run: Run
     db: sqlite3.Database
 
@@ -13,7 +16,7 @@ export class RunSQLite {
         this.run = run
     }
 
-    loadDatabase(): Promise<void> {
+    private loadDatabase(): Promise<void> {
         let path = PATH.join(EXPERIMENTS_FOLDER, this.run.experimentName, this.run.info.index, 'sqlite.db')
         return new Promise((resolve, reject) => {
             this.db = new sqlite3.Database(path, sqlite3.OPEN_READONLY, (err) => {
@@ -38,9 +41,10 @@ export class RunSQLite {
         })
     }
 
-    private getLastValues(): Promise<any> {
+    private getLastValue(key: string): Promise<any> {
+        let tableName = this.keyToTableName(key)
         return new Promise((resolve, reject) => {
-            this.db.get('SELECT * FROM scalars ORDER BY step DESC LIMIT 1', (err, row) => {
+            this.db.get(`SELECT * FROM ${tableName} ORDER BY step DESC LIMIT 1`, (err, row) => {
                 if(err) {
                     reject(err)
                 } else {
@@ -50,9 +54,40 @@ export class RunSQLite {
         })
     }
 
+    async getIndicators(): Promise<Indicators> {
+        let readFile = UTIL.promisify(FS.readFile)
+        let contents = await readFile(PATH.join(EXPERIMENTS_FOLDER, this.run.experimentName, this.run.info.index, 'indicators.yaml'),
+            { encoding: 'utf-8' })
+        return new Indicators(YAML.parse(contents))
+    }
+
+    private keyToTableName(key: string) {
+        return `values_${key.replace(/\./g, '_')}`
+    }
+
     async getValues() {
         await this.loadDatabase()
-        return await this.getLastValues()
+        let indicators = await this.getIndicators()
+        let promises = []
+        let keys = []
+        for(let k in indicators.indicators) {
+            let ind = indicators.indicators[k]
+            let key = ind.type == 'scalar' ? ind.name : `${ind.name}.mean`
+            if(!ind.options.is_print) {
+                continue
+            }
+
+            promises.push(this.getLastValue(key))
+            keys.push(ind.name)
+        }
+        let values = await Promise.all(promises)
+
+        let keyValues = {}
+        for(let i = 0; i < keys.length; ++i) {
+            keyValues[keys[i]] = values[i]
+        }
+
+        return keyValues
     }
 }
 

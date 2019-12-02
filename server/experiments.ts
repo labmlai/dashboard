@@ -1,7 +1,12 @@
-interface Indicator {
-    indicator_type: string
+interface IndicatorOptions {
     is_print: boolean
-    queue_limit: number
+    queue_size: number
+}
+
+interface Indicator {
+    name: string
+    type: string
+    options: IndicatorOptions
 }
 
 interface IndicatorsModel {
