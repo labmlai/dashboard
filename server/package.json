@@ -1,0 +1,28 @@
+{
+  "name": "server",
+  "version": "0.0.1",
+  "description": "Server for Lab Dashboard",
+  "main": "app.js",
+  "repository": "https://github.com/vpj/lab_dashboard",
+  "author": "VPJ",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^12.12.17",
+    "@types/sqlite3": "^3.1.5",
+    "@types/yaml": "^1.2.0",
+    "nodemon": "^2.0.1",
+    "typescript": "^3.7.3"
+  },
+  "dependencies": {
+    "sqlite3": "latest",
+    "yaml": "latest"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc -w",
+    "build:run": "$npm_execpath run build && $npm_execpath run start",
+    "build:clean": "rm -rf out",
+    "start": "node out/app.js",
+    "start:watch": "$npm_execpath run build && $npm_execpath run build:watch & nodemon out/app.js"
+  }
+}
