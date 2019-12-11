@@ -1,0 +1,23 @@
+{
+  "name": "ui",
+  "version": "1.0.0",
+  "description": "FrontEnd for the lab dashboard",
+  "main": "main.js",
+  "author": "VPJ",
+  "license": "MIT",
+  "devDependencies": {
+    "sass": "^1.23.7",
+    "http-server": "^0.12.0",
+    "typescript": "^3.7.3"
+  },
+  "scripts": {
+    "build": "$npm_execpath run build:ts && $npm_execpath run build:sass && $npm_execpath run build:static",
+    "build:ts": "tsc",
+    "build:sass": "sass styles:out/static/css",
+    "build:static": "cp index.html out/index.html && cp index.html out/404.html",
+    "build:clean": "rm -rf out/",
+    "build:watch": "$npm_execpath run build && tsc -w & sass --watch styles:out/static/css",
+    "server": "$npm_execpath run build && http-server ./out/",
+    "server:watch": "$npm_execpath run build:watch & http-server ./out/"
+  }
+}
