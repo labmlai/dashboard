@@ -20,9 +20,9 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc -w",
-    "build:run": "yarn build && yarn start",
+    "build:run": "$npm_execpath run build && $npm_execpath run start",
     "build:clean": "rm -rf out",
     "start": "node out/app.js",
-    "start:watch": "yarn build && yarn build:watch & nodemon out/app.js"
+    "start:watch": "$npm_execpath run build && $npm_execpath run build:watch & nodemon out/app.js"
   }
 }
