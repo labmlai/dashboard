@@ -1,4 +1,4 @@
-import { IOResponse, CallPacket, Data } from "./io"
+import { IOResponse, CallPacket, Data } from "./io/io"
 import { ExperimentsFactory } from "./experiments_loader"
 import { SERVER } from "./server"
 import { Tensorboard } from "./tensorboard"
