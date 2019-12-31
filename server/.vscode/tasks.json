@@ -12,13 +12,6 @@
                 "$tsc-watch"
             ],
             "group": "build"
-        },
-        {
-            "label": "Sass",
-            "type": "shell",
-            "command": "node-sass -w style.scss out/css/style.css",
-            "group": "build",
-            "problemMatcher": []
         }
     ]
 }

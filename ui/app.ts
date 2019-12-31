@@ -1,6 +1,6 @@
 import { ScreenContainer } from "./screen"
 import { Router } from "./router"
-import {AjaxHttpPort} from "./io/io_ajax"
+import {AjaxHttpPort} from "./io/ajax"
 
 export let ROUTER = new Router({
     emulateState: false,

@@ -4,6 +4,8 @@ import { SERVER } from "./server"
 import { Tensorboard } from "./tensorboard"
 import { RunNodeJS } from "./run_nodejs"
 
+console.log(`http://localhost:${SERVER.port}`)
+
 let TENSORBOARD: Tensorboard = null
 
 async function handleGetExperiments(data: Data, packet: CallPacket, response: IOResponse) {
