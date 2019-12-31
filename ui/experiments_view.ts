@@ -1,7 +1,7 @@
 
 import { ScreenView } from "./screen"
 import { ROUTER, SCREEN } from "./app"
-import { Weya as $, WeyaElement } from "./weya"
+import { Weya as $, WeyaElement } from "./weya/weya"
 import { Experiments, Experiment } from "./experiments"
 import { getExperiments } from "./cache"
 

@@ -1,4 +1,4 @@
-import { WeyaElement } from "./weya"
+import { WeyaElement } from "./weya/weya"
 
 interface ScreenView {
     render(): WeyaElement

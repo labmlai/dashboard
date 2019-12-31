@@ -1,8 +1,7 @@
 
-import { ScreenView } from "./screen"
-import { ROUTER, SCREEN, PORT } from "./app"
-import { Weya as $, WeyaElement } from "./weya"
-import { Experiment, Run, IndicatorsModel, Indicators } from "./experiments"
+import { ROUTER, SCREEN } from "./app"
+import { Weya as $, WeyaElement } from "./weya/weya"
+import { Run } from "./experiments"
 import { getExperiments } from "./cache"
 import { KeyValue } from "./view_components/key_value"
 import { RunUI } from "./run_ui"

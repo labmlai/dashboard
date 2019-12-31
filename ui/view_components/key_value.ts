@@ -1,5 +1,5 @@
 
-import { WeyaElementFunction, WeyaTemplateFunction } from "../weya"
+import { WeyaElementFunction, WeyaTemplateFunction } from "../weya/weya"
 
 export class KeyValue {
     classes: string
