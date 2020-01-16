@@ -23,17 +23,21 @@ class RunView {
         }, $ => {
             let info = this.run.info
             $('h3', $ => {
-                $('label', `${info.index}: `)
-                $('span', info.comment)
+                $('label', `${info.index}`)
+                if(info.comment.trim() !== "") {
+                    $('span', ':')
+                    $('span', info.comment)
+                }
             })
-            $('div.small', $ => {
-                $('i.fa.fa-history')
+            $('div', $ => {
+                $('i.fa.fa-history.key_icon')
                 $('span', ` ${info.commit_message}`)
             })
-            $('div.small', $ => {
-                $('i.fa.fa-calendar')
+            $('div', $ => {
+                $('i.fa.fa-calendar.key_icon')
                 $('span', ` ${info.trial_date} `)
-                $('i.fa.fa-clock')
+                $('span.key_split', '')
+                $('i.fa.fa-clock.key_icon')
                 $('span', ` ${info.trial_time}`)
             })
 
@@ -56,10 +60,10 @@ class RunView {
         $(this.indicatorsView, $ => {
             let maxStep = 0
             for(let k in values) {
-                new KeyValue('.highlight').render($, k, `${values[k].value}`)
+                new KeyValue('.highlight.mono').render($, k, `${values[k].value}`)
                 maxStep = Math.max(values[k].step, maxStep)
             }
-            new KeyValue('.highlight').render($, 'step', `${maxStep}`)
+            new KeyValue('.highlight.mono').render($, 'step', `${maxStep}`)
         })
     }
 }

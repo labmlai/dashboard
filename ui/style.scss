@@ -42,10 +42,6 @@ body {
   color: $upColor;
 }
 
-.small {
-  font-size: 0.8em;
-}
-
 .experiments_list {
   margin-top: 15px;
   .experiment {
@@ -53,7 +49,8 @@ body {
     cursor: pointer;
 
     h3 {
-      margin: 0;
+      margin-top: 0;
+      margin-bottom: 8px;
     }
 
     &:hover {
@@ -69,7 +66,8 @@ body {
     padding: 5px;
     margin: 10px 0;
     h3 {
-      margin: 0;
+      margin-top: 0;
+      margin-bottom: 8px;
       label {
         color: $downColor;
       }
@@ -78,10 +76,17 @@ body {
       background: $upBackground;
       // color: $upColor !important;
     }
+    .indicators {
+      margin: 5px 0;
+    }
   }
 }
 
 .run_single {
+  .run_info {
+    margin: 10px 0;
+    padding: 5px;
+  }
   .key_value {
     &:hover {
       background: $upBackground;
@@ -92,9 +97,8 @@ body {
 
 .key_value {
   label.key {
-    font-size: 1em;
     margin-right: 5px;
-    opacity: 0.7;
+    opacity: 0.8;
     font-size: 0.8em;
 
     &:after {
@@ -106,11 +110,21 @@ body {
 .key_value.mono {
   span.value {
     font-family: $monoFont;
+    font-size: 1.2rem;
   }
 }
 
 .key_value.highlight {
   color: $baseColor;
+}
+
+.key_icon {
+  margin-right: 8px;
+}
+
+.key_split {
+  display: inline-block;
+  width: 16px;
 }
 
 button {

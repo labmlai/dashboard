@@ -72,12 +72,13 @@ export class RunNodeJS {
         await this.loadDatabase()
         let indicators = await this.getIndicators()
         
+        console.log(indicators)
         let values = await this.getLastValue('')
 
         for(let k in indicators.indicators) {
             let ind = indicators.indicators[k]
-            let key = ind.type == 'scalar' ? ind.name : `${ind.name}.mean`
-            if(!ind.options.is_print) {
+            let key = ind.class_name == 'Scalar' ? ind.name : `${ind.name}.mean`
+            if(!ind.is_print) {
                 delete values[key]
             }
         }
