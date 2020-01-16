@@ -13,11 +13,9 @@
   "scripts": {
     "build": "$npm_execpath run build:ts && $npm_execpath run build:sass && $npm_execpath run build:static",
     "build:ts": "tsc",
-    "build:sass": "sass styles:out/static/css",
-    "build:static": "cp index.html out/index.html && cp index.html out/404.html",
+    "build:sass": "sass styles:out/css",
+    "build:static": "cp index.html out/index.html",
     "build:clean": "rm -rf out/",
-    "build:watch": "$npm_execpath run build && tsc -w & sass --watch styles:out/static/css",
-    "server": "$npm_execpath run build && http-server ./out/",
-    "server:watch": "$npm_execpath run build:watch & http-server ./out/"
+    "build:watch": "$npm_execpath run build && tsc -w & sass --watch styles:out/css"
   }
 }
