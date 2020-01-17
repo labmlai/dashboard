@@ -1,15 +1,15 @@
-interface Indicator {
+export interface Indicator {
     name: string
     class_name: string
     [key: string]: any
 }
 
-interface IndicatorsModel {
+export interface IndicatorsModel {
     [name: string]: Indicator
 }
 
-class Indicators {
-    indicators: { [name: string]: Indicator }
+export class Indicators {
+    indicators: IndicatorsModel
 
     constructor(indicators: IndicatorsModel) {
         this.indicators = indicators
@@ -20,7 +20,32 @@ class Indicators {
     }
 }
 
-interface RunModel {
+export interface Config {
+    name: string
+    computed: any
+    value: any
+    options: string[]
+    order: number
+    type: string
+}
+
+export interface ConfigsModel {
+    [name: string]: Config
+}
+
+export class Configs {
+    configs: ConfigsModel
+
+    constructor(configs: ConfigsModel) {
+        this.configs = configs
+    }
+
+    toJSON(): ConfigsModel {
+        return this.configs
+    }
+}
+
+export interface RunModel {
     index: string
     comment: string
     commit: string
@@ -32,7 +57,7 @@ interface RunModel {
     trial_time: string // '09:05:24'
 }
 
-class Run {
+export class Run {
     experimentName: string
     info: RunModel
 
@@ -46,12 +71,12 @@ class Run {
     }
 }
 
-interface ExperimentModel {
+export interface ExperimentModel {
     name: string
     runs: RunModel[]
 }
 
-class Experiment {
+export class Experiment {
     name: string
     runs: Run[]
 
@@ -87,11 +112,11 @@ class Experiment {
     }
 }
 
-interface ExperimentsModel {
+export interface ExperimentsModel {
     [name: string]: ExperimentModel
 }
 
-class Experiments {
+export class Experiments {
     experiments: { [name: string]: Experiment }
 
     constructor(experiments: ExperimentsModel) {
@@ -117,10 +142,4 @@ class Experiments {
 
         return res
     }
-}
-
-export {
-    ExperimentModel, ExperimentsModel,
-    RunModel, Experiments, Experiment, Run,
-    Indicator, IndicatorsModel, Indicators
 }

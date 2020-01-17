@@ -1,5 +1,5 @@
 import * as sqlite3 from "sqlite3"
-import { Run, Indicators } from "./experiments"
+import { Run, Indicators, Configs } from "./experiments"
 import * as PATH from "path"
 import * as UTIL from "util"
 import * as FS from "fs"
@@ -68,6 +68,13 @@ export class RunNodeJS {
         return new Indicators(YAML.parse(contents))
     }
 
+    async getConfigs(): Promise<Configs> {
+        let readFile = UTIL.promisify(FS.readFile)
+        let contents = await readFile(PATH.join(EXPERIMENTS_FOLDER, this.run.experimentName, this.run.info.index, 'configs.yaml'),
+            { encoding: 'utf-8' })
+        return new Configs(YAML.parse(contents))
+    }
+
     async getValues() {
         await this.loadDatabase()
         let indicators = await this.getIndicators()
@@ -77,7 +84,7 @@ export class RunNodeJS {
 
         for(let k in indicators.indicators) {
             let ind = indicators.indicators[k]
-            let key = ind.class_name == 'Scalar' ? ind.name : `${ind.name}.mean`
+            let key = ind.class_name.indexOf('Scalar') !== -1 ? ind.name : `${ind.name}.mean`
             if(!ind.is_print) {
                 delete values[key]
             }

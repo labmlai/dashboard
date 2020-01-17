@@ -23,6 +23,14 @@ async function handleGetIndicators(data: Data, packet: CallPacket, response: IOR
   response.success(indicators.toJSON())
 }
 
+async function handleGetConfigs(data: Data, packet: CallPacket, response: IOResponse) {
+    console.log('getConfigs', data, packet)
+    let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
+    let run = new RunNodeJS(experiment.getRun(data.runIndex))
+    let configs = await run.getConfigs()
+    response.success(configs.toJSON())
+  }
+  
 async function handleGetValues(data: Data, packet: CallPacket, response: IOResponse) {
   console.log('getValues', data, packet)
   let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
@@ -50,6 +58,10 @@ SERVER.on('getIndicators', (data, packet, response) => {
   handleGetIndicators(data, packet, response)
 })
 
+SERVER.on('getConfigs', (data, packet, response) => {
+    handleGetConfigs(data, packet, response)
+  })
+  
 SERVER.on('getValues', (data, packet, response) => {
   handleGetValues(data, packet, response)
 })

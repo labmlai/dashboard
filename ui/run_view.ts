@@ -15,6 +15,7 @@ class RunView {
     experimentName: string
     runIndex: string
     runView: HTMLDivElement
+    configsView: HTMLDivElement
 
     constructor(experimentName: string, runIndex: string) {
         this.experimentName = experimentName
@@ -28,6 +29,7 @@ class RunView {
             this.runUI = new RunUI(this.run)
             this.renderRun()
             this.renderIndicators()
+            this.renderConfigs()
         })
 
         this.elem = <HTMLElement>$('div.container', $ => {
@@ -76,6 +78,10 @@ class RunView {
             this.indicatorsView = <HTMLDivElement>$('div.indicators')
         })
 
+        $('div.run_info.up', this.runView, $ => {
+            this.configsView = <HTMLDivElement>$('div.configs')
+        })
+
         $(this.runView, $ => {
             this.tensorboardBtn = <HTMLButtonElement>$('button', 'Launch Tensorboard', {
                 on: {
@@ -111,6 +117,21 @@ class RunView {
             // for (let k in indicators.indicators) {
             //     new KeyValue().render($, k, `${indicators.indicators[k].type}`)
             // }
+        })
+    }
+
+    async renderConfigs() {
+        let configs = (await this.runUI.getConfigs()).configs
+
+        $(this.configsView, $ => {
+            let keys = []
+            for(let k in configs) {
+                keys.push(k)
+            }
+            keys.sort()
+            for (let k of keys) {
+                new KeyValue('.highlight.mono').render($, configs[k].name, `${configs[k].value}`)
+            }
         })
     }
 }
