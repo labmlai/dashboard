@@ -5,6 +5,7 @@ import { Run } from "./experiments"
 import { getExperiments } from "./cache"
 import { KeyValue } from "./view_components/key_value"
 import { RunUI } from "./run_ui"
+import { renderConfigs } from "./configs"
 
 class RunView {
     run: Run
@@ -64,7 +65,7 @@ class RunView {
             })
 
 
-            $('div.run_info', $ => {
+            $('div.block', $ => {
                 if (info.is_dirty) {
                     new KeyValue('.mono').render($, 'Commit', info.commit)
                 } else {
@@ -73,10 +74,9 @@ class RunView {
                 new KeyValue('.mono').render($, 'Python File', info.python_file)
             })
 
-            this.indicatorsView = <HTMLDivElement>$('div.indicators.run_info')
+            this.indicatorsView = <HTMLDivElement>$('div.indicators.block')
 
-            this.configsView = <HTMLDivElement>$('div.configs.run_info')
-
+            this.configsView = <HTMLDivElement>$('div.configs.block')
 
             this.tensorboardBtn = <HTMLButtonElement>$('button', 'Launch Tensorboard', {
                 on: {
@@ -117,18 +117,8 @@ class RunView {
     }
 
     async renderConfigs() {
-        let configs = (await this.runUI.getConfigs()).configs
-
-        $(this.configsView, $ => {
-            let keys = []
-            for (let k in configs) {
-                keys.push(k)
-            }
-            keys.sort()
-            for (let k of keys) {
-                new KeyValue('.highlight.mono').render($, configs[k].name, `${configs[k].value}`)
-            }
-        })
+        let configs = await this.runUI.getConfigs()
+        renderConfigs(this.configsView, configs)
     }
 }
 

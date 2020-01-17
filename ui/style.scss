@@ -109,6 +109,14 @@ body {
   font-weight: bold;
 }
 
+.key_value.ignore {
+    opacity: 0.2;
+}
+
+.key_value.only_option {
+    opacity: 0.4;
+}
+
 .key_icon {
   margin-right: 8px;
   color: $iconColor;

@@ -5,6 +5,7 @@ import { Experiment, Run, IndicatorsModel, Indicators } from "./experiments"
 import { getExperiments } from "./cache"
 import { KeyValue } from "./view_components/key_value"
 import { RunUI } from "./run_ui"
+import { renderConfigs } from "./configs"
 
 class RunView {
     run: Run
@@ -42,8 +43,8 @@ class RunView {
                 $('span', ` ${info.trial_time}`)
             })
 
-            this.indicatorsView = <HTMLDivElement>$('div.indicators')
-            this.configsView = <HTMLDivElement>$('div.configs')
+            this.indicatorsView = <HTMLDivElement>$('div.indicators.block')
+            this.configsView = <HTMLDivElement>$('div.configs.block')
         })
 
         return this.elem
@@ -70,18 +71,8 @@ class RunView {
     }
 
     async renderConfigs() {
-        let configs = (await this.runUI.getConfigs()).configs
-
-        $(this.configsView, $ => {
-            let keys = []
-            for(let k in configs) {
-                keys.push(k)
-            }
-            keys.sort()
-            for (let k of keys) {
-                new KeyValue('.highlight.mono').render($, configs[k].name, `${configs[k].value}`)
-            }
-        })
+        let configs = await this.runUI.getConfigs()
+        renderConfigs(this.configsView, configs)
     }
 }
 
