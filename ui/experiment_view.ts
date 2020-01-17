@@ -11,6 +11,7 @@ class RunView {
     runUI: RunUI
     elem: WeyaElement
     indicatorsView: HTMLDivElement
+    configsView: HTMLDivElement
 
     constructor(run: Run) {
         this.run = run
@@ -18,7 +19,7 @@ class RunView {
     }
 
     render() {
-        this.elem = $('div.run.up', {
+        this.elem = $('div.run', {
             on: { click: this.onClick }
         }, $ => {
             let info = this.run.info
@@ -42,6 +43,7 @@ class RunView {
             })
 
             this.indicatorsView = <HTMLDivElement>$('div.indicators')
+            this.configsView = <HTMLDivElement>$('div.configs')
         })
 
         return this.elem
@@ -64,6 +66,21 @@ class RunView {
                 maxStep = Math.max(values[k].step, maxStep)
             }
             new KeyValue('.highlight.mono').render($, 'step', `${maxStep}`)
+        })
+    }
+
+    async renderConfigs() {
+        let configs = (await this.runUI.getConfigs()).configs
+
+        $(this.configsView, $ => {
+            let keys = []
+            for(let k in configs) {
+                keys.push(k)
+            }
+            keys.sort()
+            for (let k of keys) {
+                new KeyValue('.highlight.mono').render($, configs[k].name, `${configs[k].value}`)
+            }
         })
     }
 }
@@ -99,6 +116,7 @@ class ExperimentView implements ScreenView {
             let rv = new RunView(t);
             this.experimentView.append(rv.render());
             rv.renderValues()
+            rv.renderConfigs()
         }
     }
 }

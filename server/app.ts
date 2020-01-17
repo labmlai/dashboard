@@ -1,6 +1,5 @@
 import { IOResponse, CallPacket, Data } from "./io/io"
 import { ExperimentsFactory } from "./experiments_loader"
-import * as PROCESS from "process"
 import { SERVER } from "./server"
 import { Tensorboard } from "./tensorboard"
 import { RunNodeJS } from "./run_nodejs"

@@ -46,7 +46,7 @@ class RunView {
                 $('label', `${this.run.experimentName}`)
                 $('span', ' - ')
                 $('label', `${info.index}`)
-                if(info.comment.trim() !== "") {
+                if (info.comment.trim() !== "") {
                     $('span', ':')
                     $('span', info.comment)
                 }
@@ -63,32 +63,28 @@ class RunView {
                 $('span', ` ${info.trial_time}`)
             })
 
-        })
 
-        $('div.run_info.up', this.runView, $ => {
-            if (info.is_dirty) {
-                new KeyValue('.mono').render($, 'Commit', info.commit)
-            } else {
-                new KeyValue('.mono').render($, 'Commit', `${info.commit}*`)
-            }
-            new KeyValue('.mono').render($, 'Python File', info.python_file)
-        })
+            $('div.run_info', $ => {
+                if (info.is_dirty) {
+                    new KeyValue('.mono').render($, 'Commit', info.commit)
+                } else {
+                    new KeyValue('.mono').render($, 'Commit', `${info.commit}*`)
+                }
+                new KeyValue('.mono').render($, 'Python File', info.python_file)
+            })
 
-        $('div.run_info.up', this.runView, $ => {
-            this.indicatorsView = <HTMLDivElement>$('div.indicators')
-        })
+            this.indicatorsView = <HTMLDivElement>$('div.indicators.run_info')
 
-        $('div.run_info.up', this.runView, $ => {
-            this.configsView = <HTMLDivElement>$('div.configs')
-        })
+            this.configsView = <HTMLDivElement>$('div.configs.run_info')
 
-        $(this.runView, $ => {
+
             this.tensorboardBtn = <HTMLButtonElement>$('button', 'Launch Tensorboard', {
                 on: {
                     click: this.onTensorboardClick
                 }
             })
         })
+
 
         return this.elem
     }
@@ -125,7 +121,7 @@ class RunView {
 
         $(this.configsView, $ => {
             let keys = []
-            for(let k in configs) {
+            for (let k in configs) {
                 keys.push(k)
             }
             keys.sort()

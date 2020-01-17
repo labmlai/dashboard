@@ -14,7 +14,7 @@ class ExperimentView {
     }
 
     render() {
-        this.elem = $('div.experiment.up', {
+        this.elem = $('div.experiment', {
             on: {click: this.onClick}
         }, $ => {
             $('h3', this.experiment.name)

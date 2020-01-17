@@ -1,14 +1,15 @@
-$baseBackground: #333336;
-$baseColor: #aeaeae;
-$downBackground: darken($baseBackground, 5%);
-$downColor: darken($baseColor, 10%);
-$upBackground: lighten($baseBackground, 10%);
-$upColor: lighten($baseColor, 25%);
+$baseBackground: #2f3640;
+$baseColor: #dcdde1;
+
+$hoverBackground: #353b48;
+$hoverColor: #f5f6fa;
+
+$subtleColor: #718093;
+$iconColor: #487eb0;
+
 $normalFont: "Source Sans Pro", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
 $monoFont: monospace;
-$primary: #87e7e0;
-$primaryDown: #02968a;
-$secondary: #e8b5dc;
+$primary: #00a8ff;
 
 html {
   font-size: 14px;
@@ -18,10 +19,10 @@ body {
   line-height: 1.6;
   font-weight: 500;
   font-family: $normalFont;
-  color: $downColor;
+  color: $baseColor;
   margin: 0;
   padding: 0;
-  background: $downBackground;
+  background: $baseBackground;
 }
 
 .container {
@@ -30,15 +31,6 @@ body {
   padding-left: 15px;
   margin-right: auto;
   margin-left: auto;
-}
-
-.up {
-  background: $baseBackground;
-  color: $baseColor;
-}
-.upup {
-  background: $upBackground;
-  color: $upColor;
 }
 
 .experiments_list {
@@ -53,8 +45,8 @@ body {
     }
 
     &:hover {
-      background: $upBackground;
-      color: $upColor;
+      background: $hoverBackground;
+      color: $hoverColor;
     }
   }
 }
@@ -68,12 +60,11 @@ body {
       margin-top: 0;
       margin-bottom: 8px;
       label {
-        color: $downColor;
+        color: $subtleColor;
       }
     }
     &:hover {
-      background: $upBackground;
-      // color: $upColor !important;
+      background: $hoverBackground;
     }
     .indicators {
       margin: 5px 0;
@@ -81,15 +72,16 @@ body {
   }
 }
 
-.run_single {
-  .run_info {
+.block {
     margin: 10px 0;
     padding: 5px;
-  }
+}
+
+.run_single {
   .key_value {
     &:hover {
-      background: $upBackground;
-      color: $upColor;
+      background: $hoverBackground;
+      color: $hoverColor;
     }
   }
 }
@@ -114,11 +106,12 @@ body {
 }
 
 .key_value.highlight {
-  color: $baseColor;
+  font-weight: bold;
 }
 
 .key_icon {
   margin-right: 8px;
+  color: $iconColor;
 }
 
 .key_split {
