@@ -1,9 +1,8 @@
 import { ScreenView } from "./screen"
-import { ROUTER, SCREEN, PORT } from "./app"
+import { ROUTER, SCREEN } from "./app"
 import { Weya as $, WeyaElement } from "./weya/weya"
-import { Experiment, Run, IndicatorsModel, Indicators } from "./experiments"
+import { Experiment, Run, ScalarsModel, Configs } from "./experiments"
 import { getExperiments } from "./cache"
-import { KeyValue } from "./view_components/key_value"
 import { RunUI } from "./run_ui"
 import { renderConfigs } from "./configs"
 import { renderValues } from "./indicators"
@@ -14,6 +13,8 @@ class RunView {
     elem: WeyaElement
     indicatorsView: HTMLDivElement
     configsView: HTMLDivElement
+    values: ScalarsModel
+    configs: Configs
 
     constructor(run: Run) {
         this.run = run
@@ -27,7 +28,7 @@ class RunView {
             let info = this.run.info
             $('h3', $ => {
                 $('label', `${info.index}`)
-                if(info.comment.trim() !== "") {
+                if (info.comment.trim() !== "") {
                     $('span', ':')
                     $('span', info.comment)
                 }
@@ -58,14 +59,17 @@ class RunView {
         ROUTER.navigate(`/experiment/${this.run.experimentName}/${this.run.info.index}`)
     }
 
-    async renderValues() {
-        let values: any = await this.runUI.getValues()
-        renderValues(this.indicatorsView, values)
+    async load() {
+        this.values = await this.runUI.getValues()
+        this.configs = await this.runUI.getConfigs()
     }
 
-    async renderConfigs() {
-        let configs = await this.runUI.getConfigs()
-        renderConfigs(this.configsView, configs)
+    renderValues() {
+        renderValues(this.indicatorsView, this.values)
+    }
+
+    renderConfigs(common: Set<string>) {
+        renderConfigs(this.configsView, this.configs, common)
     }
 }
 
@@ -96,12 +100,48 @@ class ExperimentView implements ScreenView {
             $('h1', this.experiment.name)
         }))
 
+        let runViews: RunView[] = []
         for (let t of this.experiment.runs) {
             let rv = new RunView(t);
             this.experimentView.append(rv.render());
-            rv.renderValues()
-            rv.renderConfigs()
+            runViews.push(rv)
         }
+
+        if (runViews.length == 0) {
+            return
+        }
+
+        let promises = Promise.all(runViews.map((rv) => rv.load()))
+        promises.then(() => {
+            let configs = {}
+            let differentConfigs = new Set<string>()
+            for (let k in runViews[0].configs.configs) {
+                configs[k] = runViews[0].configs.configs[k].value
+            }
+
+            for (let rv of runViews) {
+                for (let k in rv.configs.configs) {
+                    if (differentConfigs.has(k)) {
+                        continue
+                    }
+                    if (configs[k] !== rv.configs.configs[k].value) {
+                        differentConfigs.add(k)
+                    }
+                }
+            }
+
+            let common = new Set<string>()
+            for (let k in configs) {
+                if (!differentConfigs.has(k)) {
+                    common.add(k)
+                }
+            }
+
+            for (let rv of runViews) {
+                rv.renderValues()
+                rv.renderConfigs(common)
+            }
+        })
     }
 }
 

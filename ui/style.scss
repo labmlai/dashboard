@@ -10,6 +10,7 @@ $iconColor: #487eb0;
 $normalFont: "Source Sans Pro", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
 $monoFont: monospace;
 $primary: #00a8ff;
+$primaryActive: #0097e6;
 
 html {
   font-size: 14px;
@@ -86,35 +87,6 @@ body {
   }
 }
 
-.key_value {
-  label.key {
-    margin-right: 5px;
-    opacity: 0.8;
-    font-size: 0.9rem;
-
-    &:after {
-      content: ":";
-    }
-  }
-  &.mono {
-    span.value {
-      font-family: $monoFont;
-      font-size: 0.9rem;
-    }
-  }
-  &.highlight {
-    font-weight: bold;
-  }
-
-  &.ignore {
-    opacity: 0.2;
-  }
-
-  &.only_option {
-    opacity: 0.4;
-  }
-}
-
 .info_list {
   span.key {
     margin-right: 5px;
@@ -126,6 +98,14 @@ body {
     }
   }
 
+  &.common {
+    opacity: 0.3;
+  }
+
+  &.ignore {
+    opacity: 0.2;
+  }
+
   &.mono {
     span.value {
       font-family: $monoFont;
@@ -136,14 +116,21 @@ body {
     font-weight: bold;
   }
 
-  &.ignore {
-    opacity: 0.2;
-  }
-
   &.only_option {
     opacity: 0.4;
   }
+}
 
+.collapsed {
+  .info_list.common {
+    display: none;
+  }
+  .info_list.ignore {
+    display: none;
+  }
+  .info_list.only_option {
+    display: none;
+  }
 }
 
 .key_icon {
@@ -170,5 +157,14 @@ button {
 
   &:hover {
     border: 1px solid $primary;
+  }
+
+  &:active {
+    border: 1px solid $primaryActive;
+    color: $primaryActive;
+  }
+
+  &::-moz-focus-inner {
+    border: 0;
   }
 }
