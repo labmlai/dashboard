@@ -20,6 +20,16 @@ export class Indicators {
     }
 }
 
+export interface Scalar {
+    indicator: string
+    value: number
+    step: number
+}
+
+export interface ScalarsModel {
+    [name: string]: Scalar
+}
+
 export interface Config {
     name: string
     computed: any

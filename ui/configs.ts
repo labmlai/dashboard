@@ -1,6 +1,6 @@
 import { Weya as $, WeyaElement } from "./weya/weya"
 import { Configs } from "./experiments"
-import { KeyValue } from "./view_components/key_value";
+import { InfoList } from "./view_components/info_list";
 
 export function renderConfigs(elem: HTMLElement, configs: Configs) {
     let conf = configs.configs;
@@ -30,7 +30,8 @@ export function renderConfigs(elem: HTMLElement, configs: Configs) {
                 classes.push('.custom')
             }
 
-            new KeyValue(classes.join('')).render($, conf[k].name, `${conf[k].value}`)
+            new InfoList([['.key', conf[k].name],
+                          ['.value', `${conf[k].value}`]], classes.join('')).render($)
         }
     })
 }

@@ -3,9 +3,10 @@ import { ROUTER, SCREEN } from "./app"
 import { Weya as $, WeyaElement } from "./weya/weya"
 import { Run } from "./experiments"
 import { getExperiments } from "./cache"
-import { KeyValue } from "./view_components/key_value"
 import { RunUI } from "./run_ui"
 import { renderConfigs } from "./configs"
+import { renderValues } from "./indicators"
+import { InfoList, InfoItem } from "./view_components/info_list"
 
 class RunView {
     run: Run
@@ -66,12 +67,15 @@ class RunView {
 
 
             $('div.block', $ => {
+                let commit_info: InfoItem[] = [['.key', 'Commit'],
+                                   ['.value', info.commit]]
                 if (info.is_dirty) {
-                    new KeyValue('.mono').render($, 'Commit', info.commit)
-                } else {
-                    new KeyValue('.mono').render($, 'Commit', `${info.commit}*`)
+                    commit_info.push(['.link', '[dirty]'])
                 }
-                new KeyValue('.mono').render($, 'Python File', info.python_file)
+                new InfoList(commit_info, '.mono').render($)
+
+                new InfoList([['.key', 'Python File'],
+                ['.value', info.python_file]], '.mono').render($)
             })
 
             this.indicatorsView = <HTMLDivElement>$('div.indicators.block')
@@ -100,20 +104,8 @@ class RunView {
 
     async renderIndicators() {
         // let indicators: Indicators = await this.runUI.getIndicators()
-        let values: any = await this.runUI.getValues()
-
-        $(this.indicatorsView, $ => {
-            let maxStep = 0
-            for (let k in values) {
-                new KeyValue('.highlight.mono').render($, k, `${values[k].value}`)
-                maxStep = Math.max(values[k].step, maxStep)
-            }
-            new KeyValue('.highlight.mono').render($, 'step', `${maxStep}`)
-
-            // for (let k in indicators.indicators) {
-            //     new KeyValue().render($, k, `${indicators.indicators[k].type}`)
-            // }
-        })
+        let values = await this.runUI.getValues()
+        renderValues(this.indicatorsView, values)
     }
 
     async renderConfigs() {

@@ -1,5 +1,5 @@
 import { PORT } from "./app"
-import { Run, IndicatorsModel, Indicators, Configs, ConfigsModel } from "./experiments"
+import { Run, IndicatorsModel, Indicators, Configs, ConfigsModel, ScalarsModel } from "./experiments"
 
 export class RunUI {
     run: Run
@@ -30,12 +30,12 @@ export class RunUI {
             })
         })
     }
-    async getValues(): Promise<any> {
+    async getValues(): Promise<ScalarsModel> {
         return new Promise((resolve) => {
             PORT.send('getValues', {
                 experimentName: this.run.experimentName,
                 runIndex: this.run.info.index
-            }, (data: any, _) => {
+            }, (data: ScalarsModel, _) => {
                 resolve(data)
             })
         })

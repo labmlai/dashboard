@@ -6,6 +6,7 @@ import { getExperiments } from "./cache"
 import { KeyValue } from "./view_components/key_value"
 import { RunUI } from "./run_ui"
 import { renderConfigs } from "./configs"
+import { renderValues } from "./indicators"
 
 class RunView {
     run: Run
@@ -59,15 +60,7 @@ class RunView {
 
     async renderValues() {
         let values: any = await this.runUI.getValues()
-
-        $(this.indicatorsView, $ => {
-            let maxStep = 0
-            for(let k in values) {
-                new KeyValue('.highlight.mono').render($, k, `${values[k].value}`)
-                maxStep = Math.max(values[k].step, maxStep)
-            }
-            new KeyValue('.highlight.mono').render($, 'step', `${maxStep}`)
-        })
+        renderValues(this.indicatorsView, values)
     }
 
     async renderConfigs() {
