@@ -45,8 +45,12 @@ async function handleLaunchTensorboard(data: Data, packet: CallPacket, response:
     TENSORBOARD.stop()
   }
   TENSORBOARD = new Tensorboard([run])
-  TENSORBOARD.start()
-  response.success(null)
+  try {
+    await TENSORBOARD.start()
+    response.success('http://localhost:6006')
+  } catch(e) {
+    response.success('')
+  }
 }
 
 SERVER.on('getExperiments', (data, packet, response) => {

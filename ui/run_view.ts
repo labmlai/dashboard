@@ -18,6 +18,7 @@ class RunView {
     runIndex: string
     runView: HTMLDivElement
     configsView: HTMLDivElement
+    jupyterBtn: HTMLButtonElement
 
     constructor(experimentName: string, runIndex: string) {
         this.experimentName = experimentName
@@ -68,7 +69,7 @@ class RunView {
 
             $('div.block', $ => {
                 let commit_info: InfoItem[] = [['.key', 'Commit'],
-                                   ['.value', info.commit]]
+                ['.value', info.commit]]
                 if (info.is_dirty) {
                     commit_info.push(['.link', '[dirty]'])
                 }
@@ -87,6 +88,12 @@ class RunView {
                     click: this.onTensorboardClick
                 }
             })
+
+            this.jupyterBtn = <HTMLButtonElement>$('button', 'Launch Jupyter', {
+                on: {
+                    click: this.onJupyterClick
+                }
+            })
         })
 
 
@@ -97,8 +104,25 @@ class RunView {
         e.preventDefault()
         e.stopPropagation()
 
-        this.runUI.launchTensorboard().then(() => {
-            window.open('http://localhost:6006', '_blank')
+        this.runUI.launchTensorboard().then((url) => {
+            if (url === "") {
+                alert("Couldn't start Tensorboard")
+            } else {
+                window.open(url, '_blank')
+            }
+        })
+    }
+
+    private onJupyterClick = (e: Event) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        this.runUI.launchTensorboard().then((url) => {
+            if (url === "") {
+                alert("Couldn't start Jupyter")
+            } else {
+                window.open(url, '_blank')
+            }
         })
     }
 

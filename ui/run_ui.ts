@@ -41,13 +41,24 @@ export class RunUI {
         })
     }
 
-    async launchTensorboard(): Promise<void> {
+    async launchTensorboard(): Promise<string> {
         return new Promise((resolve, reject) => {
             PORT.send('launchTensorboard', {
                 experimentName: this.run.experimentName,
                 runIndex: this.run.info.index
-            }, (data, _) => {
-                resolve()
+            }, (url, _) => {
+                resolve(url)
+            })
+        })
+    }
+
+    async launchJupyter(): Promise<string> {
+        return new Promise((resolve, reject) => {
+            PORT.send('launchJupyter', {
+                experimentName: this.run.experimentName,
+                runIndex: this.run.info.index
+            }, (url, _) => {
+                resolve(url)
             })
         })
     }
