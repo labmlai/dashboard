@@ -1,8 +1,11 @@
 import * as PATH from "path"
 import * as PROCESS from "process"
+import { Lab } from "./lab"
 
 const CWD = PROCESS.cwd()
 
-console.log(CWD)
+let LAB = new Lab(CWD)
 
-export let EXPERIMENTS_FOLDER: string = PATH.join(CWD, 'logs')
+console.log(LAB.path)
+
+export let EXPERIMENTS_FOLDER: string = LAB.experiments
