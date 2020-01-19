@@ -25,13 +25,13 @@ async function handleGetIndicators(data: Data, packet: CallPacket, response: IOR
 }
 
 async function handleGetConfigs(data: Data, packet: CallPacket, response: IOResponse) {
-    console.log('getConfigs', data, packet)
-    let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
-    let run = new RunNodeJS(experiment.getRun(data.runIndex))
-    let configs = await run.getConfigs()
-    response.success(configs.toJSON())
-  }
-  
+  console.log('getConfigs', data, packet)
+  let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
+  let run = new RunNodeJS(experiment.getRun(data.runIndex))
+  let configs = await run.getConfigs()
+  response.success(configs.toJSON())
+}
+
 async function handleGetValues(data: Data, packet: CallPacket, response: IOResponse) {
   console.log('getValues', data, packet)
   let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
@@ -43,14 +43,14 @@ async function handleLaunchTensorboard(data: Data, packet: CallPacket, response:
   console.log('launchTensorboard', data, packet)
   let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
   let run = experiment.getRun(data.runIndex)
-  if(TENSORBOARD != null) {
+  if (TENSORBOARD != null) {
     TENSORBOARD.stop()
   }
   TENSORBOARD = new Tensorboard([run])
   try {
     await TENSORBOARD.start()
     response.success('http://localhost:6006')
-  } catch(e) {
+  } catch (e) {
     TENSORBOARD = null
     response.success('')
   }
@@ -60,19 +60,33 @@ async function handleLaunchJupyter(data: Data, packet: CallPacket, response: IOR
   console.log('launchJupyter', data, packet)
   let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
   let run = experiment.getRun(data.runIndex)
-  if(JUPYTER != null) {
-    response.success('http://localhost:8888/notebooks/analytics/analytics.ipynb')
-    return
+
+  if (JUPYTER == null) {
+    JUPYTER = new Jupyter()
+    try {
+      await JUPYTER.start()
+    } catch (e) {
+      JUPYTER = null
+      response.success('')
+      return
+    }
   }
 
-  JUPYTER = new Jupyter([run])
-  try {
-    await JUPYTER.start()
-    response.success('http://localhost:8888/tree')
-  } catch(e) {
-    JUPYTER = null
-    response.success('')
+  let url = await JUPYTER.setupTemplate(run, data.analyticsTemplate)
+
+  response.success(url)
+}
+
+async function handleGetAnalyticsTemplates(data: Data, packet: CallPacket, response: IOResponse) {
+  console.log('getValues', data, packet)
+  let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
+  let run = new RunNodeJS(experiment.getRun(data.runIndex))
+  let templateNames = []
+  let lab = await run.getLab()
+  for (let k in lab.analyticsTemplates) {
+    templateNames.push(k)
   }
+  response.success(templateNames)
 }
 
 SERVER.on('getExperiments', (data, packet, response) => {
@@ -84,9 +98,9 @@ SERVER.on('getIndicators', (data, packet, response) => {
 })
 
 SERVER.on('getConfigs', (data, packet, response) => {
-    handleGetConfigs(data, packet, response)
-  })
-  
+  handleGetConfigs(data, packet, response)
+})
+
 SERVER.on('getValues', (data, packet, response) => {
   handleGetValues(data, packet, response)
 })
@@ -97,6 +111,10 @@ SERVER.on('launchTensorboard', (data, packet, response) => {
 
 SERVER.on('launchJupyter', (data, packet, response) => {
   handleLaunchJupyter(data, packet, response)
+})
+
+SERVER.on('getAnalyticsTemplates', (data, packet, response) => {
+  handleGetAnalyticsTemplates(data, packet, response)
 })
 
 SERVER.listen()

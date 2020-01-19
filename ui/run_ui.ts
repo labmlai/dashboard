@@ -52,13 +52,25 @@ export class RunUI {
         })
     }
 
-    async launchJupyter(): Promise<string> {
+    async launchJupyter(templateName: string): Promise<string> {
         return new Promise((resolve, reject) => {
             PORT.send('launchJupyter', {
                 experimentName: this.run.experimentName,
-                runIndex: this.run.info.index
+                runIndex: this.run.info.index,
+                analyticsTemplate: templateName
             }, (url, _) => {
                 resolve(url)
+            })
+        })
+    }
+
+    async getAnalyticsTemplates(): Promise<string[]> {
+        return new Promise((resolve, reject) => {
+            PORT.send('getAnalyticsTemplates', {
+                experimentName: this.run.experimentName,
+                runIndex: this.run.info.index
+            }, (data: string[], _) => {
+                resolve(data)
             })
         })
     }

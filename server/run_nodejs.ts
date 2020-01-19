@@ -5,6 +5,7 @@ import * as UTIL from "util"
 import * as FS from "fs"
 import * as YAML from "yaml"
 import { EXPERIMENTS_FOLDER } from "./consts"
+import { Lab } from "./lab"
 
 export class RunNodeJS {
     run: Run
@@ -91,5 +92,9 @@ export class RunNodeJS {
         }
 
         return values
+    }
+
+    async getLab() {
+        return new Lab(this.run.info.python_file)
     }
 }

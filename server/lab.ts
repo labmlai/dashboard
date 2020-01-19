@@ -8,7 +8,8 @@ export class Lab {
     path: string
     experiments: string
     analytics: string
-    analytics_templates: {[name: string]: string}
+    analyticsPath: string
+    analyticsTemplates: {[name: string]: string}
 
     constructor(path: string) {
         let configsList = getConfigFiles(path)
@@ -20,7 +21,8 @@ export class Lab {
         this.path = configs.path
         this.experiments = PATH.join(this.path, configs.experiments_path)
         this.analytics = PATH.join(this.path, configs.analytics_path)
-        this.analytics_templates = configs.analytics_templates
+        this.analyticsPath = configs.analytics_path
+        this.analyticsTemplates = configs.analytics_templates
     }
 }
 
@@ -62,7 +64,7 @@ function mergeConfig(configs: any[]) {
 
             if (k === 'analytics_templates') {
                 for (let t in v) {
-                    config.analytics_path[t] = PATH.resolve(c.configs_file_path, v[t])
+                    config.analytics_templates[t] = PATH.resolve(c.config_file_path, v[t])
                 }
             } else {
                 config[k] = v

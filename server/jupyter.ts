@@ -1,23 +1,22 @@
 import { Run } from "./experiments";
-import { EXPERIMENTS_FOLDER } from "./consts";
+import { EXPERIMENTS_FOLDER, ANALYTICS_FOLDER } from "./consts";
 import * as PATH from "path"
 import {spawn, ChildProcessWithoutNullStreams} from "child_process"
 import * as PROCESS from "process"
+import { RunNodeJS } from "./run_nodejs";
+import * as UTIL from "util"
+import * as FS from "fs"
 
 export class Jupyter {
-    runs: Run[]
     port: number
     proc: ChildProcessWithoutNullStreams
 
-    constructor(runs: Run[], port: number = 6006) {
-        this.runs = runs
+    constructor(port: number = 6006) {
         this.port = port
         this.proc = null
     }
 
     async start(): Promise<void> {
-        let paths = this.runs.map((r) => `${r.experimentName}_${r.info.index}:` +
-            PATH.join(EXPERIMENTS_FOLDER, r.experimentName, r.info.index, 'tensorboard'))
         let env = JSON.parse(JSON.stringify(PROCESS.env))
         if(!('PYTHONPATH' in env)) {
             env['PYTHONPATH'] = env['PWD']
@@ -60,5 +59,31 @@ export class Jupyter {
         } else {
             this.proc.kill('SIGINT')
         }
+    }
+
+    async setupTemplate(run: Run, templateName: string) {
+        let exists = UTIL.promisify(FS.exists)
+        let mkdir = UTIL.promisify(FS.mkdir)
+        let copyFile = UTIL.promisify(FS.copyFile)
+
+        let runNodeJs = new RunNodeJS(run)
+        let lab = await runNodeJs.getLab()
+        let template = lab.analyticsTemplates[templateName]
+        let destinationPath = PATH.join(ANALYTICS_FOLDER, run.experimentName, run.info.index)
+        let destination = PATH.join(destinationPath, `${templateName}.ipynb`)
+        let url = `http://localhost:8888/notebooks/${lab.analyticsPath}/${run.experimentName}/${run.info.index}/${templateName}.ipynb`
+
+        console.log(url)
+        if(await exists(destination)) {
+            return url
+        }
+
+        await mkdir(destinationPath, {recursive: true})
+
+        console.log(template, destination)
+
+        await copyFile(template, destination)
+
+        return url
     }
 }

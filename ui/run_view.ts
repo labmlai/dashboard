@@ -19,6 +19,7 @@ class RunView {
     runView: HTMLDivElement
     configsView: HTMLDivElement
     jupyterBtn: HTMLButtonElement
+    analyticsBtns: HTMLDivElement
 
     constructor(experimentName: string, runIndex: string) {
         this.experimentName = experimentName
@@ -33,6 +34,7 @@ class RunView {
             this.renderRun()
             this.renderIndicators()
             this.renderConfigs()
+            this.renderAnalyticsBtns()
         })
 
         this.elem = <HTMLElement>$('div.container', $ => {
@@ -89,11 +91,8 @@ class RunView {
                 }
             })
 
-            this.jupyterBtn = <HTMLButtonElement>$('button', 'Launch Jupyter', {
-                on: {
-                    click: this.onJupyterClick
-                }
-            })
+
+            this.analyticsBtns = <HTMLDivElement>$('div.analytics_buttons')
         })
 
 
@@ -113,11 +112,23 @@ class RunView {
         })
     }
 
+    async renderAnalyticsBtns() {
+        let templates = await this.runUI.getAnalyticsTemplates()
+        for (let t of templates) {
+            $(this.analyticsBtns, $ => {
+                $('button', t, {
+                    on: {click: this.onJupyterClick},
+                    data: {template: t}
+                })
+            })
+        }
+    }
+
     private onJupyterClick = (e: Event) => {
         e.preventDefault()
         e.stopPropagation()
-
-        this.runUI.launchJupyter().then((url) => {
+        let target = <any>e.currentTarget
+        this.runUI.launchJupyter(target.template).then((url) => {
             if (url === "") {
                 alert("Couldn't start Jupyter")
             } else {
