@@ -2,8 +2,9 @@ import { Run } from "./experiments";
 import { EXPERIMENTS_FOLDER } from "./consts";
 import * as PATH from "path"
 import {spawn, ChildProcessWithoutNullStreams} from "child_process"
+import * as PROCESS from "process"
 
-export class Tensorboard {
+export class Jupyter {
     runs: Run[]
     port: number
     proc: ChildProcessWithoutNullStreams
@@ -17,9 +18,16 @@ export class Tensorboard {
     async start(): Promise<void> {
         let paths = this.runs.map((r) => `${r.experimentName}_${r.info.index}:` +
             PATH.join(EXPERIMENTS_FOLDER, r.experimentName, r.info.index, 'tensorboard'))
-        let args = [`--logdir_spec=${paths.join(',')}`, '--port', `${this.port}`]
-        console.log('tensorboard', args)
-        this.proc = spawn('tensorboard', args)
+        let env = JSON.parse(JSON.stringify(PROCESS.env))
+        if(!('PYTHONPATH' in env)) {
+            env['PYTHONPATH'] = env['PWD']
+        } else {
+            env['PYTHONPATH'] += ":" + env['PWD']
+        }
+
+        let args = ['notebook', '--no-browser']
+        console.log('jupyter', args)
+        this.proc = spawn('jupyter', args, {env: env})
 
         let isClosed = false
 

@@ -117,7 +117,7 @@ class RunView {
         e.preventDefault()
         e.stopPropagation()
 
-        this.runUI.launchTensorboard().then((url) => {
+        this.runUI.launchJupyter().then((url) => {
             if (url === "") {
                 alert("Couldn't start Jupyter")
             } else {

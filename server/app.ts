@@ -3,10 +3,12 @@ import { ExperimentsFactory } from "./experiments_loader"
 import { SERVER } from "./server"
 import { Tensorboard } from "./tensorboard"
 import { RunNodeJS } from "./run_nodejs"
+import { Jupyter } from "./jupyter"
 
 console.log(`http://localhost:${SERVER.port}`)
 
 let TENSORBOARD: Tensorboard = null
+let JUPYTER: Jupyter = null
 
 async function handleGetExperiments(data: Data, packet: CallPacket, response: IOResponse) {
   console.log('getExperiments', data, packet)
@@ -49,6 +51,26 @@ async function handleLaunchTensorboard(data: Data, packet: CallPacket, response:
     await TENSORBOARD.start()
     response.success('http://localhost:6006')
   } catch(e) {
+    TENSORBOARD = null
+    response.success('')
+  }
+}
+
+async function handleLaunchJupyter(data: Data, packet: CallPacket, response: IOResponse) {
+  console.log('launchJupyter', data, packet)
+  let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
+  let run = experiment.getRun(data.runIndex)
+  if(JUPYTER != null) {
+    response.success('http://localhost:8888/notebooks/analytics/analytics.ipynb')
+    return
+  }
+
+  JUPYTER = new Jupyter([run])
+  try {
+    await JUPYTER.start()
+    response.success('http://localhost:8888/tree')
+  } catch(e) {
+    JUPYTER = null
     response.success('')
   }
 }
@@ -71,6 +93,10 @@ SERVER.on('getValues', (data, packet, response) => {
 
 SERVER.on('launchTensorboard', (data, packet, response) => {
   handleLaunchTensorboard(data, packet, response)
+})
+
+SERVER.on('launchJupyter', (data, packet, response) => {
+  handleLaunchJupyter(data, packet, response)
 })
 
 SERVER.listen()
