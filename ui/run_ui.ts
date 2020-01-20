@@ -2,12 +2,19 @@ import { PORT } from "./app"
 import { Run, IndicatorsModel, Indicators, Configs, ConfigsModel, ScalarsModel } from "./experiments"
 
 export class RunUI {
+    private static cache: {[run: string]: RunUI} = {}
     run: Run
 
-    constructor(run: Run) {
+    private constructor(run: Run) {
         this.run = run
     }
 
+    static create(run: Run) {
+        if(!(run.hash() in RunUI.cache)) {
+            RunUI.cache[run.hash()] = new RunUI(run)
+        }
+        return RunUI.cache[run.hash()]
+    }
 
     async getIndicators(): Promise<Indicators> {
         return new Promise((resolve) => {

@@ -18,7 +18,7 @@ class RunView {
 
     constructor(run: Run) {
         this.run = run
-        this.runUI = new RunUI(this.run)
+        this.runUI = RunUI.create(this.run)
     }
 
     render() {
