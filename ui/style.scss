@@ -67,15 +67,11 @@ body {
     &:hover {
       background: $hoverBackground;
     }
-    .indicators {
-      margin: 5px 0;
-    }
   }
 }
 
 .block {
   margin: 10px 0;
-  padding: 5px;
 }
 
 .run_single {

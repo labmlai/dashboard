@@ -116,6 +116,13 @@ SERVER.on('getAnalyticsTemplates', (data, packet, response) => {
   handleGetAnalyticsTemplates(data, packet, response)
 })
 
+SERVER.on('removeRun', async (data, packet, response) => {
+  let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
+  let run = RunNodeJS.create(experiment.getRun(data.runIndex))
+  await run.remove()
+  response.success('')
+})
+
 LAB.load().then(() => {
   console.log(`http://localhost:${SERVER.port}`)
   console.log(LAB.path)

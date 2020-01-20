@@ -6,6 +6,7 @@ import * as FS from "fs"
 import * as YAML from "yaml"
 import { LAB } from "./consts"
 import { Lab } from "./lab"
+import { rmtree } from "./util"
 
 export class RunNodeJS {
     private static cache: {[run: string]: RunNodeJS} = {}
@@ -121,6 +122,9 @@ export class RunNodeJS {
     }
 
     async remove() {
-
+        let path = PATH.join(LAB.experiments, this.run.experimentName, this.run.info.index)
+        await rmtree(path)
+        let analytics = PATH.join(LAB.analytics, this.run.experimentName, this.run.info.index)
+        await rmtree(analytics)
     }
 }

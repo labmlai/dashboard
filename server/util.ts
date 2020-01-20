@@ -1,12 +1,13 @@
-import * as PATH from "path"
 import * as UTIL from "util"
 import * as FS from "fs"
+import * as PATH from "path"
 
 export async function rmtree(path: string) {
     let exists = UTIL.promisify(FS.exists)
     let lstat = UTIL.promisify(FS.lstat)
     let unlink = UTIL.promisify(FS.unlink)
     let readdir = UTIL.promisify(FS.readdir)
+    let rmdir = UTIL.promisify(FS.rmdir)
 
     if (!(await exists(path))) {
         return
@@ -16,11 +17,12 @@ export async function rmtree(path: string) {
 
     if (stats.isDirectory()) {
         let files = await readdir(path)
+        console.log(files)
         for (let f of files) {
-            await rmtree(f)
+            await rmtree(PATH.join(path, f))
         }
-
+        rmdir(path)
+    } else {
+        await unlink(path)
     }
-    
-    await unlink(path)
 };
