@@ -17,7 +17,6 @@ export async function rmtree(path: string) {
 
     if (stats.isDirectory()) {
         let files = await readdir(path)
-        console.log(files)
         for (let f of files) {
             await rmtree(PATH.join(path, f))
         }
