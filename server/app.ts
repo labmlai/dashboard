@@ -11,36 +11,36 @@ let TENSORBOARD: Tensorboard = null
 let JUPYTER: Jupyter = null
 
 async function handleGetExperiments(data: Data, packet: CallPacket, response: IOResponse) {
-  console.log('getExperiments', data, packet)
+  // console.log('getExperiments', data, packet)
   let experiments = await ExperimentsFactory.load()
   response.success(experiments.toJSON())
 }
 
 async function handleGetIndicators(data: Data, packet: CallPacket, response: IOResponse) {
-  console.log('getIndicators', data, packet)
+  // console.log('getIndicators', data, packet)
   let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
-  let run = new RunNodeJS(experiment.getRun(data.runIndex))
+  let run = RunNodeJS.create(experiment.getRun(data.runIndex))
   let indicators = await run.getIndicators()
   response.success(indicators.toJSON())
 }
 
 async function handleGetConfigs(data: Data, packet: CallPacket, response: IOResponse) {
-  console.log('getConfigs', data, packet)
+  // console.log('getConfigs', data, packet)
   let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
-  let run = new RunNodeJS(experiment.getRun(data.runIndex))
+  let run = RunNodeJS.create(experiment.getRun(data.runIndex))
   let configs = await run.getConfigs()
   response.success(configs.toJSON())
 }
 
 async function handleGetValues(data: Data, packet: CallPacket, response: IOResponse) {
-  console.log('getValues', data, packet)
+  // console.log('getValues', data, packet)
   let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
-  let run = new RunNodeJS(experiment.getRun(data.runIndex))
+  let run = RunNodeJS.create(experiment.getRun(data.runIndex))
   response.success(await run.getValues())
 }
 
 async function handleLaunchTensorboard(data: Data, packet: CallPacket, response: IOResponse) {
-  console.log('launchTensorboard', data, packet)
+  // console.log('launchTensorboard', data, packet)
   let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
   let run = experiment.getRun(data.runIndex)
   if (TENSORBOARD != null) {
@@ -57,7 +57,7 @@ async function handleLaunchTensorboard(data: Data, packet: CallPacket, response:
 }
 
 async function handleLaunchJupyter(data: Data, packet: CallPacket, response: IOResponse) {
-  console.log('launchJupyter', data, packet)
+  // console.log('launchJupyter', data, packet)
   let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
   let run = experiment.getRun(data.runIndex)
 
@@ -78,9 +78,9 @@ async function handleLaunchJupyter(data: Data, packet: CallPacket, response: IOR
 }
 
 async function handleGetAnalyticsTemplates(data: Data, packet: CallPacket, response: IOResponse) {
-  console.log('getValues', data, packet)
+  // console.log('getValues', data, packet)
   let experiment = await ExperimentsFactory.loadExperiment(data.experimentName)
-  let run = new RunNodeJS(experiment.getRun(data.runIndex))
+  let run = RunNodeJS.create(experiment.getRun(data.runIndex))
   let templateNames = []
   let lab = await run.getLab()
   for (let k in lab.analyticsTemplates) {

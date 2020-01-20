@@ -8,14 +8,28 @@ import { EXPERIMENTS_FOLDER } from "./consts"
 import { Lab } from "./lab"
 
 export class RunNodeJS {
+    private static cache: {[run: string]: RunNodeJS} = {}
     run: Run
     db: sqlite3.Database
 
-    constructor(run: Run) {
+    private constructor(run: Run) {
         this.run = run
     }
 
+    static create(run: Run) {
+        if(!(run.hash() in RunNodeJS.cache)) {
+            RunNodeJS.cache[run.hash()] = new RunNodeJS(run)
+        }
+        return RunNodeJS.cache[run.hash()]
+    }
+
     private loadDatabase(): Promise<void> {
+        if(this.db != null) {
+            return new Promise((resolve, reject) => {
+                resolve()
+            })
+        }
+
         let path = PATH.join(EXPERIMENTS_FOLDER, this.run.experimentName, this.run.info.index, 'sqlite.db')
         return new Promise((resolve, reject) => {
             this.db = new sqlite3.Database(path, sqlite3.OPEN_READONLY, (err) => {
@@ -80,7 +94,7 @@ export class RunNodeJS {
         await this.loadDatabase()
         let indicators = await this.getIndicators()
         
-        console.log(indicators)
+        // console.log(indicators)
         let values = await this.getLastValue('')
 
         for(let k in indicators.indicators) {

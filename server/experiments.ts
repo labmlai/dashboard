@@ -79,6 +79,10 @@ export class Run {
     toJSON() {
         return this.info
     }
+
+    hash() {
+        return `${this.experimentName}-${this.info.index}`
+    }
 }
 
 export interface ExperimentModel {

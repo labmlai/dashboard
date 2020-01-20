@@ -66,7 +66,7 @@ export class Jupyter {
         let mkdir = UTIL.promisify(FS.mkdir)
         let copyFile = UTIL.promisify(FS.copyFile)
 
-        let runNodeJs = new RunNodeJS(run)
+        let runNodeJs = RunNodeJS.create(run)
         let lab = await runNodeJs.getLab()
         let template = lab.analyticsTemplates[templateName]
         let destinationPath = PATH.join(ANALYTICS_FOLDER, run.experimentName, run.info.index)
