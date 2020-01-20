@@ -37,7 +37,7 @@ class RunView {
     }
 
     private async renderRun() {
-        let experiment = (await getExperiments()).experiments[this.experimentName]
+        let experiment = (await getExperiments()).get(this.experimentName)
         this.run = experiment.getRun(this.runIndex)
         this.runUI = new RunUI(this.run)
 

@@ -100,12 +100,11 @@ export class Experiment {
         this.runs.sort((a, b) => parseInt(a.info.index) - parseInt(b.info.index))
     }
 
-    get lastRunDateTime(): [string, string] {
+    get lastRun(): Run {
         if (this.runs.length > 0) {
-            return [this.runs[this.runs.length - 1].info.trial_date,
-            this.runs[this.runs.length - 1].info.trial_time]
+            return this.runs[this.runs.length - 1]
         }
-        return ['-', '-']
+        return null
     }
 
     getRun(index: string): Run {
@@ -131,7 +130,7 @@ export interface ExperimentsModel {
 }
 
 export class Experiments {
-    experiments: { [name: string]: Experiment }
+    private experiments: { [name: string]: Experiment }
 
     constructor(experiments: ExperimentsModel) {
         this.experiments = {}
@@ -155,5 +154,9 @@ export class Experiments {
         }
 
         return res
+    }
+
+    get(experimentName: string) {
+        return this.experiments[experimentName]
     }
 }

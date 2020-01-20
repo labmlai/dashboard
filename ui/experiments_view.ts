@@ -14,17 +14,21 @@ class ExperimentView {
     }
 
     render() {
+        let run = this.experiment.lastRun
+
         this.elem = $('div.experiment', {
             on: { click: this.onClick }
         }, $ => {
             $('h3', this.experiment.name)
-            $('div', $ => {
-                $('i.fa.fa-calendar.key_icon')
-                $('span', ` ${this.experiment.lastRunDateTime[0]} `)
-                $('span.key_split', '')
-                $('i.fa.fa-clock.key_icon')
-                $('span', ` ${this.experiment.lastRunDateTime[1]}`)
-            })
+            if (run != null) {
+                $('div', $ => {
+                    $('i.fa.fa-calendar.key_icon')
+                    $('span', ` ${run.info.trial_date} `)
+                    $('span.key_split', '')
+                    $('i.fa.fa-clock.key_icon')
+                    $('span', ` ${run.info.trial_time}`)
+                })
+            }
 
         })
 

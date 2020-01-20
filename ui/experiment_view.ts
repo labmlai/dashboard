@@ -92,7 +92,7 @@ class ExperimentView implements ScreenView {
     }
 
     private async renderExperiment() {
-        this.experiment = (await getExperiments()).experiments[this.name]
+        this.experiment = (await getExperiments()).get(this.name)
 
         this.experimentView.append($('div.info', $ => {
             $('h1', this.experiment.name)
