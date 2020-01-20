@@ -2,8 +2,11 @@
 import { ScreenView } from "./screen"
 import { ROUTER, SCREEN } from "./app"
 import { Weya as $, WeyaElement } from "./weya/weya"
-import { Experiments, Experiment } from "./experiments"
+import { Experiments, Experiment, Run } from "./experiments"
 import { getExperiments } from "./cache"
+import { RunUI } from "./run_ui"
+import { renderValues } from "./indicators"
+import { renderConfigs } from "./configs"
 
 class ExperimentView {
     experiment: Experiment
@@ -21,18 +24,34 @@ class ExperimentView {
         }, $ => {
             $('h3', this.experiment.name)
             if (run != null) {
-                $('div', $ => {
-                    $('i.fa.fa-calendar.key_icon')
-                    $('span', ` ${run.info.trial_date} `)
-                    $('span.key_split', '')
-                    $('i.fa.fa-clock.key_icon')
-                    $('span', ` ${run.info.trial_time}`)
-                })
+                this.renderRun(run)
             }
 
         })
 
         return this.elem
+    }
+
+    private async renderRun(run: Run) {
+        let runUI = RunUI.create(run)
+        let values = await runUI.getValues()
+        let configs = await runUI.getConfigs()
+
+        $(this.elem, $ => {
+            $('div', $ => {
+                $('i.fa.fa-calendar.key_icon')
+                $('span', ` ${run.info.trial_date} `)
+                $('span.key_split', '')
+                $('i.fa.fa-clock.key_icon')
+                $('span', ` ${run.info.trial_time}`)
+            })
+
+            let indicatorsView = <HTMLDivElement>$('div.indicators.block')
+            let configsView = <HTMLDivElement>$('div.configs.block')
+
+            renderValues(indicatorsView, values)
+            renderConfigs(configsView, configs)
+        })
     }
 
     onClick = (e: Event) => {

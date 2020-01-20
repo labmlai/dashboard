@@ -3,7 +3,10 @@ import { Run, IndicatorsModel, Indicators, Configs, ConfigsModel, ScalarsModel }
 
 export class RunUI {
     private static cache: {[run: string]: RunUI} = {}
-    run: Run
+    private run: Run
+    private configs: Configs
+    private values: ScalarsModel
+    private indicators: Indicators
 
     private constructor(run: Run) {
         this.run = run
@@ -17,33 +20,49 @@ export class RunUI {
     }
 
     async getIndicators(): Promise<Indicators> {
+        if(this.indicators != null) {
+            return this.indicators
+        }
+
         return new Promise((resolve) => {
             PORT.send('getIndicators', {
                 experimentName: this.run.experimentName,
                 runIndex: this.run.info.index
             }, (data: IndicatorsModel, _) => {
-                resolve(new Indicators(data))
+                this.indicators = new Indicators(data)
+                resolve(this.indicators)
             })
         })
     }
 
     async getConfigs(): Promise<Configs> {
+        if(this.configs != null) {
+            return this.configs
+        }
+
         return new Promise((resolve) => {
             PORT.send('getConfigs', {
                 experimentName: this.run.experimentName,
                 runIndex: this.run.info.index
             }, (data: ConfigsModel, _) => {
-                resolve(new Configs(data))
+                this.configs = new Configs(data)
+                resolve(this.configs)
             })
         })
     }
+
     async getValues(): Promise<ScalarsModel> {
+        if(this.values != null) {
+            return this.values
+        }
+
         return new Promise((resolve) => {
             PORT.send('getValues', {
                 experimentName: this.run.experimentName,
                 runIndex: this.run.info.index
             }, (data: ScalarsModel, _) => {
-                resolve(data)
+                this.values = data
+                resolve(this.values)
             })
         })
     }

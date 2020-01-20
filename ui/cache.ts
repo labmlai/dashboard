@@ -5,7 +5,7 @@ let EXPERIMENTS = null
 
 export async function getExperiments(): Promise<Experiments> {
     if (EXPERIMENTS != null) {
-        return await EXPERIMENTS
+        return EXPERIMENTS
     }
 
     return new Promise((resolve, reject) => {
