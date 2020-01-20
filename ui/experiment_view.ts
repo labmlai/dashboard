@@ -84,18 +84,16 @@ class ExperimentView implements ScreenView {
     }
 
     render(): WeyaElement {
-        getExperiments().then((experiments) => {
-            this.experiment = experiments.experiments[this.name]
-            this.renderExperiment()
-        })
-
         this.elem = <HTMLElement>$('div.container', $ => {
             this.experimentView = <HTMLDivElement>$('div.experiment_single', '')
         })
+        this.renderExperiment()
         return this.elem
     }
 
-    private renderExperiment() {
+    private async renderExperiment() {
+        this.experiment = (await getExperiments()).experiments[this.name]
+
         this.experimentView.append($('div.info', $ => {
             $('h1', this.experiment.name)
         }))
@@ -111,37 +109,36 @@ class ExperimentView implements ScreenView {
             return
         }
 
-        let promises = Promise.all(runViews.map((rv) => rv.load()))
-        promises.then(() => {
-            let configs = {}
-            let differentConfigs = new Set<string>()
-            for (let k in runViews[0].configs.configs) {
-                configs[k] = runViews[0].configs.configs[k].value
-            }
+        await Promise.all(runViews.map((rv) => rv.load()))
 
-            for (let rv of runViews) {
-                for (let k in rv.configs.configs) {
-                    if (differentConfigs.has(k)) {
-                        continue
-                    }
-                    if (configs[k] !== rv.configs.configs[k].value) {
-                        differentConfigs.add(k)
-                    }
+        let configs = {}
+        let differentConfigs = new Set<string>()
+        for (let k in runViews[0].configs.configs) {
+            configs[k] = runViews[0].configs.configs[k].value
+        }
+
+        for (let rv of runViews) {
+            for (let k in rv.configs.configs) {
+                if (differentConfigs.has(k)) {
+                    continue
+                }
+                if (configs[k] !== rv.configs.configs[k].value) {
+                    differentConfigs.add(k)
                 }
             }
+        }
 
-            let common = new Set<string>()
-            for (let k in configs) {
-                if (!differentConfigs.has(k)) {
-                    common.add(k)
-                }
+        let common = new Set<string>()
+        for (let k in configs) {
+            if (!differentConfigs.has(k)) {
+                common.add(k)
             }
+        }
 
-            for (let rv of runViews) {
-                rv.renderValues()
-                rv.renderConfigs(common)
-            }
-        })
+        for (let rv of runViews) {
+            rv.renderValues()
+            rv.renderConfigs(common)
+        }
     }
 }
 

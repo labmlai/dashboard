@@ -27,23 +27,20 @@ class RunView {
     }
 
     render() {
-        getExperiments().then((experiments) => {
-            let experiment = experiments.experiments[this.experimentName]
-            this.run = experiment.getRun(this.runIndex)
-            this.runUI = new RunUI(this.run)
-            this.renderRun()
-            this.renderIndicators()
-            this.renderConfigs()
-            this.renderAnalyticsBtns()
-        })
-
         this.elem = <HTMLElement>$('div.container', $ => {
             this.runView = <HTMLDivElement>$('div.run_single', '')
         })
+
+        this.renderRun()
+
         return this.elem
     }
 
-    renderRun() {
+    private async renderRun() {
+        let experiment = (await getExperiments()).experiments[this.experimentName]
+        this.run = experiment.getRun(this.runIndex)
+        this.runUI = new RunUI(this.run)
+
         let info = this.run.info
 
         $(this.runView, $ => {
@@ -95,21 +92,23 @@ class RunView {
             this.analyticsBtns = <HTMLDivElement>$('div.analytics_buttons')
         })
 
+        this.renderIndicators()
+        this.renderConfigs()
+        this.renderAnalyticsBtns()
 
         return this.elem
     }
 
-    private onTensorboardClick = (e: Event) => {
+    private onTensorboardClick = async (e: Event) => {
         e.preventDefault()
         e.stopPropagation()
 
-        this.runUI.launchTensorboard().then((url) => {
-            if (url === "") {
-                alert("Couldn't start Tensorboard")
-            } else {
-                window.open(url, '_blank')
-            }
-        })
+        let url = await this.runUI.launchTensorboard()
+        if (url === "") {
+            alert("Couldn't start Tensorboard")
+        } else {
+            window.open(url, '_blank')
+        }
     }
 
     async renderAnalyticsBtns() {
@@ -117,24 +116,23 @@ class RunView {
         for (let t of templates) {
             $(this.analyticsBtns, $ => {
                 $('button', t, {
-                    on: {click: this.onJupyterClick},
-                    data: {template: t}
+                    on: { click: this.onJupyterClick },
+                    data: { template: t }
                 })
             })
         }
     }
 
-    private onJupyterClick = (e: Event) => {
+    private onJupyterClick = async (e: Event) => {
         e.preventDefault()
         e.stopPropagation()
         let target = <any>e.currentTarget
-        this.runUI.launchJupyter(target.template).then((url) => {
-            if (url === "") {
-                alert("Couldn't start Jupyter")
-            } else {
-                window.open(url, '_blank')
-            }
-        })
+        let url = await this.runUI.launchJupyter(target.template)
+        if (url === "") {
+            alert("Couldn't start Jupyter")
+        } else {
+            window.open(url, '_blank')
+        }
     }
 
     async renderIndicators() {

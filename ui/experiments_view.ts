@@ -15,11 +15,17 @@ class ExperimentView {
 
     render() {
         this.elem = $('div.experiment', {
-            on: {click: this.onClick}
+            on: { click: this.onClick }
         }, $ => {
             $('h3', this.experiment.name)
-            $('span', this.experiment.lastRunDateTime[0])
-            // $('span', this.experiment.lastRunDateTime[1])
+            $('div', $ => {
+                $('i.fa.fa-calendar.key_icon')
+                $('span', ` ${this.experiment.lastRunDateTime[0]} `)
+                $('span.key_split', '')
+                $('i.fa.fa-clock.key_icon')
+                $('span', ` ${this.experiment.lastRunDateTime[1]}`)
+            })
+
         })
 
         return this.elem
@@ -39,25 +45,23 @@ class ExperimentsView implements ScreenView {
     experiments: Experiments
 
     render(): WeyaElement {
-        getExperiments().then((experiments) => {
-            this.experiments = experiments
-            this.renderExperiments()
-        })
-        
         this.elem = <HTMLElement>$('div.container', $ => {
             $('h1', 'Experiments')
             this.experimentsList = <HTMLDivElement>$('div.experiments_list', '')
         })
+        this.renderExperiments()
         return this.elem
     }
 
-    private renderExperiments() {
+    private async renderExperiments() {
+        this.experiments = await getExperiments()
+
         let views: ExperimentView[] = []
-        for(let e of this.experiments.sorted()) {
+        for (let e of this.experiments.sorted()) {
             views.push(new ExperimentView(e))
         }
 
-        for(let v of views) {
+        for (let v of views) {
             this.experimentsList.append(v.render())
         }
     }
@@ -65,9 +69,8 @@ class ExperimentsView implements ScreenView {
 
 export class ExperimentsHandler {
     constructor() {
-
-    ROUTER.route('', [this.handleExperiments])
-}
+        ROUTER.route('', [this.handleExperiments])
+    }
 
     handleExperiments = () => {
         SCREEN.setView(new ExperimentsView())
