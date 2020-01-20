@@ -2,7 +2,7 @@
 import { ROUTER, SCREEN } from "./app"
 import { Weya as $, WeyaElement } from "./weya/weya"
 import { Run } from "./experiments"
-import { getExperiments } from "./cache"
+import { getExperiments, clearCache } from "./cache"
 import { RunUI } from "./run_ui"
 import { renderConfigs } from "./configs"
 import { renderValues } from "./indicators"
@@ -53,6 +53,11 @@ class RunView {
                     $('span', info.comment)
                 }
             })
+
+            $('button', 'Remove', {
+                on: { click: this.onRemoveClick }
+            })
+
             $('div', $ => {
                 $('i.fa.fa-history.key_icon')
                 $('span', ` ${info.commit_message}`)
@@ -83,11 +88,8 @@ class RunView {
             this.configsView = <HTMLDivElement>$('div.configs.block')
 
             this.tensorboardBtn = <HTMLButtonElement>$('button', 'Launch Tensorboard', {
-                on: {
-                    click: this.onTensorboardClick
-                }
+                on: { click: this.onTensorboardClick }
             })
-
 
             this.analyticsBtns = <HTMLDivElement>$('div.analytics_buttons')
         })
@@ -108,6 +110,17 @@ class RunView {
             alert("Couldn't start Tensorboard")
         } else {
             window.open(url, '_blank')
+        }
+    }
+
+    private onRemoveClick = async (e: Event) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        if(confirm("Are you sure")) {
+            await this.runUI.remove()            
+            clearCache()
+            ROUTER.back()
         }
     }
 

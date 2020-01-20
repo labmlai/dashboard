@@ -15,3 +15,7 @@ export async function getExperiments(): Promise<Experiments> {
         })
     })
 }
+
+export  function clearCache() {
+    EXPERIMENTS = null
+}

@@ -100,4 +100,15 @@ export class RunUI {
             })
         })
     }
+
+    async remove() {
+        return new Promise((resolve, reject) => {
+            PORT.send('removeRun', {
+                experimentName: this.run.experimentName,
+                runIndex: this.run.info.index
+            }, (data: any, _) => {
+                resolve()
+            })
+        })
+    }
 }

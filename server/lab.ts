@@ -1,3 +1,4 @@
+import * as UTIL from "util"
 import * as PATH from 'path'
 import * as FS from 'fs'
 import * as YAML from "yaml"
@@ -10,9 +11,14 @@ export class Lab {
     analytics: string
     analyticsPath: string
     analyticsTemplates: {[name: string]: string}
+    currentPath: string
 
     constructor(path: string) {
-        let configsList = getConfigFiles(path)
+        this.currentPath = path
+    }
+
+    async load() {
+        let configsList = await getConfigFiles(this.currentPath)
         if(configsList.length == 0) {
             throw Error("No .lab.yaml files found")
         }
@@ -75,16 +81,20 @@ function mergeConfig(configs: any[]) {
     return config
 }
 
-function getConfigFiles(path: string) {
+async function getConfigFiles(path: string) {
+    let exists = UTIL.promisify(FS.exists)
+    let lstat = UTIL.promisify(FS.lstat)
+    let readFile = UTIL.promisify(FS.readFile)
+
     path = PATH.resolve(path)
     let configsList = []
 
-    while (FS.existsSync(path)) {
-        let stats = FS.lstatSync(path)
+    while (await exists(path)) {
+        let stats = await lstat(path)
         if (stats.isDirectory()) {
             let config_file = PATH.join(path, CONFIG_FILE_NAME)
-            if (FS.existsSync(config_file)) {
-                let contents = FS.readFileSync(config_file, { encoding: 'utf-8' })
+            if (await exists(config_file)) {
+                let contents = await readFile(config_file, { encoding: 'utf-8' })
                 let configs = YAML.parse(contents)
                 configs.config_file_path = path
                 configsList.push(configs)

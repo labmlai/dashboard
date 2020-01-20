@@ -4,7 +4,7 @@ import * as PATH from "path"
 import * as UTIL from "util"
 import * as FS from "fs"
 import * as YAML from "yaml"
-import { EXPERIMENTS_FOLDER } from "./consts"
+import { LAB } from "./consts"
 import { Lab } from "./lab"
 
 export class RunNodeJS {
@@ -30,7 +30,7 @@ export class RunNodeJS {
             })
         }
 
-        let path = PATH.join(EXPERIMENTS_FOLDER, this.run.experimentName, this.run.info.index, 'sqlite.db')
+        let path = PATH.join(LAB.experiments, this.run.experimentName, this.run.info.index, 'sqlite.db')
         return new Promise((resolve, reject) => {
             this.db = new sqlite3.Database(path, sqlite3.OPEN_READONLY, (err) => {
                 if (err) {
@@ -78,20 +78,25 @@ export class RunNodeJS {
 
     async getIndicators(): Promise<Indicators> {
         let readFile = UTIL.promisify(FS.readFile)
-        let contents = await readFile(PATH.join(EXPERIMENTS_FOLDER, this.run.experimentName, this.run.info.index, 'indicators.yaml'),
+        let contents = await readFile(PATH.join(LAB.experiments, this.run.experimentName, this.run.info.index, 'indicators.yaml'),
             { encoding: 'utf-8' })
         return new Indicators(YAML.parse(contents))
     }
 
     async getConfigs(): Promise<Configs> {
         let readFile = UTIL.promisify(FS.readFile)
-        let contents = await readFile(PATH.join(EXPERIMENTS_FOLDER, this.run.experimentName, this.run.info.index, 'configs.yaml'),
+        let contents = await readFile(PATH.join(LAB.experiments, this.run.experimentName, this.run.info.index, 'configs.yaml'),
             { encoding: 'utf-8' })
         return new Configs(YAML.parse(contents))
     }
 
     async getValues() {
+        try {
         await this.loadDatabase()
+        } catch(e) {
+            console.log(e)
+            return {}
+        }
         let indicators = await this.getIndicators()
         
         // console.log(indicators)
@@ -109,6 +114,13 @@ export class RunNodeJS {
     }
 
     async getLab() {
-        return new Lab(this.run.info.python_file)
+        let lab = new Lab(this.run.info.python_file)
+        await lab.load()
+
+        return lab
+    }
+
+    async remove() {
+
     }
 }

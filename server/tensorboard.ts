@@ -1,5 +1,5 @@
 import { Run } from "./experiments";
-import { EXPERIMENTS_FOLDER } from "./consts";
+import { LAB } from "./consts";
 import * as PATH from "path"
 import {spawn, ChildProcessWithoutNullStreams} from "child_process"
 
@@ -16,7 +16,7 @@ export class Tensorboard {
 
     async start(): Promise<void> {
         let paths = this.runs.map((r) => `${r.experimentName}_${r.info.index}:` +
-            PATH.join(EXPERIMENTS_FOLDER, r.experimentName, r.info.index, 'tensorboard'))
+            PATH.join(LAB.experiments, r.experimentName, r.info.index, 'tensorboard'))
         let args = [`--logdir_spec=${paths.join(',')}`, '--port', `${this.port}`]
         console.log('tensorboard', args)
         this.proc = spawn('tensorboard', args)

@@ -1,5 +1,5 @@
 import { Run } from "./experiments";
-import { EXPERIMENTS_FOLDER, ANALYTICS_FOLDER } from "./consts";
+import { LAB } from "./consts";
 import * as PATH from "path"
 import { spawn, ChildProcessWithoutNullStreams } from "child_process"
 import * as PROCESS from "process"
@@ -69,7 +69,7 @@ export class Jupyter {
         let runNodeJs = RunNodeJS.create(run)
         let lab = await runNodeJs.getLab()
         let template = lab.analyticsTemplates[templateName]
-        let destinationPath = PATH.join(ANALYTICS_FOLDER, run.experimentName, run.info.index)
+        let destinationPath = PATH.join(LAB.analytics, run.experimentName, run.info.index)
         let destination = PATH.join(destinationPath, `${templateName}.ipynb`)
         let url = `http://localhost:8888/notebooks/${lab.analyticsPath}/${run.experimentName}/${run.info.index}/${templateName}.ipynb`
 

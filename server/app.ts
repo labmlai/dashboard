@@ -4,8 +4,7 @@ import { SERVER } from "./server"
 import { Tensorboard } from "./tensorboard"
 import { RunNodeJS } from "./run_nodejs"
 import { Jupyter } from "./jupyter"
-
-console.log(`http://localhost:${SERVER.port}`)
+import { LAB } from "./consts"
 
 let TENSORBOARD: Tensorboard = null
 let JUPYTER: Jupyter = null
@@ -117,4 +116,8 @@ SERVER.on('getAnalyticsTemplates', (data, packet, response) => {
   handleGetAnalyticsTemplates(data, packet, response)
 })
 
-SERVER.listen()
+LAB.load().then(() => {
+  console.log(`http://localhost:${SERVER.port}`)
+  console.log(LAB.path)
+  SERVER.listen()
+})
