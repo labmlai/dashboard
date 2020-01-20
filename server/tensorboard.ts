@@ -21,28 +21,20 @@ export class Tensorboard {
         console.log('tensorboard', args)
         this.proc = spawn('tensorboard', args)
 
-        let isClosed = false
-
-        this.proc.on("close", (code, signal) => {
-            isClosed = true
-            console.log("Close", code, signal)
-        })
-        this.proc.stdout.on("data", (data: Buffer) => {
-            console.log("TB out", data.toString())
-        })
-        this.proc.stderr.on("data", (data: Buffer) => {
-            console.log("TB err", data.toString())
-        })
-
         return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                console.log("isClosed", isClosed)
-                if(isClosed) {
-                    reject()
-                } else {
+            this.proc.on("close", (code, signal) => {
+                console.log("Close", code, signal)
+                reject()
+            })
+            this.proc.stdout.on("data", (data: Buffer) => {
+                console.log("TB out", data.toString())
+            })
+            this.proc.stderr.on("data", (data: Buffer) => {
+                console.log("TB err", data.toString())
+                if (data.toString().indexOf("Press CTRL+C to quit") !== -1) {
                     resolve()
                 }
-            }, 2500)
+            })
         })
     }
 

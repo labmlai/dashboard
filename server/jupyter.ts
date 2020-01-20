@@ -1,7 +1,7 @@
 import { Run } from "./experiments";
 import { EXPERIMENTS_FOLDER, ANALYTICS_FOLDER } from "./consts";
 import * as PATH from "path"
-import {spawn, ChildProcessWithoutNullStreams} from "child_process"
+import { spawn, ChildProcessWithoutNullStreams } from "child_process"
 import * as PROCESS from "process"
 import { RunNodeJS } from "./run_nodejs";
 import * as UTIL from "util"
@@ -18,7 +18,7 @@ export class Jupyter {
 
     async start(): Promise<void> {
         let env = JSON.parse(JSON.stringify(PROCESS.env))
-        if(!('PYTHONPATH' in env)) {
+        if (!('PYTHONPATH' in env)) {
             env['PYTHONPATH'] = env['PWD']
         } else {
             env['PYTHONPATH'] += ":" + env['PWD']
@@ -26,7 +26,7 @@ export class Jupyter {
 
         let args = ['notebook', '--no-browser']
         console.log('jupyter', args)
-        this.proc = spawn('jupyter', args, {env: env})
+        this.proc = spawn('jupyter', args, { env: env })
 
         let isClosed = false
 
@@ -44,7 +44,7 @@ export class Jupyter {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
                 console.log("isClosed", isClosed)
-                if(isClosed) {
+                if (isClosed) {
                     reject()
                 } else {
                     resolve()
@@ -54,7 +54,7 @@ export class Jupyter {
     }
 
     stop() {
-        if(this.proc == null) {
+        if (this.proc == null) {
             return
         } else {
             this.proc.kill('SIGINT')
@@ -74,11 +74,11 @@ export class Jupyter {
         let url = `http://localhost:8888/notebooks/${lab.analyticsPath}/${run.experimentName}/${run.info.index}/${templateName}.ipynb`
 
         console.log(url)
-        if(await exists(destination)) {
+        if (await exists(destination)) {
             return url
         }
 
-        await mkdir(destinationPath, {recursive: true})
+        await mkdir(destinationPath, { recursive: true })
 
         console.log(template, destination)
 
