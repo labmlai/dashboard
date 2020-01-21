@@ -1,10 +1,9 @@
 {
-  "name": "ui",
+  "name": "lab_dashboard_ui",
   "version": "1.0.0",
-  "description": "FrontEnd for the lab dashboard",
+  "description": "UI for the lab dashboard",
   "main": "main.js",
-  "author": "VPJ",
-  "license": "MIT",
+  "author": "Varuna Jayasiri",
   "devDependencies": {
     "sass": "latest",
     "http-server": "latest",

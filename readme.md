@@ -8,15 +8,18 @@
 
 ```bash
 git clone git@github.com:vpj/lab_dashboard.git
-cd lab
+cd lab_dashboard
+git submodule init
+git submodule update
 ./install.sh
 ```
 
 To update run a git update
 
 ```bash
-cd lab
+cd lab_dashboard
 git pull
+git submodule update
 ./install.sh
 ```
 

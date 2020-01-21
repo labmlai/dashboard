@@ -1,10 +1,10 @@
 {
-  "name": "server",
-  "version": "0.0.1",
+  "name": "lab_dashboard_server",
+  "version": "1.0.0",
   "description": "Server for Lab Dashboard",
   "main": "app.js",
   "repository": "https://github.com/vpj/lab_dashboard",
-  "author": "VPJ",
+  "author": "Varuna Jayasiri",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "latest",
