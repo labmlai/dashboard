@@ -3,3 +3,5 @@ package-lock.json
 out/
 .sass-cache/
 .*.swp
+__pycache__
+*.egg-info/
