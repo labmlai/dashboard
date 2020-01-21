@@ -1,6 +1,7 @@
 import { Weya as $, WeyaElement } from "./weya/weya"
 import { Configs } from "./experiments"
 import { InfoList } from "./view_components/info_list";
+import { formatValue } from "./view_components/format";
 
 class ConfigsView {
     configs: Configs
@@ -50,7 +51,7 @@ class ConfigsView {
                 }
     
                 new InfoList([['.key', conf[k].name],
-                              ['.value', `${conf[k].value}`]], classes.join('')).render($)
+                              ['.value', formatValue(conf[k].value)]], classes.join('')).render($)
             }
 
             if(isCollapsible) {
