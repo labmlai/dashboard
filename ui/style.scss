@@ -117,6 +117,56 @@ body {
   }
 }
 
+.config {
+  .computed {
+    font-weight: bold;
+    margin-right: 5px;
+    font-family: $monoFont;
+    font-size: 0.9rem;
+  }
+  > .option {
+    margin-right: 5px;
+    font-family: $monoFont;
+    font-size: 0.9rem;
+    color: #9c88ff;
+  }
+  .options {
+    font-family: $monoFont;
+    font-size: 0.9rem;
+    &::before {
+      content: "[";
+      opacity: 0.7;
+      color: #e84118;
+    }
+    &::after {
+      content: "]";
+      opacity: 0.7;
+      color: #e84118;
+    }
+
+    span {
+      &::after {
+        content: ", ";
+        opacity: 0.7;
+        color: #e84118;
+      }
+      &:last-child {
+        &::after {
+          content: "";
+          opacity: 0.7;
+          color: #e84118;
+        }
+      }
+    }
+  }
+
+  &.only_option {
+    > .option {
+      opacity: 0.8;
+    }
+  }
+}
+
 .collapsed {
   .info_list.common {
     display: none;
@@ -170,15 +220,15 @@ button {
 }
 
 .int {
-  color: #e84118;
+  color: #4cd137;
 }
 
 .float {
-  color: #e84118;
+  color: #4cd137;
 }
 
 .string {
-  color: #4cd137;
+  color: #e84118;
 }
 
 .unknown {

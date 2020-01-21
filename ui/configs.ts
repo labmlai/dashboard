@@ -1,7 +1,9 @@
 import { Weya as $, WeyaElement, WeyaElementFunction } from "./weya/weya"
 import { Configs, Config } from "./experiments"
-import { InfoList } from "./view_components/info_list";
+import { InfoList, InfoItem } from "./view_components/info_list";
 import { formatValue } from "./view_components/format";
+
+const CONFIG_PRINT_LEN = 50
 
 class ConfigsView {
     configs: Configs
@@ -14,10 +16,43 @@ class ConfigsView {
         this.common = common
     }
 
+    /*
+        if is_ignored:
+            parts.append((key, Text.subtle))
+            return parts
+
+        parts.append((key, Text.key))
+
+        if value is not None:
+            value_str = str(value)
+            value_str = value_str.replace('\n', '')
+            if len(value_str) < _CONFIG_PRINT_LEN:
+                parts.append((f"{value_str}", Text.value))
+            else:
+                parts.append((f"{value_str[:_CONFIG_PRINT_LEN]}...", Text.value))
+            parts.append('\t')
+
+        if option is not None:
+            if len(other_options) == 0:
+                parts.append((option, Text.subtle))
+            else:
+                parts.append((option, Text.none))
+
+        if len(other_options) > 0:
+            parts.append(('\t[', Text.subtle))
+            for i, opt in enumerate(other_options):
+                if i > 0:
+                    parts.append((', ', Text.subtle))
+                parts.append(opt)
+            parts.append((']', Text.subtle))
+    */
+
     private renderConfigValue(conf: Config, isCommon: boolean, $: WeyaElementFunction): boolean {
         let isCollapsible = false
 
-        let classes = ['.mono']
+        let classes = ['.config']
+        let parts: InfoItem[] = [['.key', conf.name]]
+
         let options = new Set()
         for (let opt of conf.options) {
             options.add(opt)
@@ -26,15 +61,45 @@ class ConfigsView {
         if (conf.order < 0) {
             classes.push('.ignored')
             isCollapsible = true
-        } else if (options.has(conf.value)) {
-            if (conf.options.length === 1) {
-                classes.push('.only_option')
-                isCollapsible = true
-            } else {
-                classes.push('.picked')
-            }
         } else {
-            classes.push('.custom')
+            if (typeof (conf.computed) === 'string') {
+                let computed: string = conf.computed
+                computed = computed.replace('\n', '')
+                if (computed.length < CONFIG_PRINT_LEN) {
+                    parts.push(['.computed', computed])
+                } else {
+                    parts.push(['.computed', ($: WeyaElementFunction) => {
+                        $('span', computed.substr(0, CONFIG_PRINT_LEN) + '...',
+                            { title: computed })
+                    }])
+                }
+            } else {
+                parts.push(['.computed', formatValue(conf.computed)])
+            }
+
+            if (options.has(conf.value)) {
+                options.delete(conf.value)
+                if (options.size === 0) {
+                    classes.push('.only_option')
+                    isCollapsible = true
+                    parts.push(['.option', conf.value])
+                } else {
+                    classes.push('.picked')
+                    parts.push(['.option', conf.value])
+                }
+            } else {
+                classes.push('.custom')
+            }
+            if (options.size > 0) {
+                parts.push(['.options', ($: WeyaElementFunction) => {
+                    for (let opt of options.keys()) {
+                        if (typeof (opt) !== 'string') {
+                            continue
+                        }
+                        $('span', <string>opt)
+                    }
+                }])
+            }
         }
 
         if (isCommon) {
@@ -42,8 +107,7 @@ class ConfigsView {
             isCollapsible = true
         }
 
-        new InfoList([['.key', conf.name],
-        ['.value', formatValue(conf.value)]],
+        new InfoList(parts,
             classes.join('')).render($)
 
         return isCollapsible
