@@ -95,6 +95,7 @@ export class RunNodeJS {
         try {
         await this.loadDatabase()
         } catch(e) {
+            this.db = null
             console.log(e)
             return {}
         }
