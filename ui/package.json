@@ -6,16 +6,15 @@
   "author": "VPJ",
   "license": "MIT",
   "devDependencies": {
-    "sass": "^1.23.7",
-    "http-server": "^0.12.0",
-    "typescript": "^3.7.3"
+    "sass": "latest",
+    "http-server": "latest",
+    "typescript": "latest"
   },
   "scripts": {
-    "build": "$npm_execpath run build:ts && $npm_execpath run build:sass && $npm_execpath run build:static",
+    "build": "$npm_execpath run build:ts && $npm_execpath run build:sass && $npm_execpath run build:html",
     "build:ts": "tsc",
-    "build:sass": "sass styles:out/css",
-    "build:static": "cp index.html out/index.html",
-    "build:clean": "rm -rf out/",
-    "build:watch": "$npm_execpath run build && tsc -w & sass --watch styles:out/css"
+    "build:sass": "sass style.scss:out/css/style.css",
+    "build:html": "cp index.html out/index.html",
+    "build:clean": "rm -rf out/"
   }
 }

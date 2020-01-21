@@ -16,7 +16,7 @@
         {
             "label": "Sass",
             "type": "shell",
-            "command": "node-sass -w style.scss out/css/style.css",
+            "command": "npx sass --watch style.scss:out/css/style.css",
             "group": "build",
             "problemMatcher": []
         },
