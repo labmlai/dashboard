@@ -1,17 +1,18 @@
 import { Weya as $ } from "./weya/weya"
 import { ScalarsModel, Indicators } from "./experiments"
 import { InfoList } from "./view_components/info_list";
+import { formatScalar, formatInt } from "./view_components/format";
 
 export function renderValues(elem: HTMLElement, values: ScalarsModel) {
     $(elem, $ => {
         let maxStep = 0
         for (let k in values) {
             new InfoList([['.key', k],
-            ['.value', `${values[k].value}`]], '.highlight.mono').render($)
+            ['.value', formatScalar(values[k].value)]], '.highlight.mono').render($)
             maxStep = Math.max(values[k].step, maxStep)
         }
         new InfoList([['.key', 'step'],
-        ['.value', `${maxStep}`]], '.highlight.mono').render($)
+        ['.value', formatInt(maxStep)]], '.highlight.mono').render($)
     })
 }
 

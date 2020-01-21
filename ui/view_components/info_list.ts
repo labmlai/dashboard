@@ -1,4 +1,3 @@
-
 import { WeyaElementFunction, WeyaTemplateFunction } from "../weya/weya"
 
 type InfoContent = string | WeyaTemplateFunction
@@ -19,7 +18,7 @@ export class InfoList {
                 if(typeof(item) === 'object' && 'length' in item && item.length == 2) {
                     $(`span${item[0]}`, item[1])
                 } else {
-                    $('span', <string>item)
+                    $('span', <string | WeyaTemplateFunction>item)
                 }
             }
         })
