@@ -7,6 +7,7 @@ import { RunUI } from "./run_ui"
 import { renderConfigs } from "./configs"
 import { renderValues } from "./indicators"
 import { InfoList, InfoItem } from "./view_components/info_list"
+import { formatSize } from "./view_components/format"
 
 class RunView {
     run: Run
@@ -60,14 +61,14 @@ class RunView {
 
             $('div', $ => {
                 $('i.fa.fa-history.key_icon')
-                $('span', ` ${info.commit_message}`)
+                $('span', info.commit_message)
             })
             $('div', $ => {
                 $('i.fa.fa-calendar.key_icon')
-                $('span', ` ${info.trial_date} `)
+                $('span', info.trial_date)
                 $('span.key_split', '')
                 $('i.fa.fa-clock.key_icon')
-                $('span', ` ${info.trial_time}`)
+                $('span', info.trial_time)
             })
 
 
@@ -81,6 +82,24 @@ class RunView {
 
                 new InfoList([['.key', 'Python File'],
                 ['.value', info.python_file]], '.mono').render($)
+            })
+
+            $('div.block', $ => {
+                $('i.fa.fa-save.key_icon')
+                let size = info.sqlite_size + info.analytics_size + info.checkpoints_size + info.tensorboard_size
+                $('span', formatSize(size))
+
+                new InfoList([['.key', 'Checkpoints'],
+                ['.value', formatSize(info.checkpoints_size)]], '.mono').render($)
+
+                new InfoList([['.key', 'SQLite'],
+                ['.value', formatSize(info.sqlite_size)]], '.mono').render($)
+
+                new InfoList([['.key', 'Analytics'],
+                ['.value', formatSize(info.analytics_size)]], '.mono').render($)
+
+                new InfoList([['.key', 'TensorBoard'],
+                ['.value', formatSize(info.tensorboard_size)]], '.mono').render($)
             })
 
             this.indicatorsView = <HTMLDivElement>$('div.indicators.block')
@@ -117,8 +136,8 @@ class RunView {
         e.preventDefault()
         e.stopPropagation()
 
-        if(confirm("Are you sure")) {
-            await this.runUI.remove()            
+        if (confirm("Are you sure")) {
+            await this.runUI.remove()
             clearCache()
             ROUTER.back()
         }

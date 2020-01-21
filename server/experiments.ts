@@ -64,7 +64,11 @@ export interface RunModel {
     python_file: string
     start_step: number,
     trial_date: string  // '2019-11-29',
-    trial_time: string // '09:05:24'
+    trial_time: string // '09:05:24',
+    tensorboard_size: number // folder size
+    checkpoints_size: number
+    sqlite_size: number
+    analytics_size: number
 }
 
 export class Run {

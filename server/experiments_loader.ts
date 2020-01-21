@@ -4,6 +4,7 @@ import * as PATH from "path"
 import * as UTIL from "util"
 import { Experiment, RunModel, Experiments, Indicators } from "./experiments"
 import { LAB } from "./consts"
+import { getDiskUsage } from "./util"
 
 class ExperimentsFactory {
     private static async getExperimentsNames(): Promise<string[]> {
@@ -16,6 +17,10 @@ class ExperimentsFactory {
         let contents = await readFile(PATH.join(LAB.experiments, name, runIndex, 'run.yaml'), { encoding: 'utf-8' })
         let res: RunModel = YAML.parse(contents)
         res.index = runIndex
+        res.checkpoints_size = await getDiskUsage(PATH.join(LAB.experiments, name, runIndex, 'checkpoints'))
+        res.tensorboard_size = await getDiskUsage(PATH.join(LAB.experiments, name, runIndex, 'tensorboard'))
+        res.sqlite_size = await getDiskUsage(PATH.join(LAB.experiments, name, runIndex, 'sqlite.db'))
+        res.analytics_size = await getDiskUsage(PATH.join(LAB.analytics, name, runIndex))
 
         return res
     }

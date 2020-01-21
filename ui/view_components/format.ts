@@ -20,6 +20,23 @@ export function formatInt(value: number) {
     return numberWithCommas(str)
 }
 
+export function formatSize(size: number) {
+    let units = ['B', 'KB', 'MB', 'GB']
+    let unit = 'TB'
+    for(let p of units) {
+        if(size < 1024) {
+            unit = p
+            break
+        }
+        size /= 1024
+    }
+
+    return ($: WeyaElementFunction) => {
+        $('span.size', size.toPrecision(4))
+        $('span.size_unit', unit)
+    }
+}
+
 export function formatValue(value: any) {
     if (typeof (value) === 'boolean') {
         let str = (<boolean>value).toString()

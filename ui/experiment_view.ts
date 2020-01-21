@@ -6,6 +6,7 @@ import { getExperiments } from "./cache"
 import { RunUI } from "./run_ui"
 import { renderConfigs } from "./configs"
 import { renderValues } from "./indicators"
+import { formatSize } from "./view_components/format"
 
 class RunView {
     run: Run
@@ -35,14 +36,19 @@ class RunView {
             })
             $('div', $ => {
                 $('i.fa.fa-history.key_icon')
-                $('span', ` ${info.commit_message}`)
+                $('span', info.commit_message)
             })
             $('div', $ => {
                 $('i.fa.fa-calendar.key_icon')
-                $('span', ` ${info.trial_date} `)
+                $('span', info.trial_date)
                 $('span.key_split', '')
                 $('i.fa.fa-clock.key_icon')
-                $('span', ` ${info.trial_time}`)
+                $('span', info.trial_time)
+            })
+            $('div', $ => {
+                $('i.fa.fa-save.key_icon')
+                let size = info.sqlite_size + info.analytics_size + info.checkpoints_size + info.tensorboard_size
+                $('span', formatSize(size))
             })
 
             this.indicatorsView = <HTMLDivElement>$('div.indicators.block')
