@@ -1,13 +1,12 @@
-
-import { ROUTER, SCREEN } from "./app"
-import { Weya as $, WeyaElement } from "./weya/weya"
-import { Run } from "./experiments"
-import { getExperiments, clearCache } from "./cache"
-import { RunUI } from "./run_ui"
-import { renderConfigs } from "./configs"
-import { renderValues } from "./indicators"
-import { InfoList, InfoItem } from "./view_components/info_list"
-import { formatSize } from "./view_components/format"
+import { ROUTER, SCREEN } from './app'
+import { Weya as $, WeyaElement } from './weya/weya'
+import { Run } from './experiments'
+import { getExperiments, clearCache } from './cache'
+import { RunUI } from './run_ui'
+import { renderConfigs } from './configs'
+import { renderValues } from './indicators'
+import { InfoList, InfoItem } from './view_components/info_list'
+import { formatSize } from './view_components/format'
 
 class RunView {
     run: Run
@@ -49,7 +48,7 @@ class RunView {
                 $('label', `${this.run.experimentName}`)
                 $('span', ' - ')
                 $('label', `${info.index}`)
-                if (info.comment.trim() !== "") {
+                if (info.comment.trim() !== '') {
                     $('span', ':')
                     $('span', info.comment)
                 }
@@ -71,44 +70,76 @@ class RunView {
                 $('span', info.trial_time)
             })
 
-
             $('div.block', $ => {
-                let commit_info: InfoItem[] = [['.key', 'Commit'],
-                ['.value', info.commit]]
+                let commit_info: InfoItem[] = [
+                    ['.key', 'Commit'],
+                    ['.value', info.commit]
+                ]
                 if (info.is_dirty) {
                     commit_info.push(['.link', '[dirty]'])
                 }
                 new InfoList(commit_info, '.mono').render($)
 
-                new InfoList([['.key', 'Python File'],
-                ['.value', info.python_file]], '.mono').render($)
+                new InfoList(
+                    [
+                        ['.key', 'Python File'],
+                        ['.value', info.python_file]
+                    ],
+                    '.mono'
+                ).render($)
             })
 
             $('div.block', $ => {
                 $('i.fa.fa-save.key_icon')
-                let size = info.sqlite_size + info.analytics_size + info.checkpoints_size + info.tensorboard_size
+                let size =
+                    info.sqlite_size +
+                    info.analytics_size +
+                    info.checkpoints_size +
+                    info.tensorboard_size
                 $('span', formatSize(size))
 
-                new InfoList([['.key', 'Checkpoints'],
-                ['.value', formatSize(info.checkpoints_size)]], '.mono').render($)
+                new InfoList(
+                    [
+                        ['.key', 'Checkpoints'],
+                        ['.value', formatSize(info.checkpoints_size)]
+                    ],
+                    '.mono'
+                ).render($)
 
-                new InfoList([['.key', 'SQLite'],
-                ['.value', formatSize(info.sqlite_size)]], '.mono').render($)
+                new InfoList(
+                    [
+                        ['.key', 'SQLite'],
+                        ['.value', formatSize(info.sqlite_size)]
+                    ],
+                    '.mono'
+                ).render($)
 
-                new InfoList([['.key', 'Analytics'],
-                ['.value', formatSize(info.analytics_size)]], '.mono').render($)
+                new InfoList(
+                    [
+                        ['.key', 'Analytics'],
+                        ['.value', formatSize(info.analytics_size)]
+                    ],
+                    '.mono'
+                ).render($)
 
-                new InfoList([['.key', 'TensorBoard'],
-                ['.value', formatSize(info.tensorboard_size)]], '.mono').render($)
+                new InfoList(
+                    [
+                        ['.key', 'TensorBoard'],
+                        ['.value', formatSize(info.tensorboard_size)]
+                    ],
+                    '.mono'
+                ).render($)
             })
 
             this.indicatorsView = <HTMLDivElement>$('div.indicators.block')
 
             this.configsView = <HTMLDivElement>$('div.configs.block')
 
-            this.tensorboardBtn = <HTMLButtonElement>$('button', 'Launch Tensorboard', {
-                on: { click: this.onTensorboardClick }
-            })
+            this.tensorboardBtn = <HTMLButtonElement>(
+                $('button', 'Launch Tensorboard', {
+                    on: { click: this.onTensorboardClick }
+                })
+            )
 
             this.analyticsBtns = <HTMLDivElement>$('div.analytics_buttons')
         })
@@ -125,7 +156,7 @@ class RunView {
         e.stopPropagation()
 
         let url = await this.runUI.launchTensorboard()
-        if (url === "") {
+        if (url === '') {
             alert("Couldn't start Tensorboard")
         } else {
             window.open(url, '_blank')
@@ -136,7 +167,7 @@ class RunView {
         e.preventDefault()
         e.stopPropagation()
 
-        if (confirm("Are you sure")) {
+        if (confirm('Are you sure')) {
             await this.runUI.remove()
             clearCache()
             ROUTER.back()
@@ -160,7 +191,7 @@ class RunView {
         e.stopPropagation()
         let target = <any>e.currentTarget
         let url = await this.runUI.launchJupyter(target.template)
-        if (url === "") {
+        if (url === '') {
             alert("Couldn't start Jupyter")
         } else {
             window.open(url, '_blank')
@@ -181,12 +212,11 @@ class RunView {
 
 export class RunHandler {
     constructor() {
-
         ROUTER.route('experiment/:name/:runIndex', [this.handleRun])
     }
 
     handleRun = (name: string, runIndex: string) => {
         SCREEN.setView(new RunView(name, runIndex))
-        console.log("test")
+        console.log('test')
     }
 }

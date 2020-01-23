@@ -1,7 +1,7 @@
-import { Weya as $, WeyaElement, WeyaElementFunction } from "./weya/weya"
-import { Configs, Config } from "./experiments"
-import { InfoList, InfoItem } from "./view_components/info_list";
-import { formatValue } from "./view_components/format";
+import { Weya as $, WeyaElement, WeyaElementFunction } from './weya/weya'
+import { Configs, Config } from './experiments'
+import { InfoList, InfoItem } from './view_components/info_list'
+import { formatValue } from './view_components/format'
 
 const CONFIG_PRINT_LEN = 50
 
@@ -9,7 +9,7 @@ class ConfigsView {
     configs: Configs
     common: Set<string>
     elem: WeyaElement
-    showHideBtn: HTMLButtonElement;
+    showHideBtn: HTMLButtonElement
 
     constructor(configs: Configs, common: Set<string> = new Set()) {
         this.configs = configs
@@ -47,7 +47,11 @@ class ConfigsView {
             parts.append((']', Text.subtle))
     */
 
-    private renderConfigValue(conf: Config, isCommon: boolean, $: WeyaElementFunction): boolean {
+    private renderConfigValue(
+        conf: Config,
+        isCommon: boolean,
+        $: WeyaElementFunction
+    ): boolean {
         let isCollapsible = false
 
         let classes = ['.config']
@@ -62,16 +66,22 @@ class ConfigsView {
             classes.push('.ignored')
             isCollapsible = true
         } else {
-            if (typeof (conf.computed) === 'string') {
+            if (typeof conf.computed === 'string') {
                 let computed: string = conf.computed
                 computed = computed.replace('\n', '')
                 if (computed.length < CONFIG_PRINT_LEN) {
                     parts.push(['.computed', computed])
                 } else {
-                    parts.push(['.computed', ($: WeyaElementFunction) => {
-                        $('span', computed.substr(0, CONFIG_PRINT_LEN) + '...',
-                            { title: computed })
-                    }])
+                    parts.push([
+                        '.computed',
+                        ($: WeyaElementFunction) => {
+                            $(
+                                'span',
+                                computed.substr(0, CONFIG_PRINT_LEN) + '...',
+                                { title: computed }
+                            )
+                        }
+                    ])
                 }
             } else {
                 parts.push(['.computed', formatValue(conf.computed)])
@@ -91,14 +101,17 @@ class ConfigsView {
                 classes.push('.custom')
             }
             if (options.size > 0) {
-                parts.push(['.options', ($: WeyaElementFunction) => {
-                    for (let opt of options.keys()) {
-                        if (typeof (opt) !== 'string') {
-                            continue
+                parts.push([
+                    '.options',
+                    ($: WeyaElementFunction) => {
+                        for (let opt of options.keys()) {
+                            if (typeof opt !== 'string') {
+                                continue
+                            }
+                            $('span', <string>opt)
                         }
-                        $('span', <string>opt)
                     }
-                }])
+                ])
             }
         }
 
@@ -107,14 +120,13 @@ class ConfigsView {
             isCollapsible = true
         }
 
-        new InfoList(parts,
-            classes.join('')).render($)
+        new InfoList(parts, classes.join('')).render($)
 
         return isCollapsible
     }
 
     render() {
-        let conf = this.configs.configs;
+        let conf = this.configs.configs
         let isCollapsible = false
 
         this.elem = $('div.configs', $ => {
@@ -130,12 +142,13 @@ class ConfigsView {
             }
 
             if (isCollapsible) {
-                this.showHideBtn = <HTMLButtonElement>$('button.small', 'More...', {
-                    on: {
-                        click: this.onShowHideClick
-                    }
-                })
-
+                this.showHideBtn = <HTMLButtonElement>(
+                    $('button.small', 'More...', {
+                        on: {
+                            click: this.onShowHideClick
+                        }
+                    })
+                )
             }
         })
 
@@ -160,10 +173,13 @@ class ConfigsView {
 
         this.showHideBtn.blur()
     }
-
 }
 
-export function renderConfigs(elem: HTMLElement, configs: Configs, common: Set<string> = new Set()) {
+export function renderConfigs(
+    elem: HTMLElement,
+    configs: Configs,
+    common: Set<string> = new Set()
+) {
     let view = new ConfigsView(configs, common)
     elem.appendChild(view.render())
 }

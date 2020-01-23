@@ -1,12 +1,11 @@
-
-import { ScreenView } from "./screen"
-import { ROUTER, SCREEN } from "./app"
-import { Weya as $, WeyaElement } from "./weya/weya"
-import { Experiments, Experiment, Run } from "./experiments"
-import { getExperiments } from "./cache"
-import { RunUI } from "./run_ui"
-import { renderValues } from "./indicators"
-import { renderConfigs } from "./configs"
+import { ScreenView } from './screen'
+import { ROUTER, SCREEN } from './app'
+import { Weya as $, WeyaElement } from './weya/weya'
+import { Experiments, Experiment, Run } from './experiments'
+import { getExperiments } from './cache'
+import { RunUI } from './run_ui'
+import { renderValues } from './indicators'
+import { renderConfigs } from './configs'
 
 class ExperimentView {
     experiment: Experiment
@@ -19,15 +18,18 @@ class ExperimentView {
     render() {
         let run = this.experiment.lastRun
 
-        this.elem = $('div.experiment', {
-            on: { click: this.onClick }
-        }, $ => {
-            $('h3', this.experiment.name)
-            if (run != null) {
-                this.renderRun(run)
+        this.elem = $(
+            'div.experiment',
+            {
+                on: { click: this.onClick }
+            },
+            $ => {
+                $('h3', this.experiment.name)
+                if (run != null) {
+                    this.renderRun(run)
+                }
             }
-
-        })
+        )
 
         return this.elem
     }
@@ -97,6 +99,6 @@ export class ExperimentsHandler {
 
     handleExperiments = () => {
         SCREEN.setView(new ExperimentsView())
-        console.log("test")
+        console.log('test')
     }
 }

@@ -1,9 +1,9 @@
-import { WeyaElementFunction } from "../weya/weya"
+import { WeyaElementFunction } from '../weya/weya'
 
 function numberWithCommas(x: string) {
-    var parts = x.split(".")
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-    return parts.join(".")
+    var parts = x.split('.')
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    return parts.join('.')
 }
 
 export function formatScalar(value: number) {
@@ -23,8 +23,8 @@ export function formatInt(value: number) {
 export function formatSize(size: number) {
     let units = ['B', 'KB', 'MB', 'GB']
     let unit = 'TB'
-    for(let p of units) {
-        if(size < 1024) {
+    for (let p of units) {
+        if (size < 1024) {
             unit = p
             break
         }
@@ -38,13 +38,13 @@ export function formatSize(size: number) {
 }
 
 export function formatValue(value: any) {
-    if (typeof (value) === 'boolean') {
+    if (typeof value === 'boolean') {
         let str = (<boolean>value).toString()
         return ($: WeyaElementFunction) => {
             $('span.boolean', str)
         }
-    } else if (typeof (value) === 'number') {
-        if ((value - Math.floor(value)) < 1e-9) {
+    } else if (typeof value === 'number') {
+        if (value - Math.floor(value) < 1e-9) {
             let str = formatInt(value)
             return ($: WeyaElementFunction) => {
                 $('span.int', str)
@@ -55,7 +55,7 @@ export function formatValue(value: any) {
                 $('span.float', str)
             }
         }
-    } else if (typeof (value) === 'string') {
+    } else if (typeof value === 'string') {
         return ($: WeyaElementFunction) => {
             $('span.string', value)
         }

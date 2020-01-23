@@ -1,5 +1,5 @@
-import { PORT } from "./app"
-import { ExperimentsModel, Experiments } from "./experiments"
+import { PORT } from './app'
+import { ExperimentsModel, Experiments } from './experiments'
 
 let EXPERIMENTS = null
 
@@ -16,6 +16,6 @@ export async function getExperiments(): Promise<Experiments> {
     })
 }
 
-export  function clearCache() {
+export function clearCache() {
     EXPERIMENTS = null
 }

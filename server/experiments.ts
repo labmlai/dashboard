@@ -60,10 +60,10 @@ export interface RunModel {
     comment: string
     commit: string
     commit_message: string
-    is_dirty: boolean,
+    is_dirty: boolean
     python_file: string
-    start_step: number,
-    trial_date: string  // '2019-11-29',
+    start_step: number
+    trial_date: string // '2019-11-29',
     trial_time: string // '09:05:24',
     tensorboard_size: number // folder size
     checkpoints_size: number
@@ -100,8 +100,10 @@ export class Experiment {
 
     constructor(experiment: ExperimentModel) {
         this.name = experiment.name
-        this.runs = experiment.runs.map((t) => new Run(this.name, t))
-        this.runs.sort((a, b) => parseInt(a.info.index) - parseInt(b.info.index))
+        this.runs = experiment.runs.map(t => new Run(this.name, t))
+        this.runs.sort(
+            (a, b) => parseInt(a.info.index) - parseInt(b.info.index)
+        )
     }
 
     get lastRun(): Run {
@@ -112,8 +114,8 @@ export class Experiment {
     }
 
     getRun(index: string): Run {
-        for(let run of this.runs) {
-            if(run.info.index === index) {
+        for (let run of this.runs) {
+            if (run.info.index === index) {
                 return run
             }
         }
@@ -124,7 +126,7 @@ export class Experiment {
     toJSON(): ExperimentModel {
         return {
             name: this.name,
-            runs: this.runs.map((t) => t.toJSON())
+            runs: this.runs.map(t => t.toJSON())
         }
     }
 }
@@ -148,8 +150,9 @@ export class Experiments {
         for (let k in this.experiments) {
             res.push(this.experiments[k])
         }
-        return res.sort((a, b) => (a.name < b.name ?
-            -1 : (a.name > b.name ? 1 : 0)))
+        return res.sort((a, b) =>
+            a.name < b.name ? -1 : a.name > b.name ? 1 : 0
+        )
     }
     toJSON(): ExperimentsModel {
         let res = {}

@@ -1,4 +1,4 @@
-import { WeyaElementFunction, WeyaTemplateFunction } from "../weya/weya"
+import { WeyaElementFunction, WeyaTemplateFunction } from '../weya/weya'
 
 type InfoContent = string | WeyaTemplateFunction
 export type InfoItem = InfoContent | [string, InfoContent]
@@ -14,8 +14,12 @@ export class InfoList {
 
     render($: WeyaElementFunction) {
         $(`div.info_list${this.classes}`, $ => {
-            for(let item of this.items) {
-                if(typeof(item) === 'object' && 'length' in item && item.length == 2) {
+            for (let item of this.items) {
+                if (
+                    typeof item === 'object' &&
+                    'length' in item &&
+                    item.length == 2
+                ) {
                     $(`span${item[0]}`, item[1])
                 } else {
                     $('span', <string | WeyaTemplateFunction>item)

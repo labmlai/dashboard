@@ -1,12 +1,12 @@
-import { ScreenView } from "./screen"
-import { ROUTER, SCREEN } from "./app"
-import { Weya as $, WeyaElement } from "./weya/weya"
-import { Experiment, Run, ScalarsModel, Configs } from "./experiments"
-import { getExperiments } from "./cache"
-import { RunUI } from "./run_ui"
-import { renderConfigs } from "./configs"
-import { renderValues } from "./indicators"
-import { formatSize } from "./view_components/format"
+import { ScreenView } from './screen'
+import { ROUTER, SCREEN } from './app'
+import { Weya as $, WeyaElement } from './weya/weya'
+import { Experiment, Run, ScalarsModel, Configs } from './experiments'
+import { getExperiments } from './cache'
+import { RunUI } from './run_ui'
+import { renderConfigs } from './configs'
+import { renderValues } from './indicators'
+import { formatSize } from './view_components/format'
 
 class RunView {
     run: Run
@@ -23,37 +23,45 @@ class RunView {
     }
 
     render() {
-        this.elem = $('div.run', {
-            on: { click: this.onClick }
-        }, $ => {
-            let info = this.run.info
-            $('h3', $ => {
-                $('label', `${info.index}`)
-                if (info.comment.trim() !== "") {
-                    $('span', ':')
-                    $('span', info.comment)
-                }
-            })
-            $('div', $ => {
-                $('i.fa.fa-history.key_icon')
-                $('span', info.commit_message)
-            })
-            $('div', $ => {
-                $('i.fa.fa-calendar.key_icon')
-                $('span', info.trial_date)
-                $('span.key_split', '')
-                $('i.fa.fa-clock.key_icon')
-                $('span', info.trial_time)
-            })
-            $('div', $ => {
-                $('i.fa.fa-save.key_icon')
-                let size = info.sqlite_size + info.analytics_size + info.checkpoints_size + info.tensorboard_size
-                $('span', formatSize(size))
-            })
+        this.elem = $(
+            'div.run',
+            {
+                on: { click: this.onClick }
+            },
+            $ => {
+                let info = this.run.info
+                $('h3', $ => {
+                    $('label', `${info.index}`)
+                    if (info.comment.trim() !== '') {
+                        $('span', ':')
+                        $('span', info.comment)
+                    }
+                })
+                $('div', $ => {
+                    $('i.fa.fa-history.key_icon')
+                    $('span', info.commit_message)
+                })
+                $('div', $ => {
+                    $('i.fa.fa-calendar.key_icon')
+                    $('span', info.trial_date)
+                    $('span.key_split', '')
+                    $('i.fa.fa-clock.key_icon')
+                    $('span', info.trial_time)
+                })
+                $('div', $ => {
+                    $('i.fa.fa-save.key_icon')
+                    let size =
+                        info.sqlite_size +
+                        info.analytics_size +
+                        info.checkpoints_size +
+                        info.tensorboard_size
+                    $('span', formatSize(size))
+                })
 
-            this.indicatorsView = <HTMLDivElement>$('div.indicators.block')
-            this.configsView = <HTMLDivElement>$('div.configs.block')
-        })
+                this.indicatorsView = <HTMLDivElement>$('div.indicators.block')
+                this.configsView = <HTMLDivElement>$('div.configs.block')
+            }
+        )
 
         return this.elem
     }
@@ -62,7 +70,9 @@ class RunView {
         e.preventDefault()
         e.stopPropagation()
 
-        ROUTER.navigate(`/experiment/${this.run.experimentName}/${this.run.info.index}`)
+        ROUTER.navigate(
+            `/experiment/${this.run.experimentName}/${this.run.info.index}`
+        )
     }
 
     async load() {
@@ -100,14 +110,16 @@ class ExperimentView implements ScreenView {
     private async renderExperiment() {
         this.experiment = (await getExperiments()).get(this.name)
 
-        this.experimentView.append($('div.info', $ => {
-            $('h1', this.experiment.name)
-        }))
+        this.experimentView.append(
+            $('div.info', $ => {
+                $('h1', this.experiment.name)
+            })
+        )
 
         let runViews: RunView[] = []
         for (let t of this.experiment.runs) {
-            let rv = new RunView(t);
-            this.experimentView.append(rv.render());
+            let rv = new RunView(t)
+            this.experimentView.append(rv.render())
             runViews.push(rv)
         }
 
@@ -115,7 +127,7 @@ class ExperimentView implements ScreenView {
             return
         }
 
-        await Promise.all(runViews.map((rv) => rv.load()))
+        await Promise.all(runViews.map(rv => rv.load()))
 
         let configs = {}
         let differentConfigs = new Set<string>()
@@ -150,12 +162,11 @@ class ExperimentView implements ScreenView {
 
 export class ExperimentHandler {
     constructor() {
-
         ROUTER.route('experiment/:name', [this.handleExperiment])
     }
 
     handleExperiment = (name: string) => {
         SCREEN.setView(new ExperimentView(name))
-        console.log("test")
+        console.log('test')
     }
 }
