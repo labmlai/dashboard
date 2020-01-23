@@ -1,7 +1,7 @@
-import { Run } from "./experiments";
-import { LAB } from "./consts";
-import * as PATH from "path"
-import {spawn, ChildProcessWithoutNullStreams} from "child_process"
+import { Run } from './experiments'
+import { LAB } from './consts'
+import * as PATH from 'path'
+import { spawn, ChildProcessWithoutNullStreams } from 'child_process'
 
 export class Tensorboard {
     runs: Run[]
@@ -15,23 +15,35 @@ export class Tensorboard {
     }
 
     async start(): Promise<void> {
-        let paths = this.runs.map((r) => `${r.experimentName}_${r.info.index}:` +
-            PATH.join(LAB.experiments, r.experimentName, r.info.index, 'tensorboard'))
-        let args = [`--logdir_spec=${paths.join(',')}`, '--port', `${this.port}`]
+        let paths = this.runs.map(
+            r =>
+                `${r.experimentName}_${r.info.index}:` +
+                PATH.join(
+                    LAB.experiments,
+                    r.experimentName,
+                    r.info.index,
+                    'tensorboard'
+                )
+        )
+        let args = [
+            `--logdir_spec=${paths.join(',')}`,
+            '--port',
+            `${this.port}`
+        ]
         console.log('tensorboard', args)
         this.proc = spawn('tensorboard', args)
 
         return new Promise((resolve, reject) => {
-            this.proc.on("close", (code, signal) => {
-                console.log("Close", code, signal)
+            this.proc.on('close', (code, signal) => {
+                console.log('Close', code, signal)
                 reject()
             })
-            this.proc.stdout.on("data", (data: Buffer) => {
-                console.log("TB out", data.toString())
+            this.proc.stdout.on('data', (data: Buffer) => {
+                console.log('TB out', data.toString())
             })
-            this.proc.stderr.on("data", (data: Buffer) => {
-                console.log("TB err", data.toString())
-                if (data.toString().indexOf("Press CTRL+C to quit") !== -1) {
+            this.proc.stderr.on('data', (data: Buffer) => {
+                console.log('TB err', data.toString())
+                if (data.toString().indexOf('Press CTRL+C to quit') !== -1) {
                     resolve()
                 }
             })
@@ -39,7 +51,7 @@ export class Tensorboard {
     }
 
     stop() {
-        if(this.proc == null) {
+        if (this.proc == null) {
             return
         } else {
             this.proc.kill('SIGINT')

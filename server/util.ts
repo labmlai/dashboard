@@ -1,6 +1,6 @@
-import * as UTIL from "util"
-import * as FS from "fs"
-import * as PATH from "path"
+import * as UTIL from 'util'
+import * as FS from 'fs'
+import * as PATH from 'path'
 
 export async function rmtree(path: string) {
     let exists = UTIL.promisify(FS.exists)

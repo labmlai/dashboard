@@ -1,24 +1,24 @@
 {
-  "name": "lab_dashboard_server",
-  "version": "1.0.0",
-  "description": "Server for Lab Dashboard",
-  "main": "app.js",
-  "repository": "https://github.com/vpj/lab_dashboard",
-  "author": "Varuna Jayasiri",
-  "license": "MIT",
-  "devDependencies": {
-    "@types/node": "latest",
-    "@types/sqlite3": "latest",
-    "@types/yaml": "latest",
-    "typescript": "latest"
-  },
-  "dependencies": {
-    "sqlite3": "latest",
-    "yaml": "latest"
-  },
-  "scripts": {
-    "build": "tsc",
-    "build:watch": "tsc -w",
-    "build:clean": "rm -rf out"
-  }
+    "name": "lab_dashboard_server",
+    "version": "1.0.0",
+    "description": "Server for Lab Dashboard",
+    "main": "app.js",
+    "repository": "https://github.com/vpj/lab_dashboard",
+    "author": "Varuna Jayasiri",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/node": "latest",
+        "@types/sqlite3": "latest",
+        "@types/yaml": "latest",
+        "typescript": "latest"
+    },
+    "dependencies": {
+        "sqlite3": "latest",
+        "yaml": "latest"
+    },
+    "scripts": {
+        "build": "tsc",
+        "build:watch": "tsc -w",
+        "build:clean": "rm -rf out"
+    }
 }

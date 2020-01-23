@@ -1,7 +1,7 @@
-import * as UTIL from "util"
+import * as UTIL from 'util'
 import * as PATH from 'path'
 import * as FS from 'fs'
-import * as YAML from "yaml"
+import * as YAML from 'yaml'
 
 const CONFIG_FILE_NAME = '.lab.yaml'
 
@@ -10,7 +10,7 @@ export class Lab {
     experiments: string
     analytics: string
     analyticsPath: string
-    analyticsTemplates: {[name: string]: string}
+    analyticsTemplates: { [name: string]: string }
     currentPath: string
 
     constructor(path: string) {
@@ -19,8 +19,8 @@ export class Lab {
 
     async load() {
         let configsList = await getConfigFiles(this.currentPath)
-        if(configsList.length == 0) {
-            throw Error("No .lab.yaml files found")
+        if (configsList.length == 0) {
+            throw Error('No .lab.yaml files found')
         }
         let configs = mergeConfig(configsList)
 
@@ -31,7 +31,6 @@ export class Lab {
         this.analyticsTemplates = configs.analytics_templates
     }
 }
-
 
 function mergeConfig(configs: any[]) {
     let config = {
@@ -53,24 +52,27 @@ function mergeConfig(configs: any[]) {
         }
 
         if ('path' in c) {
-            throw Error("Path in configs: " + c.config_file_path)
+            throw Error('Path in configs: ' + c.config_file_path)
         }
         if (i > 0 && 'experiments_path' in c) {
-            throw Error("Experiment path in configs: " + c.config_file_path)
+            throw Error('Experiment path in configs: ' + c.config_file_path)
         }
         if (i > 0 && 'analytics_path' in c) {
-            throw Error("Analyitics path in configs: " + c.config_file_path)
+            throw Error('Analyitics path in configs: ' + c.config_file_path)
         }
 
         for (let k in c) {
             let v = c[k]
             if (!(k in config)) {
-                throw Error("Unknown configs: " + c.config_file_path)
+                throw Error('Unknown configs: ' + c.config_file_path)
             }
 
             if (k === 'analytics_templates') {
                 for (let t in v) {
-                    config.analytics_templates[t] = PATH.resolve(c.config_file_path, v[t])
+                    config.analytics_templates[t] = PATH.resolve(
+                        c.config_file_path,
+                        v[t]
+                    )
                 }
             } else {
                 config[k] = v
@@ -94,7 +96,9 @@ async function getConfigFiles(path: string) {
         if (stats.isDirectory()) {
             let config_file = PATH.join(path, CONFIG_FILE_NAME)
             if (await exists(config_file)) {
-                let contents = await readFile(config_file, { encoding: 'utf-8' })
+                let contents = await readFile(config_file, {
+                    encoding: 'utf-8'
+                })
                 let configs = YAML.parse(contents)
                 configs.config_file_path = path
                 configsList.push(configs)

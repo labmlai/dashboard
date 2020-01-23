@@ -1,6 +1,6 @@
-import { NodeHttpServerPort } from "./io/node"
-import { StaticServer } from "./io/static"
-import * as PATH from "path"
+import { NodeHttpServerPort } from './io/node'
+import { StaticServer } from './io/static'
+import * as PATH from 'path'
 
 let static_path = PATH.resolve(__dirname, '../../ui/out')
 

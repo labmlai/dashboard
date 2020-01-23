@@ -1,11 +1,11 @@
-import { Run } from "./experiments";
-import { LAB } from "./consts";
-import * as PATH from "path"
-import { spawn, ChildProcessWithoutNullStreams } from "child_process"
-import * as PROCESS from "process"
-import { RunNodeJS } from "./run_nodejs";
-import * as UTIL from "util"
-import * as FS from "fs"
+import { Run } from './experiments'
+import { LAB } from './consts'
+import * as PATH from 'path'
+import { spawn, ChildProcessWithoutNullStreams } from 'child_process'
+import * as PROCESS from 'process'
+import { RunNodeJS } from './run_nodejs'
+import * as UTIL from 'util'
+import * as FS from 'fs'
 
 export class Jupyter {
     port: number
@@ -21,7 +21,7 @@ export class Jupyter {
         if (!('PYTHONPATH' in env)) {
             env['PYTHONPATH'] = env['PWD']
         } else {
-            env['PYTHONPATH'] += ":" + env['PWD']
+            env['PYTHONPATH'] += ':' + env['PWD']
         }
 
         let args = ['notebook', '--no-browser']
@@ -30,20 +30,20 @@ export class Jupyter {
 
         let isClosed = false
 
-        this.proc.on("close", (code, signal) => {
+        this.proc.on('close', (code, signal) => {
             isClosed = true
-            console.log("Close", code, signal)
+            console.log('Close', code, signal)
         })
-        this.proc.stdout.on("data", (data: Buffer) => {
-            console.log("TB out", data.toString())
+        this.proc.stdout.on('data', (data: Buffer) => {
+            console.log('TB out', data.toString())
         })
-        this.proc.stderr.on("data", (data: Buffer) => {
-            console.log("TB err", data.toString())
+        this.proc.stderr.on('data', (data: Buffer) => {
+            console.log('TB err', data.toString())
         })
 
         return new Promise((resolve, reject) => {
             setTimeout(() => {
-                console.log("isClosed", isClosed)
+                console.log('isClosed', isClosed)
                 if (isClosed) {
                     reject()
                 } else {
@@ -69,7 +69,11 @@ export class Jupyter {
         let runNodeJs = RunNodeJS.create(run)
         let lab = await runNodeJs.getLab()
         let template = lab.analyticsTemplates[templateName]
-        let destinationPath = PATH.join(LAB.analytics, run.experimentName, run.info.index)
+        let destinationPath = PATH.join(
+            LAB.analytics,
+            run.experimentName,
+            run.info.index
+        )
         let destination = PATH.join(destinationPath, `${templateName}.ipynb`)
         let url = `http://localhost:8888/notebooks/${lab.analyticsPath}/${run.experimentName}/${run.info.index}/${templateName}.ipynb`
 

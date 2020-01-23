@@ -1,8 +1,8 @@
 {
-  "compilerOptions": {
-      "target": "es6",
-      "module": "commonjs",
-      "sourceMap": false,
-      "outDir": "out"
-  }
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "sourceMap": false,
+        "outDir": "out"
+    }
 }
