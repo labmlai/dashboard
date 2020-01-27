@@ -54,9 +54,14 @@ class RunView {
                 }
             })
 
-            $('button', 'Remove', {
-                on: { click: this.onRemoveClick }
-            })
+            $(
+                'button.small.danger',
+                { on: { click: this.onRemoveClick } },
+                $ => {
+                    $('i.fa.fa-trash')
+                    $('span', ' Remove')
+                }
+            )
 
             $('div', $ => {
                 $('i.fa.fa-history.key_icon')
@@ -76,7 +81,15 @@ class RunView {
                     ['.value', info.commit]
                 ]
                 if (info.is_dirty) {
-                    commit_info.push(['.link', '[dirty]'])
+                    commit_info.push([
+                        '.link',
+                        $ => {
+                            $('span', ' ')
+                            $('button.small', '[dirty]', {
+                                on: { click: this.onDirtyClick }
+                            })
+                        }
+                    ])
                 }
                 new InfoList(commit_info, '.mono').render($)
 
@@ -161,6 +174,15 @@ class RunView {
         } else {
             window.open(url, '_blank')
         }
+    }
+
+    private onDirtyClick = async (e: Event) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        ROUTER.navigate(
+            `/experiment/${this.run.experimentName}/${this.run.info.index}/diff`
+        )
     }
 
     private onRemoveClick = async (e: Event) => {

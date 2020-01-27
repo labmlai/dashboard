@@ -113,6 +113,20 @@ export class RunNodeJS {
         return new Configs(YAML.parse(contents))
     }
 
+    async getDiff(): Promise<string> {
+        let readFile = UTIL.promisify(FS.readFile)
+        let contents = await readFile(
+            PATH.join(
+                LAB.experiments,
+                this.run.experimentName,
+                this.run.info.index,
+                'source.diff'
+            ),
+            { encoding: 'utf-8' }
+        )
+        return contents
+    }
+
     async getValues() {
         try {
             await this.loadDatabase()

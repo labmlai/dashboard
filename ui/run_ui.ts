@@ -14,6 +14,7 @@ export class RunUI {
     private configs: Configs
     private values: ScalarsModel
     private indicators: Indicators
+    private diff: string
 
     private constructor(run: Run) {
         this.run = run
@@ -61,6 +62,26 @@ export class RunUI {
                 (data: ConfigsModel, _) => {
                     this.configs = new Configs(data)
                     resolve(this.configs)
+                }
+            )
+        })
+    }
+
+    async getDiff(): Promise<string> {
+        if (this.diff != null) {
+            return this.diff
+        }
+
+        return new Promise(resolve => {
+            PORT.send(
+                'getDiff',
+                {
+                    experimentName: this.run.experimentName,
+                    runIndex: this.run.info.index
+                },
+                (data: string, _) => {
+                    this.diff = data
+                    resolve(this.diff)
                 }
             )
         })

@@ -165,6 +165,15 @@ SERVER.on('removeRun', async (data, packet, response) => {
     response.success('')
 })
 
+SERVER.on('getDiff', async (data, packet, response) => {
+    let experiment = await ExperimentsFactory.loadExperiment(
+        data.experimentName
+    )
+    let run = RunNodeJS.create(experiment.getRun(data.runIndex))
+    let diff = await run.getDiff()
+    response.success(diff)
+})
+
 LAB.load().then(() => {
     console.log(`http://localhost:${SERVER.port}`)
     console.log(LAB.path)
