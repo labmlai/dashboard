@@ -239,6 +239,5 @@ export class RunHandler {
 
     handleRun = (name: string, runIndex: string) => {
         SCREEN.setView(new RunView(name, runIndex))
-        console.log('test')
     }
 }

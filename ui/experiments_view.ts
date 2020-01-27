@@ -99,6 +99,5 @@ export class ExperimentsHandler {
 
     handleExperiments = () => {
         SCREEN.setView(new ExperimentsView())
-        console.log('test')
     }
 }

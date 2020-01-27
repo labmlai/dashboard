@@ -45,7 +45,7 @@ class DiffView {
         this.diff = await this.runUI.getDiff()
 
         let info = this.run.info
-        let h = highlight('python', this.diff, true, null)
+        let h = highlight('diff', this.diff, true, null)
         let diffPre: HTMLElement
         $(this.diffView, $ => {
             diffPre = <HTMLElement>$('pre')

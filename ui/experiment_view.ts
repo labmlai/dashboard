@@ -167,6 +167,5 @@ export class ExperimentHandler {
 
     handleExperiment = (name: string) => {
         SCREEN.setView(new ExperimentView(name))
-        console.log('test')
     }
 }
