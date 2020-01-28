@@ -41,123 +41,63 @@ export class RunUI {
     }
 
     async getConfigs(): Promise<Configs> {
-        if (this.configs != null) {
-            return this.configs
+        if (this.configs == null) {
+            this.configs = new Configs(
+                await API.getConfigs(
+                    this.run.experimentName,
+                    this.run.info.index
+                )
+            )
         }
 
-        return new Promise(resolve => {
-            PORT.send(
-                'getConfigs',
-                {
-                    experimentName: this.run.experimentName,
-                    runIndex: this.run.info.index
-                },
-                (data: ConfigsModel, _) => {
-                    this.configs = new Configs(data)
-                    resolve(this.configs)
-                }
-            )
-        })
+        return this.configs
     }
 
     async getDiff(): Promise<string> {
-        if (this.diff != null) {
-            return this.diff
+        if (this.diff == null) {
+            this.diff = await API.getDiff(
+                this.run.experimentName,
+                this.run.info.index
+            )
         }
 
-        return new Promise(resolve => {
-            PORT.send(
-                'getDiff',
-                {
-                    experimentName: this.run.experimentName,
-                    runIndex: this.run.info.index
-                },
-                (data: string, _) => {
-                    this.diff = data
-                    resolve(this.diff)
-                }
-            )
-        })
+        return this.diff
     }
 
     async getValues(): Promise<ScalarsModel> {
-        if (this.values != null) {
-            return this.values
+        if (this.values == null) {
+            this.values = await API.getValues(
+                this.run.experimentName,
+                this.run.info.index
+            )
         }
 
-        return new Promise(resolve => {
-            PORT.send(
-                'getValues',
-                {
-                    experimentName: this.run.experimentName,
-                    runIndex: this.run.info.index
-                },
-                (data: ScalarsModel, _) => {
-                    this.values = data
-                    resolve(this.values)
-                }
-            )
-        })
+        return this.values
     }
 
     async launchTensorboard(): Promise<string> {
-        return new Promise((resolve, reject) => {
-            PORT.send(
-                'launchTensorboard',
-                {
-                    experimentName: this.run.experimentName,
-                    runIndex: this.run.info.index
-                },
-                (url, _) => {
-                    resolve(url)
-                }
-            )
-        })
+        return await API.launchTensorboard(
+            this.run.experimentName,
+            this.run.info.index
+        )
     }
 
     async launchJupyter(templateName: string): Promise<string> {
-        return new Promise((resolve, reject) => {
-            PORT.send(
-                'launchJupyter',
-                {
-                    experimentName: this.run.experimentName,
-                    runIndex: this.run.info.index,
-                    analyticsTemplate: templateName
-                },
-                (url, _) => {
-                    resolve(url)
-                }
-            )
-        })
+        return await API.launchJupyter(
+            this.run.experimentName,
+            this.run.info.index,
+            templateName
+        )
     }
 
     async getAnalyticsTemplates(): Promise<string[]> {
-        return new Promise((resolve, reject) => {
-            PORT.send(
-                'getAnalyticsTemplates',
-                {
-                    experimentName: this.run.experimentName,
-                    runIndex: this.run.info.index
-                },
-                (data: string[], _) => {
-                    resolve(data)
-                }
-            )
-        })
+        return await API.getAnalyticsTemplates(
+            this.run.experimentName,
+            this.run.info.index
+        )
     }
 
     async remove() {
-        return new Promise((resolve, reject) => {
-            PORT.send(
-                'removeRun',
-                {
-                    experimentName: this.run.experimentName,
-                    runIndex: this.run.info.index
-                },
-                (data: any, _) => {
-                    resolve()
-                }
-            )
-        })
+        return await API.remove(this.run.experimentName, this.run.info.index)
     }
 }
