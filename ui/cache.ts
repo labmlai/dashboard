@@ -1,5 +1,6 @@
 import { PORT } from './app'
 import { ExperimentsModel, Experiments } from './experiments'
+import { API } from './api'
 
 let EXPERIMENTS = null
 
@@ -8,12 +9,7 @@ export async function getExperiments(): Promise<Experiments> {
         return EXPERIMENTS
     }
 
-    return new Promise((resolve, reject) => {
-        PORT.send('getExperiments', null, (data: ExperimentsModel, _) => {
-            EXPERIMENTS = new Experiments(data)
-            resolve(EXPERIMENTS)
-        })
-    })
+    return new Experiments(await API.getExperiments())
 }
 
 export function clearCache() {

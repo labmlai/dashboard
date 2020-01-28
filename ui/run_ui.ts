@@ -7,6 +7,7 @@ import {
     ConfigsModel,
     ScalarsModel
 } from './experiments'
+import { API } from './api'
 
 export class RunUI {
     private static cache: { [run: string]: RunUI } = {}
@@ -28,23 +29,15 @@ export class RunUI {
     }
 
     async getIndicators(): Promise<Indicators> {
-        if (this.indicators != null) {
-            return this.indicators
-        }
-
-        return new Promise(resolve => {
-            PORT.send(
-                'getIndicators',
-                {
-                    experimentName: this.run.experimentName,
-                    runIndex: this.run.info.index
-                },
-                (data: IndicatorsModel, _) => {
-                    this.indicators = new Indicators(data)
-                    resolve(this.indicators)
-                }
+        if (this.indicators == null) {
+            this.indicators = new Indicators(
+                await API.getIndicators(
+                    this.run.experimentName,
+                    this.run.info.index
+                )
             )
-        })
+        }
+        return this.indicators
     }
 
     async getConfigs(): Promise<Configs> {
