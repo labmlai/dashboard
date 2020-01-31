@@ -132,13 +132,29 @@ export class RunNodeJS {
             await this.loadDatabase()
         } catch (e) {
             this.db = null
-            console.log(e)
+            console.log(
+                'Couldnt connect to SQLite db',
+                this.run.experimentName,
+                this.run.info.index,
+                e
+            )
             return {}
         }
         let indicators = await this.getIndicators()
 
         // console.log(indicators)
-        let values = await this.getLastValue('')
+        let values = {}
+        try {
+            values = await this.getLastValue('')
+        } catch (e) {
+            console.log(
+                'Couldnt read from SQLite db',
+                this.run.experimentName,
+                this.run.info.index,
+                e
+            )
+            return {}
+        }
 
         for (let k in indicators.indicators) {
             let ind = indicators.indicators[k]
