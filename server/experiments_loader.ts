@@ -6,7 +6,6 @@ import {
     Experiment,
     RunModel,
     Experiments,
-    Indicators,
     DEFAULT_RUN_MODEL
 } from './experiments'
 import { LAB } from './consts'
