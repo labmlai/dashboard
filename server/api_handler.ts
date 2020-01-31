@@ -73,9 +73,7 @@ function createListener(
             params.push(data[args[i]])
         }
 
-        console.log(name, params)
         let result = await func.apply(api, params)
-        console.log(result)
         response.success(result)
     }
 

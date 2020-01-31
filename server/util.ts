@@ -20,7 +20,7 @@ export async function rmtree(path: string) {
         for (let f of files) {
             await rmtree(PATH.join(path, f))
         }
-        rmdir(path)
+        await rmdir(path)
     } else {
         await unlink(path)
     }
