@@ -7,7 +7,6 @@ import * as YAML from 'yaml'
 import { LAB } from './consts'
 import { Lab } from './lab'
 import { rmtree } from './util'
-import { Port } from './io/io'
 
 export class RunNodeJS {
     private static cache: { [run: string]: RunNodeJS } = {}
@@ -27,7 +26,7 @@ export class RunNodeJS {
 
     private loadDatabase(): Promise<void> {
         if (this.db != null) {
-            return new Promise((resolve, reject) => {
+            return new Promise(resolve => {
                 resolve()
             })
         }
@@ -49,19 +48,7 @@ export class RunNodeJS {
         })
     }
 
-    private getMaxStep(): Promise<any> {
-        return new Promise((resolve, reject) => {
-            this.db.get('SELECT MAX(step) FROM scalars', (err, row) => {
-                if (err) {
-                    reject(err)
-                } else {
-                    resolve(row)
-                }
-            })
-        })
-    }
-
-    private getLastValue(key: string): Promise<any> {
+    private getLastValue(): Promise<any> {
         return new Promise((resolve, reject) => {
             this.db.all(
                 `SELECT a.* FROM scalars AS a
@@ -146,7 +133,7 @@ export class RunNodeJS {
         // console.log(indicators)
         let values = {}
         try {
-            values = await this.getLastValue('')
+            values = await this.getLastValue()
         } catch (e) {
             console.log(
                 'Couldnt read from SQLite db',
@@ -195,10 +182,7 @@ export class RunNodeJS {
 
     async cleanupCheckpoints() {
         let exists = UTIL.promisify(FS.exists)
-        let lstat = UTIL.promisify(FS.lstat)
-        let unlink = UTIL.promisify(FS.unlink)
         let readdir = UTIL.promisify(FS.readdir)
-        let rmdir = UTIL.promisify(FS.rmdir)
 
         let path = PATH.join(
             LAB.experiments,
@@ -211,7 +195,7 @@ export class RunNodeJS {
             return
         }
         let checkpoints = await readdir(path)
-        console.log(checkpoints)
+
         if (checkpoints.length == 0) {
             return
         }
