@@ -8,6 +8,17 @@ import { renderValues } from './indicators'
 import { InfoList, InfoItem } from './view_components/info_list'
 import { formatSize } from './view_components/format'
 
+function wrapEvent(func: Function) {
+    function wrapper(e: Event) {
+        e.preventDefault()
+        e.stopPropagation()
+
+        func()
+    }
+
+    return wrapper
+}
+
 class RunView {
     run: Run
     runUI: RunUI
@@ -20,10 +31,21 @@ class RunView {
     configsView: HTMLDivElement
     jupyterBtn: HTMLButtonElement
     analyticsBtns: HTMLDivElement
+    commentContainer: WeyaElement
 
     constructor(experimentName: string, runIndex: string) {
         this.experimentName = experimentName
         this.runIndex = runIndex
+
+        let events = []
+        for (let k in this.events) {
+            events.push(k)
+        }
+
+        for (let k of events) {
+            let func = this.events[k]
+            this.events[k] = wrapEvent(func)
+        }
     }
 
     render() {
@@ -42,21 +64,24 @@ class RunView {
         this.runUI = RunUI.create(this.run)
 
         let info = this.run.info
-
+        let comment = info.comment.trim() === '' ? '[comment]' : info.comment
         $(this.runView, $ => {
             $('h1', $ => {
                 $('label', `${this.run.experimentName}`)
                 $('span', ' - ')
                 $('label', `${info.index}`)
-                if (info.comment.trim() !== '') {
-                    $('span', ':')
-                    $('span', info.comment)
-                }
+
+                $('span', ':')
+                this.commentContainer = $('span', $ => {
+                    $('span', comment, {
+                        on: { click: this.events.editComment }
+                    })
+                })
             })
 
             $(
                 'button.small.danger',
-                { on: { click: this.onRemoveClick } },
+                { on: { click: this.events.remove } },
                 $ => {
                     $('i.fa.fa-trash')
                     $('span', ' Remove')
@@ -65,7 +90,7 @@ class RunView {
 
             $(
                 'button.small.danger',
-                { on: { click: this.onCleanupCheckpoints } },
+                { on: { click: this.events.cleanupCheckpoints } },
                 $ => {
                     $('i.fa.fa-trash')
                     $('span', ' Cleanup Checkpoints')
@@ -95,7 +120,7 @@ class RunView {
                         $ => {
                             $('span', ' ')
                             $('button.small', '[dirty]', {
-                                on: { click: this.onDirtyClick }
+                                on: { click: this.events.dirty }
                             })
                         }
                     ])
@@ -159,7 +184,7 @@ class RunView {
 
             this.tensorboardBtn = <HTMLButtonElement>(
                 $('button', 'Launch Tensorboard', {
-                    on: { click: this.onTensorboardClick }
+                    on: { click: this.events.tensorboard }
                 })
             )
 
@@ -173,45 +198,50 @@ class RunView {
         return this.elem
     }
 
-    private onTensorboardClick = async (e: Event) => {
-        e.preventDefault()
-        e.stopPropagation()
+    private events = {
+        tensorboard: async () => {
+            let url = await this.runUI.launchTensorboard()
+            if (url === '') {
+                alert("Couldn't start Tensorboard")
+            } else {
+                window.open(url, '_blank')
+            }
+        },
 
-        let url = await this.runUI.launchTensorboard()
-        if (url === '') {
-            alert("Couldn't start Tensorboard")
-        } else {
-            window.open(url, '_blank')
-        }
-    }
+        dirty: async () => {
+            ROUTER.navigate(
+                `/experiment/${this.run.experimentName}/${this.run.info.index}/diff`
+            )
+        },
 
-    private onDirtyClick = async (e: Event) => {
-        e.preventDefault()
-        e.stopPropagation()
+        remove: async (e: Event) => {
+            if (confirm('Are you sure')) {
+                await this.runUI.remove()
+                clearCache()
+                ROUTER.back()
+            }
+        },
 
-        ROUTER.navigate(
-            `/experiment/${this.run.experimentName}/${this.run.info.index}/diff`
-        )
-    }
-
-    private onRemoveClick = async (e: Event) => {
-        e.preventDefault()
-        e.stopPropagation()
-
-        if (confirm('Are you sure')) {
-            await this.runUI.remove()
+        cleanupCheckpoints: async (e: Event) => {
+            await this.runUI.cleanupCheckpoints()
             clearCache()
             ROUTER.back()
+        },
+
+        editComment: async (e: Event) => {
+            e.preventDefault()
+            e.stopPropagation()
+        },
+
+        jupyter: async (e: Event) => {
+            let target = <any>e.currentTarget
+            let url = await this.runUI.launchJupyter(target.template)
+            if (url === '') {
+                alert("Couldn't start Jupyter")
+            } else {
+                window.open(url, '_blank')
+            }
         }
-    }
-
-    private onCleanupCheckpoints = async (e: Event) => {
-        e.preventDefault()
-        e.stopPropagation()
-
-        await this.runUI.cleanupCheckpoints()
-        clearCache()
-        ROUTER.back()
     }
 
     async renderAnalyticsBtns() {
@@ -219,22 +249,10 @@ class RunView {
         for (let t of templates) {
             $(this.analyticsBtns, $ => {
                 $('button', t, {
-                    on: { click: this.onJupyterClick },
+                    on: { click: this.events.jupyter },
                     data: { template: t }
                 })
             })
-        }
-    }
-
-    private onJupyterClick = async (e: Event) => {
-        e.preventDefault()
-        e.stopPropagation()
-        let target = <any>e.currentTarget
-        let url = await this.runUI.launchJupyter(target.template)
-        if (url === '') {
-            alert("Couldn't start Jupyter")
-        } else {
-            window.open(url, '_blank')
         }
     }
 
