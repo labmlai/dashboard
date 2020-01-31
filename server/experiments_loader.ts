@@ -2,7 +2,13 @@ import * as YAML from 'yaml'
 import * as FS from 'fs'
 import * as PATH from 'path'
 import * as UTIL from 'util'
-import { Experiment, RunModel, Experiments, Indicators } from './experiments'
+import {
+    Experiment,
+    RunModel,
+    Experiments,
+    Indicators,
+    DEFAULT_RUN_MODEL
+} from './experiments'
 import { LAB } from './consts'
 import { getDiskUsage } from './util'
 
@@ -22,6 +28,9 @@ class ExperimentsFactory {
             { encoding: 'utf-8' }
         )
         let res: RunModel = YAML.parse(contents)
+        if (res == null) {
+            res = JSON.parse(JSON.stringify(DEFAULT_RUN_MODEL))
+        }
         res.index = runIndex
         res.checkpoints_size = await getDiskUsage(
             PATH.join(LAB.experiments, name, runIndex, 'checkpoints')

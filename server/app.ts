@@ -5,6 +5,8 @@ import { Tensorboard } from './tensorboard'
 import { RunNodeJS } from './run_nodejs'
 import { Jupyter } from './jupyter'
 import { LAB } from './consts'
+import { listenAPI } from './api_listener'
+import { API } from './api_server'
 
 let TENSORBOARD: Tensorboard = null
 let JUPYTER: Jupyter = null
@@ -128,51 +130,53 @@ async function handleGetAnalyticsTemplates(
     response.success(templateNames)
 }
 
-SERVER.on('getExperiments', (data, packet, response) => {
-    handleGetExperiments(data, packet, response)
-})
+// SERVER.on('getExperiments', (data, packet, response) => {
+//     handleGetExperiments(data, packet, response)
+// })
 
-SERVER.on('getIndicators', (data, packet, response) => {
-    handleGetIndicators(data, packet, response)
-})
+// SERVER.on('getIndicators', (data, packet, response) => {
+//     handleGetIndicators(data, packet, response)
+// })
 
-SERVER.on('getConfigs', (data, packet, response) => {
-    handleGetConfigs(data, packet, response)
-})
+// SERVER.on('getConfigs', (data, packet, response) => {
+//     handleGetConfigs(data, packet, response)
+// })
 
-SERVER.on('getValues', (data, packet, response) => {
-    handleGetValues(data, packet, response)
-})
+// SERVER.on('getValues', (data, packet, response) => {
+//     handleGetValues(data, packet, response)
+// })
 
-SERVER.on('launchTensorboard', (data, packet, response) => {
-    handleLaunchTensorboard(data, packet, response)
-})
+// SERVER.on('launchTensorboard', (data, packet, response) => {
+//     handleLaunchTensorboard(data, packet, response)
+// })
 
-SERVER.on('launchJupyter', (data, packet, response) => {
-    handleLaunchJupyter(data, packet, response)
-})
+// SERVER.on('launchJupyter', (data, packet, response) => {
+//     handleLaunchJupyter(data, packet, response)
+// })
 
-SERVER.on('getAnalyticsTemplates', (data, packet, response) => {
-    handleGetAnalyticsTemplates(data, packet, response)
-})
+// SERVER.on('getAnalyticsTemplates', (data, packet, response) => {
+//     handleGetAnalyticsTemplates(data, packet, response)
+// })
 
-SERVER.on('removeRun', async (data, packet, response) => {
-    let experiment = await ExperimentsFactory.loadExperiment(
-        data.experimentName
-    )
-    let run = RunNodeJS.create(experiment.getRun(data.runIndex))
-    await run.remove()
-    response.success('')
-})
+// SERVER.on('removeRun', async (data, packet, response) => {
+//     let experiment = await ExperimentsFactory.loadExperiment(
+//         data.experimentName
+//     )
+//     let run = RunNodeJS.create(experiment.getRun(data.runIndex))
+//     await run.remove()
+//     response.success('')
+// })
 
-SERVER.on('getDiff', async (data, packet, response) => {
-    let experiment = await ExperimentsFactory.loadExperiment(
-        data.experimentName
-    )
-    let run = RunNodeJS.create(experiment.getRun(data.runIndex))
-    let diff = await run.getDiff()
-    response.success(diff)
-})
+// SERVER.on('getDiff', async (data, packet, response) => {
+//     let experiment = await ExperimentsFactory.loadExperiment(
+//         data.experimentName
+//     )
+//     let run = RunNodeJS.create(experiment.getRun(data.runIndex))
+//     let diff = await run.getDiff()
+//     response.success(diff)
+// })
+
+listenAPI(SERVER, API)
 
 LAB.load().then(() => {
     console.log(`http://localhost:${SERVER.port}`)

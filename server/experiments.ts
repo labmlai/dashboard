@@ -71,6 +71,22 @@ export interface RunModel {
     analytics_size: number
 }
 
+export const DEFAULT_RUN_MODEL: RunModel = {
+    index: '',
+    comment: '',
+    commit: '',
+    commit_message: '',
+    is_dirty: false,
+    python_file: '',
+    start_step: 0,
+    trial_date: '2000-01-01',
+    trial_time: '00:00:00',
+    tensorboard_size: 0,
+    checkpoints_size: 0,
+    sqlite_size: 0,
+    analytics_size: 0
+}
+
 export class Run {
     experimentName: string
     info: RunModel

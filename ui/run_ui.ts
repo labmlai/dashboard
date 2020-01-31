@@ -98,6 +98,6 @@ export class RunUI {
     }
 
     async remove() {
-        return await API.remove(this.run.experimentName, this.run.info.index)
+        return await API.removeRun(this.run.experimentName, this.run.info.index)
     }
 }

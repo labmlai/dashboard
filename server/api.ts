@@ -1,12 +1,11 @@
 import {
     IndicatorsModel,
     ExperimentsModel,
-    Configs,
     ConfigsModel,
     ScalarsModel
 } from './experiments'
 
-class Api {
+export class Api {
     async getExperiments(): Promise<ExperimentsModel> {
         return null
     }
@@ -58,7 +57,7 @@ class Api {
         return null
     }
 
-    async remove(experimentName: string, runIndex: string): Promise<void> {
+    async removeRun(experimentName: string, runIndex: string): Promise<void> {
         return null
     }
 }
