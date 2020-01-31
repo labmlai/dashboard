@@ -60,6 +60,13 @@ export class Api {
     async removeRun(experimentName: string, runIndex: string): Promise<void> {
         return null
     }
+
+    async cleanupCheckpoints(
+        experimentName: string,
+        runIndex: string
+    ): Promise<void> {
+        return null
+    }
 }
 
 export const API = new Api()

@@ -113,6 +113,15 @@ class ApiServer extends Api {
         let run = RunNodeJS.create(experiment.getRun(runIndex))
         await run.remove()
     }
+
+    async cleanupCheckpoints(
+        experimentName: string,
+        runIndex: string
+    ): Promise<void> {
+        let experiment = await ExperimentsFactory.loadExperiment(experimentName)
+        let run = RunNodeJS.create(experiment.getRun(runIndex))
+        await run.cleanupCheckpoints()
+    }
 }
 
 export const API = new ApiServer()

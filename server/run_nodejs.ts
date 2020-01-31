@@ -7,6 +7,7 @@ import * as YAML from 'yaml'
 import { LAB } from './consts'
 import { Lab } from './lab'
 import { rmtree } from './util'
+import { Port } from './io/io'
 
 export class RunNodeJS {
     private static cache: { [run: string]: RunNodeJS } = {}
@@ -190,5 +191,41 @@ export class RunNodeJS {
             this.run.info.index
         )
         await rmtree(analytics)
+    }
+
+    async cleanupCheckpoints() {
+        let exists = UTIL.promisify(FS.exists)
+        let lstat = UTIL.promisify(FS.lstat)
+        let unlink = UTIL.promisify(FS.unlink)
+        let readdir = UTIL.promisify(FS.readdir)
+        let rmdir = UTIL.promisify(FS.rmdir)
+
+        let path = PATH.join(
+            LAB.experiments,
+            this.run.experimentName,
+            this.run.info.index,
+            'checkpoints'
+        )
+
+        if (!(await exists(path))) {
+            return
+        }
+        let checkpoints = await readdir(path)
+        console.log(checkpoints)
+        if (checkpoints.length == 0) {
+            return
+        }
+        let last = parseInt(checkpoints[0])
+        for (let c of checkpoints) {
+            if (last < parseInt(c)) {
+                last = parseInt(c)
+            }
+        }
+
+        for (let c of checkpoints) {
+            if (last !== parseInt(c)) {
+                await rmtree(PATH.join(path, c))
+            }
+        }
     }
 }

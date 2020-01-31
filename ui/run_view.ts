@@ -63,6 +63,15 @@ class RunView {
                 }
             )
 
+            $(
+                'button.small.danger',
+                { on: { click: this.onCleanupCheckpoints } },
+                $ => {
+                    $('i.fa.fa-trash')
+                    $('span', ' Cleanup Checkpoints')
+                }
+            )
+
             $('div', $ => {
                 $('i.fa.fa-history.key_icon')
                 $('span', info.commit_message)
@@ -194,6 +203,15 @@ class RunView {
             clearCache()
             ROUTER.back()
         }
+    }
+
+    private onCleanupCheckpoints = async (e: Event) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        await this.runUI.cleanupCheckpoints()
+        clearCache()
+        ROUTER.back()
     }
 
     async renderAnalyticsBtns() {

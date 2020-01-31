@@ -100,4 +100,11 @@ export class RunUI {
     async remove() {
         return await API.removeRun(this.run.experimentName, this.run.info.index)
     }
+
+    async cleanupCheckpoints() {
+        return await API.cleanupCheckpoints(
+            this.run.experimentName,
+            this.run.info.index
+        )
+    }
 }
