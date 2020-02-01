@@ -67,6 +67,14 @@ export class Api {
     ): Promise<void> {
         return null
     }
+
+    async updateRun(
+        experimentName: string,
+        runIndex: string,
+        data: { [key: string]: string }
+    ): Promise<void> {
+        return null
+    }
 }
 
 export const API = new Api()

@@ -13,6 +13,11 @@ import { Jupyter } from './jupyter'
 let TENSORBOARD: Tensorboard = null
 let JUPYTER: Jupyter = null
 
+async function getRun(experimentName: string, runIndex: string) {
+    let experiment = await ExperimentsFactory.loadExperiment(experimentName)
+    return RunNodeJS.create(experiment.getRun(runIndex))
+}
+
 class ApiServer extends Api {
     async getExperiments(): Promise<ExperimentsModel> {
         let experiments = await ExperimentsFactory.load()
@@ -23,8 +28,7 @@ class ApiServer extends Api {
         experimentName: string,
         runIndex: string
     ): Promise<IndicatorsModel> {
-        let experiment = await ExperimentsFactory.loadExperiment(experimentName)
-        let run = RunNodeJS.create(experiment.getRun(runIndex))
+        let run = await getRun(experimentName, runIndex)
         let indicators = await run.getIndicators()
         return indicators.toJSON()
     }
@@ -33,15 +37,13 @@ class ApiServer extends Api {
         experimentName: string,
         runIndex: string
     ): Promise<ConfigsModel> {
-        let experiment = await ExperimentsFactory.loadExperiment(experimentName)
-        let run = RunNodeJS.create(experiment.getRun(runIndex))
+        let run = await getRun(experimentName, runIndex)
         let configs = await run.getConfigs()
         return configs.toJSON()
     }
 
     async getDiff(experimentName: string, runIndex: string): Promise<string> {
-        let experiment = await ExperimentsFactory.loadExperiment(experimentName)
-        let run = RunNodeJS.create(experiment.getRun(runIndex))
+        let run = await getRun(experimentName, runIndex)
         return await run.getDiff()
     }
 
@@ -49,8 +51,7 @@ class ApiServer extends Api {
         experimentName: string,
         runIndex: string
     ): Promise<ScalarsModel> {
-        let experiment = await ExperimentsFactory.loadExperiment(experimentName)
-        let run = RunNodeJS.create(experiment.getRun(runIndex))
+        let run = await getRun(experimentName, runIndex)
         return await run.getValues()
     }
 
@@ -98,8 +99,7 @@ class ApiServer extends Api {
         experimentName: string,
         runIndex: string
     ): Promise<string[]> {
-        let experiment = await ExperimentsFactory.loadExperiment(experimentName)
-        let run = RunNodeJS.create(experiment.getRun(runIndex))
+        let run = await getRun(experimentName, runIndex)
         let templateNames = []
         let lab = await run.getLab()
         for (let k in lab.analyticsTemplates) {
@@ -109,8 +109,7 @@ class ApiServer extends Api {
     }
 
     async removeRun(experimentName: string, runIndex: string): Promise<void> {
-        let experiment = await ExperimentsFactory.loadExperiment(experimentName)
-        let run = RunNodeJS.create(experiment.getRun(runIndex))
+        let run = await getRun(experimentName, runIndex)
         await run.remove()
     }
 
@@ -118,9 +117,17 @@ class ApiServer extends Api {
         experimentName: string,
         runIndex: string
     ): Promise<void> {
-        let experiment = await ExperimentsFactory.loadExperiment(experimentName)
-        let run = RunNodeJS.create(experiment.getRun(runIndex))
+        let run = await getRun(experimentName, runIndex)
         await run.cleanupCheckpoints()
+    }
+
+    async updateRun(
+        experimentName: string,
+        runIndex: string,
+        data: { [key: string]: string }
+    ): Promise<void> {
+        let run = await getRun(experimentName, runIndex)
+        await run.update(data)
     }
 }
 

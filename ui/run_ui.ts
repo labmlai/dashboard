@@ -107,4 +107,12 @@ export class RunUI {
             this.run.info.index
         )
     }
+
+    async update(data: { [key: string]: string }) {
+        return await API.updateRun(
+            this.run.experimentName,
+            this.run.info.index,
+            data
+        )
+    }
 }

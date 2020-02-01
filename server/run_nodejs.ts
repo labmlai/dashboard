@@ -1,5 +1,5 @@
 import * as sqlite3 from 'sqlite3'
-import { Run, Indicators, Configs } from './experiments'
+import { Run, Indicators, Configs, RunModel } from './experiments'
 import * as PATH from 'path'
 import * as UTIL from 'util'
 import * as FS from 'fs'
@@ -7,6 +7,8 @@ import * as YAML from 'yaml'
 import { LAB } from './consts'
 import { Lab } from './lab'
 import { rmtree } from './util'
+
+const UPDATABLE_KEYS = new Set(['comment', 'notes'])
 
 export class RunNodeJS {
     private static cache: { [run: string]: RunNodeJS } = {}
@@ -178,6 +180,31 @@ export class RunNodeJS {
             this.run.info.index
         )
         await rmtree(analytics)
+    }
+
+    async update(data: { [key: string]: string }) {
+        for (let k in data) {
+            if (!UPDATABLE_KEYS.has(k)) {
+                return
+            }
+        }
+
+        let readFile = UTIL.promisify(FS.readFile)
+        let writeFile = UTIL.promisify(FS.writeFile)
+        let path = PATH.join(
+            LAB.experiments,
+            this.run.experimentName,
+            this.run.info.index,
+            'run.yaml'
+        )
+        let contents = await readFile(path, { encoding: 'utf-8' })
+        let run: RunModel = YAML.parse(contents)
+
+        for (let k in data) {
+            run[k] = data[k]
+        }
+
+        await writeFile(path, YAML.stringify(run))
     }
 
     async cleanupCheckpoints() {

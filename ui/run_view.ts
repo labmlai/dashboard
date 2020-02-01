@@ -31,7 +31,8 @@ class RunView {
     configsView: HTMLDivElement
     jupyterBtn: HTMLButtonElement
     analyticsBtns: HTMLDivElement
-    commentContainer: WeyaElement
+    commentSpan: HTMLSpanElement
+    commentInput: HTMLInputElement
 
     constructor(experimentName: string, runIndex: string) {
         this.experimentName = experimentName
@@ -71,10 +72,17 @@ class RunView {
                 $('span', ' - ')
                 $('label', `${info.index}`)
 
-                $('span', ':')
-                this.commentContainer = $('span', $ => {
-                    $('span', comment, {
+                $('span', ': ')
+                $('span', $ => {
+                    this.commentSpan = <HTMLSpanElement>$('span', comment, {
                         on: { click: this.events.editComment }
+                    })
+                    this.commentInput = <HTMLInputElement>$('input', {
+                        type: 'text',
+                        on: {
+                            blur: this.events.saveComment,
+                            keydown: this.onCommentKeyDown
+                        }
                     })
                 })
             })
@@ -191,6 +199,8 @@ class RunView {
             this.analyticsBtns = <HTMLDivElement>$('div.analytics_buttons')
         })
 
+        this.commentInput.style.display = 'none'
+
         this.renderIndicators()
         this.renderConfigs()
         this.renderAnalyticsBtns()
@@ -229,8 +239,14 @@ class RunView {
         },
 
         editComment: async (e: Event) => {
-            e.preventDefault()
-            e.stopPropagation()
+            this.commentSpan.style.display = 'none'
+            this.commentInput.style.display = null
+            this.commentInput.value = this.run.info.comment
+            this.commentInput.focus()
+        },
+
+        saveComment: async (e: Event) => {
+            this.saveComment(this.commentInput.value)
         },
 
         jupyter: async (e: Event) => {
@@ -242,6 +258,21 @@ class RunView {
                 window.open(url, '_blank')
             }
         }
+    }
+
+    onCommentKeyDown = async (e: KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            this.saveComment(this.commentInput.value)
+        }
+    }
+
+    private saveComment(comment: string) {
+        this.commentSpan.style.display = null
+        this.commentInput.style.display = 'none'
+        this.run.info.comment = comment
+        this.commentSpan.textContent = comment
+
+        this.runUI.update({ comment: comment })
     }
 
     async renderAnalyticsBtns() {
