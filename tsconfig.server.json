@@ -9,6 +9,9 @@
     "server",
     "lib/io/io.ts",
     "lib/io/node.ts",
-    "lib/io/static.ts"
+    "lib/io/static.ts",
+    "common/api.ts",
+    "common/api_handler.ts",
+    "common/experiments.ts"
   ]
 }

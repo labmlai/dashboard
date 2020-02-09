@@ -7,7 +7,7 @@ import {
     RunModel,
     Experiments,
     DEFAULT_RUN_MODEL
-} from './experiments'
+} from '../common/experiments'
 import { LAB } from './consts'
 import { getDiskUsage } from './util'
 

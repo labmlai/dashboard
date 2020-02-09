@@ -1,7 +1,7 @@
-import { Run } from './experiments'
-import { LAB } from './consts'
+import {Run} from '../common/experiments'
+import {LAB} from './consts'
 import * as PATH from 'path'
-import { spawn, ChildProcessWithoutNullStreams } from 'child_process'
+import {spawn, ChildProcessWithoutNullStreams} from 'child_process'
 
 export class Tensorboard {
     runs: Run[]
@@ -33,7 +33,7 @@ export class Tensorboard {
         console.log('tensorboard', args)
         this.proc = spawn('tensorboard', args)
 
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             this.proc.on('close', (code, signal) => {
                 console.log('Close', code, signal)
                 reject()

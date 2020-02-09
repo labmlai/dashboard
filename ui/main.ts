@@ -3,8 +3,8 @@ import { ROUTER, PORT } from './app'
 import { ExperimentHandler } from './experiment_view'
 import { RunHandler } from './run_view'
 import { DiffHandler } from './diff_view'
-import { API } from './api'
-import { wrapAPI } from './api_handler'
+import { API } from '../common/api'
+import { wrapAPI } from '../common/api_handler'
 
 new ExperimentsHandler()
 new ExperimentHandler()

@@ -1,6 +1,6 @@
 import { SERVER } from './server'
 import { LAB } from './consts'
-import { listenAPI } from './api_handler'
+import { listenAPI } from '../common/api_handler'
 import { API } from './api_server'
 
 listenAPI(SERVER, API)

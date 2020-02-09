@@ -1,5 +1,5 @@
 import { Weya as $, WeyaElement, WeyaElementFunction } from '../lib/weya/weya'
-import { Configs, Config } from './experiments'
+import { Configs, Config } from '../common/experiments'
 import { InfoList, InfoItem } from './view_components/info_list'
 import { formatValue } from './view_components/format'
 

@@ -6,8 +6,8 @@ import {
     Configs,
     ConfigsModel,
     ScalarsModel
-} from './experiments'
-import { API } from './api'
+} from '../common/experiments'
+import { API } from '../common/api'
 
 export class RunUI {
     private static cache: { [run: string]: RunUI } = {}

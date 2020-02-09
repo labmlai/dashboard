@@ -3,8 +3,8 @@ import {
     ExperimentsModel,
     ConfigsModel,
     ScalarsModel
-} from './experiments'
-import { Api } from './api'
+} from '../common/experiments'
+import { Api } from '../common/api'
 import { ExperimentsFactory } from './experiments_loader'
 import { RunNodeJS } from './run_nodejs'
 import { Tensorboard } from './tensorboard'

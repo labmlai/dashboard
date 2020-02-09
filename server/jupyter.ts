@@ -1,4 +1,4 @@
-import { Run } from './experiments'
+import { Run } from '../common/experiments'
 import { LAB } from './consts'
 import * as PATH from 'path'
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process'

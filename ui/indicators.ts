@@ -1,5 +1,5 @@
 import { Weya as $ } from '../lib/weya/weya'
-import { ScalarsModel, Indicators } from './experiments'
+import { ScalarsModel, Indicators } from '../common/experiments'
 import { InfoList } from './view_components/info_list'
 import { formatScalar, formatInt } from './view_components/format'
 

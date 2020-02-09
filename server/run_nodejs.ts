@@ -1,5 +1,5 @@
 import * as sqlite3 from 'sqlite3'
-import { Run, Indicators, Configs, RunModel } from './experiments'
+import { Run, Indicators, Configs, RunModel } from '../common/experiments'
 import * as PATH from 'path'
 import * as UTIL from 'util'
 import * as FS from 'fs'
