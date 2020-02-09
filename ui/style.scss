@@ -119,7 +119,7 @@ body {
 
 .config {
     .computed {
-        font-weight: bold;
+        //font-weight: bold;
         margin-right: 5px;
         font-family: $monoFont;
         font-size: 0.9rem;
@@ -247,7 +247,8 @@ button {
 }
 
 .size_unit {
-    font-weight: bold;
+    //font-weight: bold;
+    color: $hoverColor;
     font-family: $normalFont;
 }
 

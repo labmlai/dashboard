@@ -1,12 +1,12 @@
-import { ScreenView } from './screen'
-import { ROUTER, SCREEN } from './app'
-import { Weya as $, WeyaElement } from '../lib/weya/weya'
-import { Experiment, Run, ScalarsModel, Configs } from '../common/experiments'
-import { getExperiments } from './cache'
-import { RunUI } from './run_ui'
-import { renderConfigs } from './configs'
-import { renderValues } from './indicators'
-import { formatSize } from './view_components/format'
+import {ScreenView} from './screen'
+import {ROUTER, SCREEN} from './app'
+import {Weya as $, WeyaElement} from '../lib/weya/weya'
+import {Experiment, Run, ScalarsModel, Configs} from '../common/experiments'
+import {getExperiments} from './cache'
+import {RunUI} from './run_ui'
+import {renderConfigs} from './configs'
+import {renderValues} from './indicators'
+import {formatSize} from './view_components/format'
 
 class RunView {
     run: Run
@@ -26,14 +26,14 @@ class RunView {
         this.elem = $(
             'div.run',
             {
-                on: { click: this.onClick }
+                on: {click: this.onClick}
             },
             $ => {
                 let info = this.run.info
                 $('h3', $ => {
                     $('label', `${info.index}`)
                     if (info.comment.trim() !== '') {
-                        $('span', ':')
+                        $('span', ': ')
                         $('span', info.comment)
                     }
                 })

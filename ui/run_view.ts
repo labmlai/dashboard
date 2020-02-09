@@ -1,12 +1,12 @@
-import { ROUTER, SCREEN } from './app'
-import { Weya as $, WeyaElement } from '../lib/weya/weya'
-import { Run } from '../common/experiments'
-import { getExperiments, clearCache } from './cache'
-import { RunUI } from './run_ui'
-import { renderConfigs } from './configs'
-import { renderValues } from './indicators'
-import { InfoList, InfoItem } from './view_components/info_list'
-import { formatSize } from './view_components/format'
+import {ROUTER, SCREEN} from './app'
+import {Weya as $, WeyaElement} from '../lib/weya/weya'
+import {Run} from '../common/experiments'
+import {getExperiments, clearCache} from './cache'
+import {RunUI} from './run_ui'
+import {renderConfigs} from './configs'
+import {renderValues} from './indicators'
+import {InfoList, InfoItem} from './view_components/info_list'
+import {formatSize} from './view_components/format'
 
 function wrapEvent(func: Function) {
     function wrapper(e: Event) {
@@ -75,7 +75,7 @@ class RunView {
                 $('span', ': ')
                 $('span', $ => {
                     this.commentSpan = <HTMLSpanElement>$('span', comment, {
-                        on: { click: this.events.editComment }
+                        on: {click: this.events.editComment}
                     })
                     this.commentInput = <HTMLInputElement>$('input', {
                         type: 'text',
@@ -89,7 +89,7 @@ class RunView {
 
             $(
                 'button.small.danger',
-                { on: { click: this.events.remove } },
+                {on: {click: this.events.remove}},
                 $ => {
                     $('i.fa.fa-trash')
                     $('span', ' Remove')
@@ -98,7 +98,7 @@ class RunView {
 
             $(
                 'button.small.danger',
-                { on: { click: this.events.cleanupCheckpoints } },
+                {on: {click: this.events.cleanupCheckpoints}},
                 $ => {
                     $('i.fa.fa-trash')
                     $('span', ' Cleanup Checkpoints')
@@ -128,7 +128,7 @@ class RunView {
                         $ => {
                             $('span', ' ')
                             $('button.small', '[dirty]', {
-                                on: { click: this.events.dirty }
+                                on: {click: this.events.dirty}
                             })
                         }
                     ])
@@ -192,7 +192,7 @@ class RunView {
 
             this.tensorboardBtn = <HTMLButtonElement>(
                 $('button', 'Launch Tensorboard', {
-                    on: { click: this.events.tensorboard }
+                    on: {click: this.events.tensorboard}
                 })
             )
 
@@ -272,7 +272,7 @@ class RunView {
         this.run.info.comment = comment
         this.commentSpan.textContent = comment
 
-        this.runUI.update({ comment: comment })
+        this.runUI.update({comment: comment})
     }
 
     async renderAnalyticsBtns() {
@@ -280,8 +280,8 @@ class RunView {
         for (let t of templates) {
             $(this.analyticsBtns, $ => {
                 $('button', t, {
-                    on: { click: this.events.jupyter },
-                    data: { template: t }
+                    on: {click: this.events.jupyter},
+                    data: {template: t}
                 })
             })
         }

@@ -12,7 +12,7 @@ export function renderValues(elem: HTMLElement, values: ScalarsModel) {
                     ['.key', k],
                     ['.value', formatScalar(values[k].value)]
                 ],
-                '.highlight.mono'
+                '.mono'
             ).render($)
             maxStep = Math.max(values[k].step, maxStep)
         }
@@ -21,7 +21,7 @@ export function renderValues(elem: HTMLElement, values: ScalarsModel) {
                 ['.key', 'step'],
                 ['.value', formatInt(maxStep)]
             ],
-            '.highlight.mono'
+            '.mono'
         ).render($)
     })
 }
