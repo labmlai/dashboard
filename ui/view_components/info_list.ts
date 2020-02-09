@@ -1,4 +1,4 @@
-import { WeyaElementFunction, WeyaTemplateFunction } from '../weya/weya'
+import { WeyaElementFunction, WeyaTemplateFunction } from '../../lib/weya/weya'
 
 type InfoContent = string | WeyaTemplateFunction
 export type InfoItem = InfoContent | [string, InfoContent]

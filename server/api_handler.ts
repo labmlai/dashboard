@@ -1,4 +1,4 @@
-import { Port, Data, CallPacket, IOResponse } from './io/io'
+import {Port, Data, CallPacket, IOResponse} from '../lib/io/io'
 
 function getParameters(func: Function) {
     let code = func.toString().replace(/\n/g, '')

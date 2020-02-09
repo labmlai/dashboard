@@ -1,4 +1,4 @@
-import { WeyaElement } from './weya/weya'
+import {WeyaElement} from '../lib/weya/weya'
 
 interface ScreenView {
     render(): WeyaElement
@@ -11,4 +11,4 @@ class ScreenContainer {
     }
 }
 
-export { ScreenContainer, ScreenView }
+export {ScreenContainer, ScreenView}

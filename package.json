@@ -1,0 +1,32 @@
+{
+  "name": "lab_dashboard",
+  "version": "1.0.0",
+  "description": "Lab Dashboard",
+  "main": "app.js",
+  "repository": "https://github.com/vpj/lab_dashboard",
+  "author": "Varuna Jayasiri",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/sqlite3": "latest",
+    "@types/yaml": "latest",
+    "typescript": "latest",
+    "sass": "latest",
+    "http-server": "latest"
+  },
+  "dependencies": {
+    "sqlite3": "latest",
+    "yaml": "latest"
+  },
+  "scripts": {
+    "build": "$npm_execpath run build:server && $npm_execpath run build:ui && $npm_execpath run build:sass && $npm_execpath run build:html",
+    "build:ui": "tsc -p tsconfig.ui.json",
+    "watch:ui": "tsc -w -p tsconfig.ui.json",
+    "build:server": "tsc -p tsconfig.server.json",
+    "watch:server": "tsc -w -p tsconfig.server.json",
+    "build:sass": "sass ui/style.scss:dist/ui/css/style.css",
+    "watch:sass": "sass --watch ui/style.scss:dist/ui/css/style.css",
+    "build:html": "cp ui/index.html dist/ui/index.html",
+    "clean": "rm -rf dist/"
+  }
+}

@@ -1,4 +1,4 @@
-import { Weya as $, WeyaElement, WeyaElementFunction } from './weya/weya'
+import { Weya as $, WeyaElement, WeyaElementFunction } from '../lib/weya/weya'
 import { Configs, Config } from './experiments'
 import { InfoList, InfoItem } from './view_components/info_list'
 import { formatValue } from './view_components/format'

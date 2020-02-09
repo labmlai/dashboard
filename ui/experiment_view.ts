@@ -1,6 +1,6 @@
 import { ScreenView } from './screen'
 import { ROUTER, SCREEN } from './app'
-import { Weya as $, WeyaElement } from './weya/weya'
+import { Weya as $, WeyaElement } from '../lib/weya/weya'
 import { Experiment, Run, ScalarsModel, Configs } from './experiments'
 import { getExperiments } from './cache'
 import { RunUI } from './run_ui'

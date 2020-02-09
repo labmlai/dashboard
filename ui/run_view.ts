@@ -1,5 +1,5 @@
 import { ROUTER, SCREEN } from './app'
-import { Weya as $, WeyaElement } from './weya/weya'
+import { Weya as $, WeyaElement } from '../lib/weya/weya'
 import { Run } from './experiments'
 import { getExperiments, clearCache } from './cache'
 import { RunUI } from './run_ui'

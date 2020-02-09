@@ -1,4 +1,4 @@
-import { WeyaElementFunction } from '../weya/weya'
+import { WeyaElementFunction } from '../../lib/weya/weya'
 
 function numberWithCommas(x: string) {
     var parts = x.split('.')

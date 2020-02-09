@@ -1,7 +1,11 @@
-node_modules
-package-lock.json
-out/
-.sass-cache/
+.DS_Store
+notes.json
+node_modules/
 .*.swp
+package-lock.json
 __pycache__
 *.egg-info/
+.sass-cache/
+dist/
+.idea/*
+!.idea/dictionaries
