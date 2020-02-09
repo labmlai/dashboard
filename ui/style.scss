@@ -8,250 +8,262 @@ $subtleColor: #718093;
 $iconColor: #fbc531; // #487eb0;
 
 $normalFont: 'Source Sans Pro', 'HelveticaNeue', 'Helvetica Neue', Helvetica,
-    Arial, sans-serif;
+Arial, sans-serif;
 $monoFont: monospace;
 $primary: #00a8ff;
 
 html {
-    font-size: 14px;
+  font-size: 14px;
 }
 
 body {
-    line-height: 1.6;
-    font-weight: 500;
-    font-family: $normalFont;
-    color: $baseColor;
-    margin: 0;
-    padding: 0;
-    background: $baseBackground;
+  line-height: 1.6;
+  font-weight: 500;
+  font-family: $normalFont;
+  color: $baseColor;
+  margin: 0;
+  padding: 0;
+  background: $baseBackground;
 }
 
 .container {
-    width: 1024px;
-    padding-right: 15px;
-    padding-left: 15px;
-    margin-right: auto;
-    margin-left: auto;
+  width: 1024px;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
 }
 
 .experiments_list {
-    margin-top: 15px;
-    .experiment {
-        padding: 5px;
-        cursor: pointer;
+  margin-top: 15px;
 
-        h3 {
-            margin-top: 0;
-            margin-bottom: 8px;
-        }
+  .experiment {
+    padding: 5px;
+    cursor: pointer;
 
-        &:hover {
-            background: $hoverBackground;
-            color: $hoverColor;
-        }
+    h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
     }
+
+    &:hover {
+      background: $hoverBackground;
+      color: $hoverColor;
+    }
+  }
 }
 
 .experiment_single {
-    .run {
-        cursor: pointer;
-        padding: 5px;
-        margin: 10px 0;
-        h3 {
-            margin-top: 0;
-            margin-bottom: 8px;
-            label {
-                color: $subtleColor;
-            }
-        }
-        &:hover {
-            background: $hoverBackground;
-        }
+  .run {
+    cursor: pointer;
+    padding: 5px;
+    margin: 10px 0;
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+
+      label {
+        color: $subtleColor;
+      }
     }
+
+    &:hover {
+      background: $hoverBackground;
+    }
+  }
 }
 
 .block {
-    margin: 10px 0;
+  margin: 10px 0;
 }
 
 .run_single {
-    .key_value {
-        &:hover {
-            background: $hoverBackground;
-            color: $hoverColor;
-        }
+  .key_value {
+    &:hover {
+      background: $hoverBackground;
+      color: $hoverColor;
     }
+  }
 }
 
 .info_list {
-    span.key {
-        margin-right: 5px;
-        opacity: 0.8;
-        font-size: 0.9rem;
+  span.key {
+    margin-right: 5px;
+    opacity: 0.8;
+    font-size: 0.9rem;
 
-        &:after {
-            content: ':';
-        }
+    &:after {
+      content: ':';
     }
+  }
 
-    &.common {
-        opacity: 0.3;
-    }
+  &.common {
+    opacity: 0.3;
+  }
 
-    &.ignore {
-        opacity: 0.2;
-    }
+  &.ignore {
+    opacity: 0.2;
+  }
 
-    &.mono {
-        span.value {
-            font-family: $monoFont;
-            font-size: 0.9rem;
-        }
+  &.mono {
+    span.value {
+      font-family: $monoFont;
+      font-size: 0.9rem;
     }
-    &.highlight {
-        font-weight: bold;
-    }
+  }
 
-    &.only_option {
-        opacity: 0.4;
-    }
+  &.highlight {
+    font-weight: bold;
+  }
+
+  &.only_option {
+    opacity: 0.4;
+  }
 }
 
 .config {
-    .computed {
-        //font-weight: bold;
-        margin-right: 5px;
-        font-family: $monoFont;
-        font-size: 0.9rem;
+  .computed {
+    //font-weight: bold;
+    margin-right: 5px;
+    font-family: $monoFont;
+    font-size: 0.9rem;
+  }
+
+  > .option {
+    margin-right: 5px;
+    font-family: $monoFont;
+    font-size: 0.9rem;
+    color: #9c88ff;
+  }
+
+  .options {
+    font-family: $monoFont;
+    font-size: 0.9rem;
+
+    &::before {
+      content: '[';
+      opacity: 0.7;
+      color: #e84118;
     }
-    > .option {
-        margin-right: 5px;
-        font-family: $monoFont;
-        font-size: 0.9rem;
-        color: #9c88ff;
+
+    &::after {
+      content: ']';
+      opacity: 0.7;
+      color: #e84118;
     }
-    .options {
-        font-family: $monoFont;
-        font-size: 0.9rem;
-        &::before {
-            content: '[';
-            opacity: 0.7;
-            color: #e84118;
-        }
+
+    span {
+      &::after {
+        content: ', ';
+        opacity: 0.7;
+        color: #e84118;
+      }
+
+      &:last-child {
         &::after {
-            content: ']';
-            opacity: 0.7;
-            color: #e84118;
+          content: '';
+          opacity: 0.7;
+          color: #e84118;
         }
-
-        span {
-            &::after {
-                content: ', ';
-                opacity: 0.7;
-                color: #e84118;
-            }
-            &:last-child {
-                &::after {
-                    content: '';
-                    opacity: 0.7;
-                    color: #e84118;
-                }
-            }
-        }
+      }
     }
+  }
 
-    &.only_option {
-        > .option {
-            opacity: 0.8;
-        }
+  &.only_option {
+    > .option {
+      opacity: 0.8;
     }
+  }
 }
 
 .collapsed {
-    .info_list.common {
-        display: none;
-    }
-    .info_list.ignore {
-        display: none;
-    }
-    .info_list.only_option {
-        display: none;
-    }
+  .info_list.common {
+    display: none;
+  }
+
+  .info_list.ignore {
+    display: none;
+  }
+
+  .info_list.only_option {
+    display: none;
+  }
 }
 
 .key_icon {
-    margin-right: 8px;
-    color: $iconColor;
-    opacity: 0.7;
+  margin-right: 8px;
+  color: $iconColor;
+  opacity: 0.7;
 }
 
 .key_split {
-    display: inline-block;
-    width: 16px;
+  display: inline-block;
+  width: 16px;
 }
 
 button {
-    display: inline-block;
-    color: $primary;
-    text-align: center;
-    vertical-align: middle;
-    cursor: pointer;
-    user-select: none;
-    border: 1px solid $primary;
-    background: transparent;
-    font-size: 1rem;
-    padding: 0.375rem 0.75rem;
+  display: inline-block;
+  color: $primary;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid $primary;
+  background: transparent;
+  font-size: 1rem;
+  padding: 0.375rem 0.75rem;
 
-    &:hover {
-        opacity: 0.8;
-    }
+  &:hover {
+    opacity: 0.8;
+  }
 
-    &:active {
-        opacity: 0.5;
-    }
+  &:active {
+    opacity: 0.5;
+  }
 
-    &::-moz-focus-inner {
-        border: 0;
-    }
+  &::-moz-focus-inner {
+    border: 0;
+  }
 
-    &.small {
-        font-size: 0.8rem;
-        padding: 0;
-        border: none;
-    }
+  &.small {
+    font-size: 0.8rem;
+    padding: 0;
+    border: none;
+  }
 
-    &.danger {
-        color: #e84118;
-        border-color: #e84118;
-    }
+  &.danger {
+    color: #e84118;
+    border-color: #e84118;
+  }
 }
 
 .boolean {
-    color: #fbc531;
+  color: #fbc531;
 }
 
 .int {
-    color: #4cd137;
+  color: #4cd137;
 }
 
 .float {
-    color: #4cd137;
+  color: #4cd137;
 }
 
 .string {
-    color: #e84118;
+  color: #e84118;
 }
 
 .unknown {
-    color: #f5f6fa;
+  color: #f5f6fa;
 }
 
 .size_unit {
-    //font-weight: bold;
-    color: $hoverColor;
-    font-family: $normalFont;
+  //font-weight: bold;
+  color: $hoverColor;
+  font-family: $normalFont;
 }
 
 .size {
-    opacity: 0.8;
+  opacity: 0.8;
 }
