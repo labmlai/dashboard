@@ -56,7 +56,7 @@ export class Configs {
 }
 
 export interface RunModel {
-    index: string
+    uuid: string
     comment: string
     commit: string
     commit_message: string
@@ -72,7 +72,7 @@ export interface RunModel {
 }
 
 export const DEFAULT_RUN_MODEL: RunModel = {
-    index: '',
+    uuid: '',
     comment: '',
     commit: '',
     commit_message: '',
@@ -101,7 +101,7 @@ export class Run {
     }
 
     hash() {
-        return `${this.experimentName}-${this.info.index}`
+        return `${this.experimentName}-${this.info.uuid}`
     }
 }
 
@@ -118,7 +118,7 @@ export class Experiment {
         this.name = experiment.name
         this.runs = experiment.runs.map(t => new Run(this.name, t))
         this.runs.sort(
-            (a, b) => parseInt(a.info.index) - parseInt(b.info.index)
+            (a, b) => parseInt(a.info.uuid) - parseInt(b.info.uuid)
         )
     }
 
@@ -129,14 +129,14 @@ export class Experiment {
         return null
     }
 
-    getRun(index: string): Run {
+    getRun(uuid: string): Run {
         for (let run of this.runs) {
-            if (run.info.index === index) {
+            if (run.info.uuid === uuid) {
                 return run
             }
         }
 
-        throw Error(`Unknown index ${index}`)
+        throw Error(`Unknown run ${uuid}`)
     }
 
     toJSON(): ExperimentModel {

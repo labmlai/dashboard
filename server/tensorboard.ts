@@ -17,11 +17,11 @@ export class Tensorboard {
     async start(): Promise<void> {
         let paths = this.runs.map(
             r =>
-                `${r.experimentName}_${r.info.index}:` +
+                `${r.experimentName}_${r.info.uuid}:` +
                 PATH.join(
                     LAB.experiments,
                     r.experimentName,
-                    r.info.index,
+                    r.info.uuid,
                     'tensorboard'
                 )
         )

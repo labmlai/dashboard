@@ -33,7 +33,7 @@ export class RunUI {
             this.indicators = new Indicators(
                 await API.getIndicators(
                     this.run.experimentName,
-                    this.run.info.index
+                    this.run.info.uuid
                 )
             )
         }
@@ -45,7 +45,7 @@ export class RunUI {
             this.configs = new Configs(
                 await API.getConfigs(
                     this.run.experimentName,
-                    this.run.info.index
+                    this.run.info.uuid
                 )
             )
         }
@@ -57,7 +57,7 @@ export class RunUI {
         if (this.diff == null) {
             this.diff = await API.getDiff(
                 this.run.experimentName,
-                this.run.info.index
+                this.run.info.uuid
             )
         }
 
@@ -68,7 +68,7 @@ export class RunUI {
         if (this.values == null) {
             this.values = await API.getValues(
                 this.run.experimentName,
-                this.run.info.index
+                this.run.info.uuid
             )
         }
 
@@ -78,14 +78,14 @@ export class RunUI {
     async launchTensorboard(): Promise<string> {
         return await API.launchTensorboard(
             this.run.experimentName,
-            this.run.info.index
+            this.run.info.uuid
         )
     }
 
     async launchJupyter(templateName: string): Promise<string> {
         return await API.launchJupyter(
             this.run.experimentName,
-            this.run.info.index,
+            this.run.info.uuid,
             templateName
         )
     }
@@ -93,25 +93,25 @@ export class RunUI {
     async getAnalyticsTemplates(): Promise<string[]> {
         return await API.getAnalyticsTemplates(
             this.run.experimentName,
-            this.run.info.index
+            this.run.info.uuid
         )
     }
 
     async remove() {
-        return await API.removeRun(this.run.experimentName, this.run.info.index)
+        return await API.removeRun(this.run.experimentName, this.run.info.uuid)
     }
 
     async cleanupCheckpoints() {
         return await API.cleanupCheckpoints(
             this.run.experimentName,
-            this.run.info.index
+            this.run.info.uuid
         )
     }
 
     async update(data: { [key: string]: string }) {
         return await API.updateRun(
             this.run.experimentName,
-            this.run.info.index,
+            this.run.info.uuid,
             data
         )
     }

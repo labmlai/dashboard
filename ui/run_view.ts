@@ -70,7 +70,7 @@ class RunView {
             $('h1', $ => {
                 $('label', `${this.run.experimentName}`)
                 $('span', ' - ')
-                $('label', `${info.index}`)
+                $('label', `${info.uuid}`)
 
                 $('span', ': ')
                 $('span', $ => {
@@ -220,7 +220,7 @@ class RunView {
 
         dirty: async () => {
             ROUTER.navigate(
-                `/experiment/${this.run.experimentName}/${this.run.info.index}/diff`
+                `/experiment/${this.run.experimentName}/${this.run.info.uuid}/diff`
             )
         },
 

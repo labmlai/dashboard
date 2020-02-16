@@ -31,7 +31,7 @@ class RunView {
             $ => {
                 let info = this.run.info
                 $('h3', $ => {
-                    $('label', `${info.index}`)
+                    $('label', `${info.uuid}`)
                     if (info.comment.trim() !== '') {
                         $('span', ': ')
                         $('span', info.comment)
@@ -71,7 +71,7 @@ class RunView {
         e.stopPropagation()
 
         ROUTER.navigate(
-            `/experiment/${this.run.experimentName}/${this.run.info.index}`
+            `/experiment/${this.run.experimentName}/${this.run.info.uuid}`
         )
     }
 

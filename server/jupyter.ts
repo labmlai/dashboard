@@ -72,10 +72,10 @@ export class Jupyter {
         let destinationPath = PATH.join(
             LAB.analytics,
             run.experimentName,
-            run.info.index
+            run.info.uuid
         )
         let destination = PATH.join(destinationPath, `${templateName}.ipynb`)
-        let url = `http://localhost:8888/notebooks/${lab.analyticsPath}/${run.experimentName}/${run.info.index}/${templateName}.ipynb`
+        let url = `http://localhost:8888/notebooks/${lab.analyticsPath}/${run.experimentName}/${run.info.uuid}/${templateName}.ipynb`
 
         console.log(url)
         if (await exists(destination)) {

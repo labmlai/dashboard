@@ -36,7 +36,7 @@ export class RunNodeJS {
         let path = PATH.join(
             LAB.experiments,
             this.run.experimentName,
-            this.run.info.index,
+            this.run.info.uuid,
             'sqlite.db'
         )
         return new Promise((resolve, reject) => {
@@ -81,7 +81,7 @@ export class RunNodeJS {
             PATH.join(
                 LAB.experiments,
                 this.run.experimentName,
-                this.run.info.index,
+                this.run.info.uuid,
                 'indicators.yaml'
             ),
             { encoding: 'utf-8' }
@@ -95,7 +95,7 @@ export class RunNodeJS {
             PATH.join(
                 LAB.experiments,
                 this.run.experimentName,
-                this.run.info.index,
+                this.run.info.uuid,
                 'configs.yaml'
             ),
             { encoding: 'utf-8' }
@@ -109,7 +109,7 @@ export class RunNodeJS {
             PATH.join(
                 LAB.experiments,
                 this.run.experimentName,
-                this.run.info.index,
+                this.run.info.uuid,
                 'source.diff'
             ),
             { encoding: 'utf-8' }
@@ -125,7 +125,7 @@ export class RunNodeJS {
             console.log(
                 'Couldnt connect to SQLite db',
                 this.run.experimentName,
-                this.run.info.index,
+                this.run.info.uuid,
                 e
             )
             return {}
@@ -140,7 +140,7 @@ export class RunNodeJS {
             console.log(
                 'Couldnt read from SQLite db',
                 this.run.experimentName,
-                this.run.info.index,
+                this.run.info.uuid,
                 e
             )
             return {}
@@ -171,13 +171,13 @@ export class RunNodeJS {
         let path = PATH.join(
             LAB.experiments,
             this.run.experimentName,
-            this.run.info.index
+            this.run.info.uuid
         )
         await rmtree(path)
         let analytics = PATH.join(
             LAB.analytics,
             this.run.experimentName,
-            this.run.info.index
+            this.run.info.uuid
         )
         await rmtree(analytics)
     }
@@ -194,7 +194,7 @@ export class RunNodeJS {
         let path = PATH.join(
             LAB.experiments,
             this.run.experimentName,
-            this.run.info.index,
+            this.run.info.uuid,
             'run.yaml'
         )
         let contents = await readFile(path, { encoding: 'utf-8' })
@@ -214,7 +214,7 @@ export class RunNodeJS {
         let path = PATH.join(
             LAB.experiments,
             this.run.experimentName,
-            this.run.info.index,
+            this.run.info.uuid,
             'checkpoints'
         )
 

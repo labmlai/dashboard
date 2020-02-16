@@ -30,7 +30,7 @@ class ExperimentsFactory {
         if (res == null) {
             res = JSON.parse(JSON.stringify(DEFAULT_RUN_MODEL))
         }
-        res.index = runIndex
+        res.uuid = runIndex
         res.checkpoints_size = await getDiskUsage(
             PATH.join(LAB.experiments, name, runIndex, 'checkpoints')
         )
