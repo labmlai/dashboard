@@ -19,29 +19,29 @@ class ExperimentsFactory {
 
     private static async loadRun(
         name: string,
-        runIndex: string
+        runUuid: string
     ): Promise<RunModel> {
         let readFile = UTIL.promisify(FS.readFile)
         let contents = await readFile(
-            PATH.join(LAB.experiments, name, runIndex, 'run.yaml'),
+            PATH.join(LAB.experiments, name, runUuid, 'run.yaml'),
             { encoding: 'utf-8' }
         )
         let res: RunModel = YAML.parse(contents)
         if (res == null) {
             res = JSON.parse(JSON.stringify(DEFAULT_RUN_MODEL))
         }
-        res.uuid = runIndex
+        res.uuid = runUuid
         res.checkpoints_size = await getDiskUsage(
-            PATH.join(LAB.experiments, name, runIndex, 'checkpoints')
+            PATH.join(LAB.experiments, name, runUuid, 'checkpoints')
         )
         res.tensorboard_size = await getDiskUsage(
-            PATH.join(LAB.experiments, name, runIndex, 'tensorboard')
+            PATH.join(LAB.experiments, name, runUuid, 'tensorboard')
         )
         res.sqlite_size = await getDiskUsage(
-            PATH.join(LAB.experiments, name, runIndex, 'sqlite.db')
+            PATH.join(LAB.experiments, name, runUuid, 'sqlite.db')
         )
         res.analytics_size = await getDiskUsage(
-            PATH.join(LAB.analytics, name, runIndex)
+            PATH.join(LAB.analytics, name, runUuid)
         )
 
         return res

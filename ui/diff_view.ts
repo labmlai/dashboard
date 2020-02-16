@@ -16,16 +16,16 @@ class DiffView {
     tensorboardBtn: HTMLButtonElement
     indicatorsView: HTMLDivElement
     experimentName: string
-    runIndex: string
+    runUuid: string
     diffView: HTMLDivElement
     configsView: HTMLDivElement
     jupyterBtn: HTMLButtonElement
     analyticsBtns: HTMLDivElement
     diff: string
 
-    constructor(experimentName: string, runIndex: string) {
+    constructor(experimentName: string, runUuid: string) {
         this.experimentName = experimentName
-        this.runIndex = runIndex
+        this.runUuid = runUuid
     }
 
     render() {
@@ -40,7 +40,7 @@ class DiffView {
 
     private async renderRun() {
         let experiment = (await getExperiments()).get(this.experimentName)
-        this.run = experiment.getRun(this.runIndex)
+        this.run = experiment.getRun(this.runUuid)
         this.runUI = RunUI.create(this.run)
         this.diff = await this.runUI.getDiff()
 
@@ -57,10 +57,10 @@ class DiffView {
 
 export class DiffHandler {
     constructor() {
-        ROUTER.route('experiment/:name/:runIndex/diff', [this.handleRun])
+        ROUTER.route('experiment/:name/:runUuid/diff', [this.handleRun])
     }
 
-    handleRun = (name: string, runIndex: string) => {
-        SCREEN.setView(new DiffView(name, runIndex))
+    handleRun = (name: string, runUuid: string) => {
+        SCREEN.setView(new DiffView(name, runUuid))
     }
 }

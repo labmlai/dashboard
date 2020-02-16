@@ -13,9 +13,9 @@ import { Jupyter } from './jupyter'
 let TENSORBOARD: Tensorboard = null
 let JUPYTER: Jupyter = null
 
-async function getRun(experimentName: string, runIndex: string) {
+async function getRun(experimentName: string, runUuid: string) {
     let experiment = await ExperimentsFactory.loadExperiment(experimentName)
-    return RunNodeJS.create(experiment.getRun(runIndex))
+    return RunNodeJS.create(experiment.getRun(runUuid))
 }
 
 class ApiServer extends Api {
@@ -26,41 +26,41 @@ class ApiServer extends Api {
 
     async getIndicators(
         experimentName: string,
-        runIndex: string
+        runUuid: string
     ): Promise<IndicatorsModel> {
-        let run = await getRun(experimentName, runIndex)
+        let run = await getRun(experimentName, runUuid)
         let indicators = await run.getIndicators()
         return indicators.toJSON()
     }
 
     async getConfigs(
         experimentName: string,
-        runIndex: string
+        runUuid: string
     ): Promise<ConfigsModel> {
-        let run = await getRun(experimentName, runIndex)
+        let run = await getRun(experimentName, runUuid)
         let configs = await run.getConfigs()
         return configs.toJSON()
     }
 
-    async getDiff(experimentName: string, runIndex: string): Promise<string> {
-        let run = await getRun(experimentName, runIndex)
+    async getDiff(experimentName: string, runUuid: string): Promise<string> {
+        let run = await getRun(experimentName, runUuid)
         return await run.getDiff()
     }
 
     async getValues(
         experimentName: string,
-        runIndex: string
+        runUuid: string
     ): Promise<ScalarsModel> {
-        let run = await getRun(experimentName, runIndex)
+        let run = await getRun(experimentName, runUuid)
         return await run.getValues()
     }
 
     async launchTensorboard(
         experimentName: string,
-        runIndex: string
+        runUuid: string
     ): Promise<string> {
         let experiment = await ExperimentsFactory.loadExperiment(experimentName)
-        let run = experiment.getRun(runIndex)
+        let run = experiment.getRun(runUuid)
         if (TENSORBOARD != null) {
             TENSORBOARD.stop()
         }
@@ -76,11 +76,11 @@ class ApiServer extends Api {
 
     async launchJupyter(
         experimentName: string,
-        runIndex: string,
+        runUuid: string,
         analyticsTemplate: string
     ): Promise<string> {
         let experiment = await ExperimentsFactory.loadExperiment(experimentName)
-        let run = experiment.getRun(runIndex)
+        let run = experiment.getRun(runUuid)
 
         if (JUPYTER == null) {
             JUPYTER = new Jupyter()
@@ -97,9 +97,9 @@ class ApiServer extends Api {
 
     async getAnalyticsTemplates(
         experimentName: string,
-        runIndex: string
+        runUuid: string
     ): Promise<string[]> {
-        let run = await getRun(experimentName, runIndex)
+        let run = await getRun(experimentName, runUuid)
         let templateNames = []
         let lab = await run.getLab()
         for (let k in lab.analyticsTemplates) {
@@ -108,25 +108,25 @@ class ApiServer extends Api {
         return templateNames
     }
 
-    async removeRun(experimentName: string, runIndex: string): Promise<void> {
-        let run = await getRun(experimentName, runIndex)
+    async removeRun(experimentName: string, runUuid: string): Promise<void> {
+        let run = await getRun(experimentName, runUuid)
         await run.remove()
     }
 
     async cleanupCheckpoints(
         experimentName: string,
-        runIndex: string
+        runUuid: string
     ): Promise<void> {
-        let run = await getRun(experimentName, runIndex)
+        let run = await getRun(experimentName, runUuid)
         await run.cleanupCheckpoints()
     }
 
     async updateRun(
         experimentName: string,
-        runIndex: string,
+        runUuid: string,
         data: { [key: string]: string }
     ): Promise<void> {
-        let run = await getRun(experimentName, runIndex)
+        let run = await getRun(experimentName, runUuid)
         await run.update(data)
     }
 }

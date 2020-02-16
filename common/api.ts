@@ -12,39 +12,39 @@ export class Api {
 
     async getIndicators(
         experimentName: string,
-        runIndex: string
+        runUuid: string
     ): Promise<IndicatorsModel> {
         return null
     }
 
     async getConfigs(
         experimentName: string,
-        runIndex: string
+        runUuid: string
     ): Promise<ConfigsModel> {
         return null
     }
 
-    async getDiff(experimentName: string, runIndex: string): Promise<string> {
+    async getDiff(experimentName: string, runUuid: string): Promise<string> {
         return null
     }
 
     async getValues(
         experimentName: string,
-        runIndex: string
+        runUuid: string
     ): Promise<ScalarsModel> {
         return null
     }
 
     async launchTensorboard(
         experimentName: string,
-        runIndex: string
+        runUuid: string
     ): Promise<string> {
         return null
     }
 
     async launchJupyter(
         experimentName: string,
-        runIndex: string,
+        runUuid: string,
         analyticsTemplate: string
     ): Promise<string> {
         return null
@@ -52,25 +52,25 @@ export class Api {
 
     async getAnalyticsTemplates(
         experimentName: string,
-        runIndex: string
+        runUuid: string
     ): Promise<string[]> {
         return null
     }
 
-    async removeRun(experimentName: string, runIndex: string): Promise<void> {
+    async removeRun(experimentName: string, runUuid: string): Promise<void> {
         return null
     }
 
     async cleanupCheckpoints(
         experimentName: string,
-        runIndex: string
+        runUuid: string
     ): Promise<void> {
         return null
     }
 
     async updateRun(
         experimentName: string,
-        runIndex: string,
+        runUuid: string,
         data: { [key: string]: string }
     ): Promise<void> {
         return null

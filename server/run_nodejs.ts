@@ -91,16 +91,20 @@ export class RunNodeJS {
 
     async getConfigs(): Promise<Configs> {
         let readFile = UTIL.promisify(FS.readFile)
-        let contents = await readFile(
-            PATH.join(
-                LAB.experiments,
-                this.run.experimentName,
-                this.run.info.uuid,
-                'configs.yaml'
-            ),
-            { encoding: 'utf-8' }
-        )
-        return new Configs(YAML.parse(contents))
+        try {
+            let contents = await readFile(
+                PATH.join(
+                    LAB.experiments,
+                    this.run.experimentName,
+                    this.run.info.uuid,
+                    'configs.yaml'
+                ),
+                {encoding: 'utf-8'}
+            )
+            return new Configs(YAML.parse(contents))
+        } catch(e) {
+            return new Configs({})
+        }
     }
 
     async getDiff(): Promise<string> {
@@ -148,6 +152,9 @@ export class RunNodeJS {
 
         for (let k in indicators.indicators) {
             let ind = indicators.indicators[k]
+            if(ind.class_name == null) {
+                continue
+            }
             let key =
                 ind.class_name.indexOf('Scalar') !== -1
                     ? ind.name

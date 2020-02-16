@@ -26,7 +26,7 @@ class RunView {
     tensorboardBtn: HTMLButtonElement
     indicatorsView: HTMLDivElement
     experimentName: string
-    runIndex: string
+    runUuid: string
     runView: HTMLDivElement
     configsView: HTMLDivElement
     jupyterBtn: HTMLButtonElement
@@ -34,9 +34,9 @@ class RunView {
     commentSpan: HTMLSpanElement
     commentInput: HTMLInputElement
 
-    constructor(experimentName: string, runIndex: string) {
+    constructor(experimentName: string, runUuid: string) {
         this.experimentName = experimentName
-        this.runIndex = runIndex
+        this.runUuid = runUuid
 
         let events = []
         for (let k in this.events) {
@@ -61,7 +61,7 @@ class RunView {
 
     private async renderRun() {
         let experiment = (await getExperiments()).get(this.experimentName)
-        this.run = experiment.getRun(this.runIndex)
+        this.run = experiment.getRun(this.runUuid)
         this.runUI = RunUI.create(this.run)
 
         let info = this.run.info
@@ -301,10 +301,10 @@ class RunView {
 
 export class RunHandler {
     constructor() {
-        ROUTER.route('experiment/:name/:runIndex', [this.handleRun])
+        ROUTER.route('experiment/:name/:runUuid', [this.handleRun])
     }
 
-    handleRun = (name: string, runIndex: string) => {
-        SCREEN.setView(new RunView(name, runIndex))
+    handleRun = (name: string, runUuid: string) => {
+        SCREEN.setView(new RunView(name, runUuid))
     }
 }
