@@ -30,12 +30,11 @@ class RunView {
             },
             $ => {
                 let info = this.run.info
-                $('h3', $ => {
+                if (info.comment.trim() !== '') {
+                    $('h3',  info.comment)
+                }
+                $('h4', $ => {
                     $('label', `${info.uuid}`)
-                    if (info.comment.trim() !== '') {
-                        $('span', ': ')
-                        $('span', info.comment)
-                    }
                 })
                 $('div', $ => {
                     $('i.fa.fa-history.key_icon')

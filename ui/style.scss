@@ -61,8 +61,12 @@ body {
 
     h3 {
       margin-top: 0;
-      margin-bottom: 8px;
+      margin-bottom: 0;
+    }
 
+    h4 {
+      margin-top: 0;
+      margin-bottom: 8px;
       label {
         color: $subtleColor;
       }
@@ -84,6 +88,10 @@ body {
       background: $hoverBackground;
       color: $hoverColor;
     }
+  }
+
+  div.controls {
+    margin-bottom: 12px;
   }
 }
 
@@ -213,6 +221,7 @@ button {
   background: transparent;
   font-size: 1rem;
   padding: 0.375rem 0.75rem;
+  margin-right: 12px;
 
   &:hover {
     opacity: 0.8;

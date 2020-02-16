@@ -69,9 +69,6 @@ class RunView {
         $(this.runView, $ => {
             $('h1', $ => {
                 $('label', `${this.run.experimentName}`)
-                $('span', ' - ')
-                $('label', `${info.uuid}`)
-
                 $('span', ': ')
                 $('span', $ => {
                     this.commentSpan = <HTMLSpanElement>$('span', comment, {
@@ -87,23 +84,41 @@ class RunView {
                 })
             })
 
-            $(
-                'button.small.danger',
-                {on: {click: this.events.remove}},
-                $ => {
-                    $('i.fa.fa-trash')
-                    $('span', ' Remove')
-                }
-            )
+            $('div.controls', $ => {
+                this.tensorboardBtn = <HTMLButtonElement>(
+                    $('button.small',
+                        {on: {click: this.events.tensorboard}},
+                        $ => {
+                            $('i.fa.fa-chart-bar')
+                            $('span', ' Launch Tensorboard')
+                        })
+                )
 
-            $(
-                'button.small.danger',
-                {on: {click: this.events.cleanupCheckpoints}},
-                $ => {
-                    $('i.fa.fa-trash')
-                    $('span', ' Cleanup Checkpoints')
-                }
-            )
+                this.analyticsBtns = <HTMLDivElement>$('div.analytics_buttons')
+            })
+
+            $('div.controls', $ => {
+                $('button.small.danger',
+                    {on: {click: this.events.remove}},
+                    $ => {
+                        $('i.fa.fa-trash')
+                        $('span', ' Remove')
+                    }
+                )
+
+                $('button.small.danger',
+                    {on: {click: this.events.cleanupCheckpoints}},
+                    $ => {
+                        $('i.fa.fa-trash')
+                        $('span', ' Cleanup Checkpoints')
+                    }
+                )
+            })
+
+            $('div', $ => {
+                $('i.fa.fa-folder.key_icon')
+                $('span', `${info.uuid}`)
+            })
 
             $('div', $ => {
                 $('i.fa.fa-history.key_icon')
@@ -189,14 +204,6 @@ class RunView {
             this.indicatorsView = <HTMLDivElement>$('div.indicators.block')
 
             this.configsView = <HTMLDivElement>$('div.configs.block')
-
-            this.tensorboardBtn = <HTMLButtonElement>(
-                $('button', 'Launch Tensorboard', {
-                    on: {click: this.events.tensorboard}
-                })
-            )
-
-            this.analyticsBtns = <HTMLDivElement>$('div.analytics_buttons')
         })
 
         this.commentInput.style.display = 'none'
@@ -279,10 +286,15 @@ class RunView {
         let templates = await this.runUI.getAnalyticsTemplates()
         for (let t of templates) {
             $(this.analyticsBtns, $ => {
-                $('button', t, {
-                    on: {click: this.events.jupyter},
-                    data: {template: t}
-                })
+                $('button.small',
+                    {
+                        on: {click: this.events.jupyter},
+                        data: {template: t}
+                    },
+                    $ => {
+                        $('i.fa.fa-chart-line')
+                        $('span', ` ${t}`)
+                    })
             })
         }
     }
