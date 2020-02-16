@@ -118,7 +118,21 @@ export class Experiment {
         this.name = experiment.name
         this.runs = experiment.runs.map(t => new Run(this.name, t))
         this.runs.sort(
-            (a, b) => parseInt(a.info.uuid) - parseInt(b.info.uuid)
+            (a, b) => {
+                if(a.info.trial_date < b.info.trial_date) {
+                    return -1;
+                } else if(a.info.trial_date > b.info.trial_date) {
+                    return +1;
+                } else {
+                    if(a.info.trial_time < b.info.trial_time) {
+                        return -1;
+                    } else if(a.info.trial_time > b.info.trial_time) {
+                        return +1;
+                    } else {
+                        return 0;
+                    }
+                }
+            }
         )
     }
 
