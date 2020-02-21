@@ -1,7 +1,7 @@
 import {ScreenView} from './screen'
 import {ROUTER, SCREEN} from './app'
 import {Weya as $, WeyaElement} from '../lib/weya/weya'
-import {Experiment, Run, ScalarsModel, Configs} from '../common/experiments'
+import {Experiment, Run, ScalarsModel, Configs, RunModel} from '../common/experiments'
 import {getExperiments} from './cache'
 import {RunUI} from './run_ui'
 import {renderConfigs} from './configs'
@@ -16,9 +16,11 @@ class RunView {
     configsView: HTMLDivElement
     values: ScalarsModel
     configs: Configs
+    private isShowExperimentName: boolean
 
-    constructor(run: Run) {
+    constructor(run: Run, isShowExperimentName: boolean) {
         this.run = run
+        this.isShowExperimentName = isShowExperimentName
         this.runUI = RunUI.create(this.run)
     }
 
@@ -30,8 +32,12 @@ class RunView {
             },
             $ => {
                 let info = this.run.info
+                if(this.isShowExperimentName) {
+                    $('h4', this.run.experimentName)
+                }
+
                 if (info.comment.trim() !== '') {
-                    $('h3',  info.comment)
+                    $('h3', info.comment)
                 }
                 $('h4', $ => {
                     $('label', `${info.uuid}`)
@@ -88,37 +94,22 @@ class RunView {
     }
 }
 
-class ExperimentView implements ScreenView {
-    elem: HTMLElement
-    experiment: Experiment
-    name: string
-    experimentView: HTMLDivElement
+export class RunsView {
+    private readonly runs: Run[];
+    private elem: HTMLDivElement;
+    private isShowExperimentName: boolean
 
-    constructor(name: string) {
-        this.name = name
+    constructor(runs: Run[], isShowExperimentName: boolean) {
+        this.runs = runs
+        this.isShowExperimentName = isShowExperimentName
     }
 
-    render(): WeyaElement {
-        this.elem = <HTMLElement>$('div.container', $ => {
-            this.experimentView = <HTMLDivElement>$('div.experiment_single', '')
-        })
-        this.renderExperiment()
-        return this.elem
-    }
-
-    private async renderExperiment() {
-        this.experiment = (await getExperiments()).get(this.name)
-
-        this.experimentView.append(
-            $('div.info', $ => {
-                $('h1', this.experiment.name)
-            })
-        )
-
+    async render(elem: HTMLDivElement) {
+        this.elem = elem
         let runViews: RunView[] = []
-        for (let t of this.experiment.runs) {
-            let rv = new RunView(t)
-            this.experimentView.append(rv.render())
+        for (let t of this.runs) {
+            let rv = new RunView(t, this.isShowExperimentName)
+            this.elem.append(rv.render())
             runViews.push(rv)
         }
 
@@ -156,6 +147,39 @@ class ExperimentView implements ScreenView {
             rv.renderValues()
             rv.renderConfigs(common)
         }
+    }
+}
+
+class ExperimentView implements ScreenView {
+    elem: HTMLElement
+    experiment: Experiment
+    name: string
+    experimentView: HTMLDivElement
+    private runsView: RunsView
+
+    constructor(name: string) {
+        this.name = name
+    }
+
+    render(): WeyaElement {
+        this.elem = <HTMLElement>$('div.container', $ => {
+            this.experimentView = <HTMLDivElement>$('div.experiment_single', '')
+        })
+        this.renderExperiment()
+        return this.elem
+    }
+
+    private async renderExperiment() {
+        this.experiment = (await getExperiments()).get(this.name)
+
+        this.experimentView.append(
+            $('div.info', $ => {
+                $('h1', this.experiment.name)
+            })
+        )
+
+        this.runsView = new RunsView(this.experiment.runs, false)
+        this.runsView.render(this.experimentView)
     }
 }
 

@@ -74,7 +74,8 @@ class RunView implements ScreenView {
         let comment = info.comment.trim() === '' ? '[comment]' : info.comment
         $(this.runView, $ => {
             $('h1', $ => {
-                $('label', `${this.run.experimentName}`)
+                $('label', `${this.run.experimentName}`,
+                    {on: {click: this.events.experiment}})
                 $('span', ":" + ' ')
                 $('span', $ => {
                     this.commentSpan = <HTMLSpanElement>$('span', comment, {
@@ -258,8 +259,10 @@ class RunView implements ScreenView {
     }
 
     private events = {
-        tag: (tag, e) => {
-            console.log(this, tag, e)
+        tag: (tag) => {
+            ROUTER.navigate(
+                `/tag/${tag}`
+            )
         },
 
         tensorboard: async () => {
@@ -271,9 +274,15 @@ class RunView implements ScreenView {
             }
         },
 
-        dirty: async () => {
+        dirty: () => {
             ROUTER.navigate(
                 `/experiment/${this.run.experimentName}/${this.run.info.uuid}/diff`
+            )
+        },
+
+        experiment: () => {
+            ROUTER.navigate(
+                `/experiment/${this.run.experimentName}`
             )
         },
 

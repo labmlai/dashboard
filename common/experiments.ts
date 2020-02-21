@@ -111,16 +111,16 @@ export class Run {
 
     static fixRunModel(experimentName: string, run: RunModel) {
         let copy = JSON.parse(JSON.stringify(DEFAULT_RUN_MODEL))
-        if(run == null) {
+        if (run == null) {
             return copy
         }
 
-        if(run.tags == null) {
+        if (run.tags == null) {
             run.tags = experimentName.split('_')
         }
 
-        for(let k in DEFAULT_RUN_MODEL) {
-            if(run[k] == null) {
+        for (let k in DEFAULT_RUN_MODEL) {
+            if (run[k] == null) {
                 run[k] = copy[k]
             }
         }
@@ -218,7 +218,21 @@ export class Experiments {
         return res
     }
 
-    get(experimentName: string) {
+    get(experimentName: string): Experiment {
         return this.experiments[experimentName]
+    }
+
+    getByTag(name: string): Run[] {
+        let runs: Run[] = []
+        for(let k in this.experiments) {
+            let exp = this.experiments[k];
+            for(let r of exp.runs) {
+                if(r.info.tags.includes(name)) {
+                    runs.push(r)
+                }
+            }
+        }
+
+        return runs
     }
 }
