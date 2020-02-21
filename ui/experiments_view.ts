@@ -1,11 +1,10 @@
-import { ScreenView } from './screen'
-import { ROUTER, SCREEN } from './app'
-import { Weya as $, WeyaElement } from '../lib/weya/weya'
-import { Experiments, Experiment, Run } from '../common/experiments'
-import { getExperiments } from './cache'
-import { RunUI } from './run_ui'
-import { renderValues } from './indicators'
-import { renderConfigs } from './configs'
+import {ScreenView} from './screen'
+import {ROUTER, SCREEN} from './app'
+import {Weya as $, WeyaElement} from '../lib/weya/weya'
+import {Experiments, Experiment, Run} from '../common/experiments'
+import {getExperiments} from './cache'
+import {RunUI} from './run_ui'
+import {renderValues} from './indicators'
 
 class ExperimentView {
     experiment: Experiment
@@ -21,12 +20,12 @@ class ExperimentView {
         this.elem = $(
             'div.experiment',
             {
-                on: { click: this.onClick }
+                on: {click: this.onClick}
             },
             $ => {
                 $('h3', this.experiment.name)
                 if (run != null) {
-                    this.renderRun(run)
+                    this.renderRun(run).then();
                 }
             }
         )
@@ -37,7 +36,7 @@ class ExperimentView {
     private async renderRun(run: Run) {
         let runUI = RunUI.create(run)
         let values = await runUI.getValues()
-        let configs = await runUI.getConfigs()
+        // let configs = await runUI.getConfigs()
 
         $(this.elem, $ => {
             $('div', $ => {
@@ -49,10 +48,10 @@ class ExperimentView {
             })
 
             let indicatorsView = <HTMLDivElement>$('div.indicators.block')
-            let configsView = <HTMLDivElement>$('div.configs.block')
+            // let configsView = <HTMLDivElement>$('div.configs.block')
 
             renderValues(indicatorsView, values)
-            renderConfigs(configsView, configs)
+            // renderConfigs(configsView, configs)
         })
     }
 
@@ -74,7 +73,7 @@ class ExperimentsView implements ScreenView {
             $('h1', 'Experiments')
             this.experimentsList = <HTMLDivElement>$('div.experiments_list', '')
         })
-        this.renderExperiments()
+        this.renderExperiments().then()
         return this.elem
     }
 

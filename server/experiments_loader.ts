@@ -6,7 +6,7 @@ import {
     Experiment,
     RunModel,
     Experiments,
-    DEFAULT_RUN_MODEL
+    DEFAULT_RUN_MODEL, Run
 } from '../common/experiments'
 import { LAB } from './consts'
 import { getDiskUsage } from './util'
@@ -27,9 +27,8 @@ class ExperimentsFactory {
             { encoding: 'utf-8' }
         )
         let res: RunModel = YAML.parse(contents)
-        if (res == null) {
-            res = JSON.parse(JSON.stringify(DEFAULT_RUN_MODEL))
-        }
+        res = Run.fixRunModel(name, res)
+
         res.uuid = runUuid
         res.checkpoints_size = await getDiskUsage(
             PATH.join(LAB.experiments, name, runUuid, 'checkpoints')

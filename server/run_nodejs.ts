@@ -206,7 +206,8 @@ export class RunNodeJS {
         )
         let contents = await readFile(path, { encoding: 'utf-8' })
         let run: RunModel = YAML.parse(contents)
-
+        run = Run.fixRunModel(this.run.experimentName, run)
+        
         for (let k in data) {
             run[k] = data[k]
         }

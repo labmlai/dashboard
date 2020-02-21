@@ -7,6 +7,7 @@ import {renderConfigs} from './configs'
 import {renderValues} from './indicators'
 import {InfoList, InfoItem} from './view_components/info_list'
 import {formatSize} from './view_components/format'
+import {ScreenView} from "./screen";
 
 function wrapEvent(func: Function) {
     function wrapper(e: Event) {
@@ -19,7 +20,7 @@ function wrapEvent(func: Function) {
     return wrapper
 }
 
-class RunView {
+class RunView implements ScreenView {
     run: Run
     runUI: RunUI
     elem: WeyaElement
@@ -69,7 +70,7 @@ class RunView {
         $(this.runView, $ => {
             $('h1', $ => {
                 $('label', `${this.run.experimentName}`)
-                $('span', ': ')
+                $('span', "\\: ")
                 $('span', $ => {
                     this.commentSpan = <HTMLSpanElement>$('span', comment, {
                         on: {click: this.events.editComment}
@@ -160,6 +161,25 @@ class RunView {
             })
 
             $('div.block', $ => {
+                let tags: InfoItem[] = [
+                    ['.key', 'Tags'],
+                ]
+                for (let tag of info.tags) {
+                    tags.push(['span.link', tag])
+                }
+
+                tags.push(['.link', $ => {
+                    $('button.small',
+                        {on: {click: this.events.tensorboard}},
+                        $ => {
+                            $('i.fa.fa-edit')
+                        })
+                }])
+
+                new InfoList(tags, '.mono').render($)
+            })
+
+            $('div.block', $ => {
                 $('i.fa.fa-save.key_icon')
                 let size =
                     info.sqlite_size +
@@ -215,7 +235,8 @@ class RunView {
         return this.elem
     }
 
-    private events = {
+    private
+    events = {
         tensorboard: async () => {
             let url = await this.runUI.launchTensorboard()
             if (url === '') {
@@ -273,7 +294,10 @@ class RunView {
         }
     }
 
-    private saveComment(comment: string) {
+    private saveComment(comment
+                            :
+                            string
+    ) {
         this.commentSpan.style.display = null
         this.commentInput.style.display = 'none'
         this.run.info.comment = comment

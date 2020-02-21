@@ -1,6 +1,7 @@
 export interface Indicator {
     name: string
     class_name: string
+
     [key: string]: any
 }
 
@@ -58,8 +59,10 @@ export class Configs {
 export interface RunModel {
     uuid: string
     comment: string
+    tags: string[]
     commit: string
     commit_message: string
+    notes: string
     is_dirty: boolean
     python_file: string
     start_step: number
@@ -74,8 +77,10 @@ export interface RunModel {
 export const DEFAULT_RUN_MODEL: RunModel = {
     uuid: '',
     comment: '',
+    tags: [],
     commit: '',
     commit_message: '',
+    notes: '',
     is_dirty: false,
     python_file: '',
     start_step: 0,
@@ -103,6 +108,25 @@ export class Run {
     hash() {
         return `${this.experimentName}-${this.info.uuid}`
     }
+
+    static fixRunModel(experimentName: string, run: RunModel) {
+        let copy = JSON.parse(JSON.stringify(DEFAULT_RUN_MODEL))
+        if(run == null) {
+            return copy
+        }
+
+        if(run.tags == null) {
+            run.tags = experimentName.split('_')
+        }
+
+        for(let k in DEFAULT_RUN_MODEL) {
+            if(run[k] == null) {
+                run[k] = copy[k]
+            }
+        }
+
+        return run
+    }
 }
 
 export interface ExperimentModel {
@@ -119,14 +143,14 @@ export class Experiment {
         this.runs = experiment.runs.map(t => new Run(this.name, t))
         this.runs.sort(
             (a, b) => {
-                if(a.info.trial_date < b.info.trial_date) {
+                if (a.info.trial_date < b.info.trial_date) {
                     return -1;
-                } else if(a.info.trial_date > b.info.trial_date) {
+                } else if (a.info.trial_date > b.info.trial_date) {
                     return +1;
                 } else {
-                    if(a.info.trial_time < b.info.trial_time) {
+                    if (a.info.trial_time < b.info.trial_time) {
                         return -1;
-                    } else if(a.info.trial_time > b.info.trial_time) {
+                    } else if (a.info.trial_time > b.info.trial_time) {
                         return +1;
                     } else {
                         return 0;
@@ -166,7 +190,7 @@ export interface ExperimentsModel {
 }
 
 export class Experiments {
-    private experiments: { [name: string]: Experiment }
+    private readonly experiments: { [name: string]: Experiment }
 
     constructor(experiments: ExperimentsModel) {
         this.experiments = {}
@@ -184,6 +208,7 @@ export class Experiments {
             a.name < b.name ? -1 : a.name > b.name ? 1 : 0
         )
     }
+
     toJSON(): ExperimentsModel {
         let res = {}
         for (let k in this.experiments) {
