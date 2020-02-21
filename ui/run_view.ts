@@ -9,12 +9,15 @@ import {InfoList, InfoItem} from './view_components/info_list'
 import {formatSize} from './view_components/format'
 import {ScreenView} from "./screen";
 
-function wrapEvent(func: Function) {
-    function wrapper(e: Event) {
-        e.preventDefault()
-        e.stopPropagation()
+function wrapEvent(eventName: string, func: Function) {
+    function wrapper() {
+        let e: Event = arguments[arguments.length - 1]
+        if (eventName[eventName.length - 1] !== '_') {
+            e.preventDefault()
+            e.stopPropagation()
+        }
 
-        func()
+        func.apply(null, arguments)
     }
 
     return wrapper
@@ -34,6 +37,8 @@ class RunView implements ScreenView {
     analyticsBtns: HTMLDivElement
     commentSpan: HTMLSpanElement
     commentInput: HTMLInputElement
+    private tagsInput: HTMLInputElement;
+    private tagsList: HTMLDivElement;
 
     constructor(experimentName: string, runUuid: string) {
         this.experimentName = experimentName
@@ -46,7 +51,7 @@ class RunView implements ScreenView {
 
         for (let k of events) {
             let func = this.events[k]
-            this.events[k] = wrapEvent(func)
+            this.events[k] = wrapEvent(k, func)
         }
     }
 
@@ -55,7 +60,7 @@ class RunView implements ScreenView {
             this.runView = <HTMLDivElement>$('div.run_single', '')
         })
 
-        this.renderRun()
+        this.renderRun().then()
 
         return this.elem
     }
@@ -70,7 +75,7 @@ class RunView implements ScreenView {
         $(this.runView, $ => {
             $('h1', $ => {
                 $('label', `${this.run.experimentName}`)
-                $('span', "\\: ")
+                $('span', ":" + ' ')
                 $('span', $ => {
                     this.commentSpan = <HTMLSpanElement>$('span', comment, {
                         on: {click: this.events.editComment}
@@ -79,7 +84,7 @@ class RunView implements ScreenView {
                         type: 'text',
                         on: {
                             blur: this.events.saveComment,
-                            keydown: this.onCommentKeyDown
+                            keydown: this.events.onCommentKeyDown_
                         }
                     })
                 })
@@ -161,23 +166,29 @@ class RunView implements ScreenView {
             })
 
             $('div.block', $ => {
-                let tags: InfoItem[] = [
-                    ['.key', 'Tags'],
-                ]
-                for (let tag of info.tags) {
-                    tags.push(['span.link', tag])
-                }
+                $('div.info_list', $ => {
+                    $('span.key', 'Tags')
 
-                tags.push(['.link', $ => {
+                    this.tagsList = <HTMLDivElement>$('span.tags')
+                    this.renderTagList()
+
                     $('button.small',
-                        {on: {click: this.events.tensorboard}},
+                        {on: {click: this.events.editTags}},
                         $ => {
                             $('i.fa.fa-edit')
                         })
-                }])
 
-                new InfoList(tags, '.mono').render($)
+                    this.tagsInput = <HTMLInputElement>$('input', {
+                        type: 'text',
+                        on: {
+                            blur: this.events.saveTags,
+                            keydown: this.events.onTagsKeyDown_
+                        }
+                    })
+                    this.tagsInput.style.display = 'none'
+                })
             })
+
 
             $('div.block', $ => {
                 $('i.fa.fa-save.key_icon')
@@ -235,8 +246,22 @@ class RunView implements ScreenView {
         return this.elem
     }
 
-    private
-    events = {
+    private renderTagList() {
+        this.tagsList.innerHTML = ''
+
+        $(this.tagsList, $ => {
+            for (let tag of this.run.info.tags) {
+                $('button.small', tag,
+                    {on: {click: this.events.tag.bind(this, tag)}})
+            }
+        })
+    }
+
+    private events = {
+        tag: (tag, e) => {
+            console.log(this, tag, e)
+        },
+
         tensorboard: async () => {
             let url = await this.runUI.launchTensorboard()
             if (url === '') {
@@ -277,6 +302,12 @@ class RunView implements ScreenView {
             this.saveComment(this.commentInput.value)
         },
 
+        onCommentKeyDown_: async (e: KeyboardEvent) => {
+            if (e.key === 'Enter') {
+                this.saveComment(this.commentInput.value)
+            }
+        },
+
         jupyter: async (e: Event) => {
             let target = <any>e.currentTarget
             let url = await this.runUI.launchJupyter(target.template)
@@ -285,25 +316,51 @@ class RunView implements ScreenView {
             } else {
                 window.open(url, '_blank')
             }
+        },
+
+        editTags: async (e: Event) => {
+            this.tagsList.style.display = 'none'
+            this.tagsInput.style.display = null
+            this.tagsInput.value = this.run.info.tags.join(', ')
+            this.tagsInput.focus()
+        },
+
+        saveTags: async (e: Event) => {
+            this.saveTags(this.tagsInput.value)
+        },
+
+        onTagsKeyDown_: async (e: KeyboardEvent) => {
+            if (e.key === 'Enter') {
+                this.saveTags(this.tagsInput.value)
+            }
         }
+
     }
 
-    onCommentKeyDown = async (e: KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            this.saveComment(this.commentInput.value)
-        }
-    }
-
-    private saveComment(comment
-                            :
-                            string
-    ) {
+    private saveComment(comment: string) {
         this.commentSpan.style.display = null
         this.commentInput.style.display = 'none'
         this.run.info.comment = comment
         this.commentSpan.textContent = comment
 
-        this.runUI.update({comment: comment})
+        this.runUI.update({comment: comment}).then()
+    }
+
+    private saveTags(tags: string) {
+        let tagList = []
+        for (let tag of tags.split(',')) {
+            tag = tag.trim()
+            if (tag !== '') {
+                tagList.push(tag)
+            }
+        }
+
+        this.tagsList.style.display = null
+        this.tagsInput.style.display = 'none'
+        this.run.info.tags = tagList
+        this.renderTagList()
+
+        this.runUI.update({tags: tagList}).then()
     }
 
     async renderAnalyticsBtns() {

@@ -8,7 +8,7 @@ import { LAB } from './consts'
 import { Lab } from './lab'
 import { rmtree } from './util'
 
-const UPDATABLE_KEYS = new Set(['comment', 'notes'])
+const UPDATABLE_KEYS = new Set(['comment', 'notes', 'tags'])
 
 export class RunNodeJS {
     private static cache: { [run: string]: RunNodeJS } = {}
@@ -207,7 +207,7 @@ export class RunNodeJS {
         let contents = await readFile(path, { encoding: 'utf-8' })
         let run: RunModel = YAML.parse(contents)
         run = Run.fixRunModel(this.run.experimentName, run)
-        
+
         for (let k in data) {
             run[k] = data[k]
         }
