@@ -1,13 +1,5 @@
-import { PORT } from './app'
-import {
-    Run,
-    IndicatorsModel,
-    Indicators,
-    Configs,
-    ConfigsModel,
-    ScalarsModel
-} from '../common/experiments'
-import { API } from '../common/api'
+import {Configs, Indicators, Run, ScalarsModel} from '../common/experiments'
+import {API} from '../common/api'
 
 export class RunUI {
     private static cache: { [run: string]: RunUI } = {}

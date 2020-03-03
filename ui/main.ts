@@ -6,12 +6,14 @@ import { DiffHandler } from './diff_view'
 import { API } from '../common/api'
 import { wrapAPI } from '../common/api_handler'
 import {TagHandler} from "./tag_view";
+import {TableHandler} from "./table_view";
 
 new ExperimentsHandler()
 new ExperimentHandler()
 new RunHandler()
 new DiffHandler()
 new TagHandler()
+new TableHandler()
 
 wrapAPI(PORT, API)
 

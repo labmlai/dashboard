@@ -20,9 +20,9 @@ export class InfoList {
                     'length' in item &&
                     item.length == 2
                 ) {
-                    $(`span${item[0]}`, item[1])
+                    $(`span${item[0]}`, <string>item[1])
                 } else {
-                    $('span', <string | WeyaTemplateFunction>item)
+                    $('span', <string>item)
                 }
             }
         })
