@@ -1,11 +1,10 @@
-import { Run } from '../common/experiments'
-import { LAB } from './consts'
+import {Run} from '../common/experiments'
+import {LAB} from './consts'
 import * as PATH from 'path'
-import { spawn, ChildProcessWithoutNullStreams } from 'child_process'
+import {ChildProcessWithoutNullStreams, spawn} from 'child_process'
 import * as PROCESS from 'process'
-import { RunNodeJS } from './run_nodejs'
-import * as UTIL from 'util'
-import * as FS from 'fs'
+import {RunNodeJS} from './run_nodejs'
+import {copyFile, exists, mkdir} from "./util";
 
 export class Jupyter {
     port: number
@@ -26,7 +25,7 @@ export class Jupyter {
 
         let args = ['notebook', '--no-browser']
         console.log('jupyter', args)
-        this.proc = spawn('jupyter', args, { env: env })
+        this.proc = spawn('jupyter', args, {env: env})
 
         let isClosed = false
 
@@ -41,7 +40,7 @@ export class Jupyter {
             console.log('TB err', data.toString())
         })
 
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             setTimeout(() => {
                 console.log('isClosed', isClosed)
                 if (isClosed) {
@@ -62,10 +61,6 @@ export class Jupyter {
     }
 
     async setupTemplate(run: Run, templateName: string) {
-        let exists = UTIL.promisify(FS.exists)
-        let mkdir = UTIL.promisify(FS.mkdir)
-        let copyFile = UTIL.promisify(FS.copyFile)
-
         let runNodeJs = RunNodeJS.create(run)
         let lab = await runNodeJs.getLab()
         let template = lab.analyticsTemplates[templateName]
@@ -82,7 +77,7 @@ export class Jupyter {
             return url
         }
 
-        await mkdir(destinationPath, { recursive: true })
+        await mkdir(destinationPath, {recursive: true})
 
         console.log(template, destination)
 

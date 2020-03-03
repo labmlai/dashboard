@@ -1,30 +1,20 @@
 import * as YAML from 'yaml'
-import * as FS from 'fs'
 import * as PATH from 'path'
-import * as UTIL from 'util'
-import {
-    Experiment,
-    RunModel,
-    Experiments,
-    DEFAULT_RUN_MODEL, Run
-} from '../common/experiments'
-import { LAB } from './consts'
-import { getDiskUsage } from './util'
+import {Experiment, Experiments, Run, RunModel} from '../common/experiments'
+import {LAB} from './consts'
+import {getDiskUsage, readdir, readFile} from './util'
 
 class ExperimentsFactory {
     private static async getExperimentsNames(): Promise<string[]> {
-        let readDir = UTIL.promisify(FS.readdir)
-        return await readDir(LAB.experiments)
+        return await readdir(LAB.experiments)
     }
 
     private static async loadRun(
         name: string,
         runUuid: string
     ): Promise<RunModel> {
-        let readFile = UTIL.promisify(FS.readFile)
         let contents = await readFile(
             PATH.join(LAB.experiments, name, runUuid, 'run.yaml'),
-            { encoding: 'utf-8' }
         )
         let res: RunModel = YAML.parse(contents)
         res = Run.fixRunModel(name, res)
@@ -47,11 +37,10 @@ class ExperimentsFactory {
     }
 
     static async loadExperiment(name: string): Promise<Experiment> {
-        let readDir = UTIL.promisify(FS.readdir)
-        let runs = await readDir(PATH.join(LAB.experiments, name))
+        let runs = await readdir(PATH.join(LAB.experiments, name))
         let promises = runs.map(r => ExperimentsFactory.loadRun(name, r))
         let data: RunModel[] = await Promise.all(promises)
-        return new Experiment({ name: name, runs: data })
+        return new Experiment({name: name, runs: data})
     }
 
     static async load(): Promise<Experiments> {
@@ -70,4 +59,4 @@ class ExperimentsFactory {
     }
 }
 
-export { ExperimentsFactory }
+export {ExperimentsFactory}

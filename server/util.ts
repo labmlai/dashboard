@@ -1,13 +1,44 @@
 import * as UTIL from 'util'
 import * as FS from 'fs'
 import * as PATH from 'path'
+import {MakeDirectoryOptions} from "fs";
+
+export let exists = UTIL.promisify(FS.exists)
+export let readdir = UTIL.promisify(FS.readdir)
+
+export function readFile(path: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        FS.readFile(path, {encoding: 'utf-8'}, (err, contents) => {
+            if (err != null) {
+                reject(err)
+            } else {
+                resolve(contents)
+            }
+        })
+    })
+}
+
+export let writeFile = UTIL.promisify(FS.writeFile)
+
+export let lstat = UTIL.promisify(FS.lstat)
+let unlink = UTIL.promisify(FS.unlink)
+let rmdir = UTIL.promisify(FS.rmdir)
+
+export function mkdir(path: string, options: MakeDirectoryOptions | null = null): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        FS.mkdir(path, options, (err) => {
+            if (err != null) {
+                reject(err)
+            } else {
+                resolve()
+            }
+        })
+    })
+}
+
+export let copyFile = UTIL.promisify(FS.copyFile)
 
 export async function rmtree(path: string) {
-    let exists = UTIL.promisify(FS.exists)
-    let lstat = UTIL.promisify(FS.lstat)
-    let unlink = UTIL.promisify(FS.unlink)
-    let readdir = UTIL.promisify(FS.readdir)
-    let rmdir = UTIL.promisify(FS.rmdir)
 
     if (!(await exists(path))) {
         return
@@ -27,10 +58,6 @@ export async function rmtree(path: string) {
 }
 
 export async function getDiskUsage(path: string): Promise<number> {
-    let exists = UTIL.promisify(FS.exists)
-    let lstat = UTIL.promisify(FS.lstat)
-    let readdir = UTIL.promisify(FS.readdir)
-
     if (!(await exists(path))) {
         return 0
     }

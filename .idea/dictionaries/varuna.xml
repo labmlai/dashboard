@@ -3,6 +3,7 @@
     <words>
       <w>logdir</w>
       <w>tensorboard</w>
+      <w>updatable</w>
       <w>weya</w>
     </words>
   </dictionary>

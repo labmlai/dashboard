@@ -1,7 +1,6 @@
-import * as UTIL from 'util'
 import * as PATH from 'path'
-import * as FS from 'fs'
 import * as YAML from 'yaml'
+import {exists, lstat, readFile} from "./util";
 
 const CONFIG_FILE_NAME = '.lab.yaml'
 
@@ -84,10 +83,6 @@ function mergeConfig(configs: any[]) {
 }
 
 async function getConfigFiles(path: string) {
-    let exists = UTIL.promisify(FS.exists)
-    let lstat = UTIL.promisify(FS.lstat)
-    let readFile = UTIL.promisify(FS.readFile)
-
     path = PATH.resolve(path)
     let configsList = []
 
@@ -96,9 +91,7 @@ async function getConfigFiles(path: string) {
         if (stats.isDirectory()) {
             let config_file = PATH.join(path, CONFIG_FILE_NAME)
             if (await exists(config_file)) {
-                let contents = await readFile(config_file, {
-                    encoding: 'utf-8'
-                })
+                let contents = await readFile(config_file)
                 let configs = YAML.parse(contents)
                 configs.config_file_path = path
                 configsList.push(configs)

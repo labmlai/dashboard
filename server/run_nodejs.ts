@@ -1,12 +1,10 @@
 import * as sqlite3 from 'sqlite3'
-import { Run, Indicators, Configs, RunModel } from '../common/experiments'
+import {Configs, Indicators, Run, RunModel} from '../common/experiments'
 import * as PATH from 'path'
-import * as UTIL from 'util'
-import * as FS from 'fs'
 import * as YAML from 'yaml'
-import { LAB } from './consts'
-import { Lab } from './lab'
-import { rmtree } from './util'
+import {LAB} from './consts'
+import {Lab} from './lab'
+import {exists, readdir, readFile, rmtree, writeFile} from './util'
 
 const UPDATABLE_KEYS = new Set(['comment', 'notes', 'tags'])
 
@@ -53,7 +51,7 @@ export class RunNodeJS {
     private getLastValue(): Promise<any> {
         return new Promise((resolve, reject) => {
             this.db.all(
-                `SELECT a.* FROM scalars AS a
+                    `SELECT a.* FROM scalars AS a
             INNER JOIN (
                 SELECT indicator, MAX(step) AS step 
                 FROM scalars
@@ -76,21 +74,17 @@ export class RunNodeJS {
     }
 
     async getIndicators(): Promise<Indicators> {
-        let readFile = UTIL.promisify(FS.readFile)
         let contents = await readFile(
             PATH.join(
                 LAB.experiments,
                 this.run.experimentName,
                 this.run.info.uuid,
                 'indicators.yaml'
-            ),
-            { encoding: 'utf-8' }
-        )
+            ))
         return new Indicators(YAML.parse(contents))
     }
 
     async getConfigs(): Promise<Configs> {
-        let readFile = UTIL.promisify(FS.readFile)
         try {
             let contents = await readFile(
                 PATH.join(
@@ -98,27 +92,21 @@ export class RunNodeJS {
                     this.run.experimentName,
                     this.run.info.uuid,
                     'configs.yaml'
-                ),
-                {encoding: 'utf-8'}
-            )
+                ))
             return new Configs(YAML.parse(contents))
-        } catch(e) {
+        } catch (e) {
             return new Configs({})
         }
     }
 
     async getDiff(): Promise<string> {
-        let readFile = UTIL.promisify(FS.readFile)
-        let contents = await readFile(
+        return await readFile(
             PATH.join(
                 LAB.experiments,
                 this.run.experimentName,
                 this.run.info.uuid,
                 'source.diff'
-            ),
-            { encoding: 'utf-8' }
-        )
-        return contents
+            ))
     }
 
     async getValues() {
@@ -152,7 +140,7 @@ export class RunNodeJS {
 
         for (let k in indicators.indicators) {
             let ind = indicators.indicators[k]
-            if(ind.class_name == null) {
+            if (ind.class_name == null) {
                 continue
             }
             let key =
@@ -196,15 +184,13 @@ export class RunNodeJS {
             }
         }
 
-        let readFile = UTIL.promisify(FS.readFile)
-        let writeFile = UTIL.promisify(FS.writeFile)
         let path = PATH.join(
             LAB.experiments,
             this.run.experimentName,
             this.run.info.uuid,
             'run.yaml'
         )
-        let contents = await readFile(path, { encoding: 'utf-8' })
+        let contents = await readFile(path)
         let run: RunModel = YAML.parse(contents)
         run = Run.fixRunModel(this.run.experimentName, run)
 
@@ -216,9 +202,6 @@ export class RunNodeJS {
     }
 
     async cleanupCheckpoints() {
-        let exists = UTIL.promisify(FS.exists)
-        let readdir = UTIL.promisify(FS.readdir)
-
         let path = PATH.join(
             LAB.experiments,
             this.run.experimentName,
