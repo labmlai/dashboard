@@ -59,6 +59,16 @@ class InfoCell extends Cell {
     }
 }
 
+class ExperimentNameCell extends Cell {
+    renderHeader($: WeyaElementFunction) {
+        $('th', 'Experiment')
+    }
+
+    renderCell($: WeyaElementFunction, run: Run) {
+        $('td', run.experimentName)
+    }
+}
+
 class RunsView implements ScreenView {
     elem: HTMLElement
     runsTable: HTMLTableElement
@@ -68,7 +78,8 @@ class RunsView implements ScreenView {
     render(): WeyaElement {
         this.elem = <HTMLElement>$('div.full_container', $ => {
             $('h1', 'Runs')
-            this.runsTable = <HTMLTableElement>$('table.runs_table')
+
+            this.runsTable = <HTMLTableElement>$('table.runs')
         })
         this.renderExperiments().then()
         return this.elem
@@ -86,7 +97,11 @@ class RunsView implements ScreenView {
     }
 
     private static getFormat(): Cell[] {
-        return [new InfoCell('trial_time'), new InfoCell('trial_date')]
+        return [
+            new ExperimentNameCell(),
+            new InfoCell('trial_time'),
+            new InfoCell('trial_date')
+        ]
     }
 
     private async renderExperiments() {
