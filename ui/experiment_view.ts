@@ -81,8 +81,8 @@ class RunView {
     }
 
     async load() {
-        this.values = await this.runUI.getValues()
-        this.configs = await this.runUI.getConfigs()
+        this.values = await this.runUI.loadValues()
+        this.configs = await this.runUI.loadConfigs()
     }
 
     renderValues() {

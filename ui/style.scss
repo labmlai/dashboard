@@ -67,6 +67,7 @@ body {
     h4 {
       margin-top: 0;
       margin-bottom: 8px;
+
       label {
         color: $subtleColor;
       }
@@ -275,4 +276,50 @@ button {
 
 .size {
   opacity: 0.8;
+}
+
+.runs_container {
+  overflow-x: scroll;
+  margin-left: 14em;
+  overflow-y: visible;
+  padding-bottom: 1px;
+
+  table {
+    td, th {
+      margin: 0;
+      border: 3px solid transparent;
+      border-top-width: 0px;
+      white-space: nowrap;
+    }
+
+    .header {
+      position: absolute;
+      width: 14em;
+      left: 0;
+      top: auto;
+      border-right: 0px none black;
+      border-top-width: 3px;
+      margin-top: -3px;
+    }
+
+    .header_1 {
+      position: absolute;
+      width: 7em;
+      left: 0;
+      top: auto;
+      border-right: 0px none black;
+      border-top-width: 3px;
+      margin-top: -3px;
+    }
+
+    .header_2 {
+      position: absolute;
+      width: 7em;
+      left: 7em;
+      top: auto;
+      border-right: 0px none black;
+      border-top-width: 3px; /*only relevant for first row*/
+      margin-top: -3px; /*compensate for top border*/
+    }
+  }
 }

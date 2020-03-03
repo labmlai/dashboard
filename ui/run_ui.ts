@@ -3,11 +3,11 @@ import {API} from '../common/api'
 
 export class RunUI {
     private static cache: { [run: string]: RunUI } = {}
-    private run: Run
-    private configs: Configs
-    private values: ScalarsModel
-    private indicators: Indicators
-    private diff: string
+    run: Run
+    configs: Configs
+    values: ScalarsModel
+    indicators: Indicators
+    diff: string
 
     private constructor(run: Run) {
         this.run = run
@@ -20,7 +20,7 @@ export class RunUI {
         return RunUI.cache[run.hash()]
     }
 
-    async getIndicators(): Promise<Indicators> {
+    async loadIndicators(): Promise<Indicators> {
         if (this.indicators == null) {
             this.indicators = new Indicators(
                 await API.getIndicators(
@@ -32,7 +32,7 @@ export class RunUI {
         return this.indicators
     }
 
-    async getConfigs(): Promise<Configs> {
+    async loadConfigs(): Promise<Configs> {
         if (this.configs == null) {
             this.configs = new Configs(
                 await API.getConfigs(
@@ -45,7 +45,7 @@ export class RunUI {
         return this.configs
     }
 
-    async getDiff(): Promise<string> {
+    async loadDiff(): Promise<string> {
         if (this.diff == null) {
             this.diff = await API.getDiff(
                 this.run.experimentName,
@@ -56,7 +56,7 @@ export class RunUI {
         return this.diff
     }
 
-    async getValues(): Promise<ScalarsModel> {
+    async loadValues(): Promise<ScalarsModel> {
         if (this.values == null) {
             this.values = await API.getValues(
                 this.run.experimentName,

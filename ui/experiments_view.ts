@@ -35,7 +35,7 @@ class ExperimentView {
 
     private async renderRun(run: Run) {
         let runUI = RunUI.create(run)
-        let values = await runUI.getValues()
+        let values = await runUI.loadValues()
         // let configs = await runUI.getConfigs()
 
         $(this.elem, $ => {

@@ -1,14 +1,16 @@
 import {ScreenView} from './screen'
 import {ROUTER, SCREEN} from './app'
 import {Weya as $, WeyaElement, WeyaElementFunction} from '../lib/weya/weya'
-import {Experiments, Run} from '../common/experiments'
+import {Experiments} from '../common/experiments'
 import {getExperiments} from './cache'
+import {formatInt, formatScalar, formatSize} from "./view_components/format";
+import {RunUI} from "./run_ui";
 
 class RunView {
     elem: WeyaElement
-    run: Run
+    run: RunUI
 
-    constructor(r: Run) {
+    constructor(r: RunUI) {
         this.run = r
     }
 
@@ -30,69 +32,152 @@ class RunView {
         e.preventDefault()
         e.stopPropagation()
 
-        ROUTER.navigate(`/experiment/${this.run.experimentName}`)
+        ROUTER.navigate(`/experiment/${this.run.run.experimentName}`)
     }
 }
 
 abstract class Cell {
-    abstract renderHeader($: WeyaElementFunction)
+    private readonly name: string
+    private readonly header: number
 
-    abstract renderCell($: WeyaElementFunction, run: Run)
-}
-
-class DateTimeCell extends Cell {
-    renderCell($: WeyaElementFunction, run: Run) {
-        $('td', `${run.info.trial_date} ${run.info.trial_time}`)
+    protected constructor(name: string, header: number = 0) {
+        this.name = name
+        this.header = header
     }
 
     renderHeader($: WeyaElementFunction) {
-        $('th', "Date & Time")
+        if (this.header > 0) {
+            $(`th.header.header_${this.header}`, this.name)
+        } else {
+            $('th', this.name)
+        }
     }
+
+    abstract renderCell($: WeyaElementFunction, run: RunUI)
 }
 
 class InfoCell extends Cell {
     private readonly key: string
-    private name: string
+    private readonly formatter: Function;
 
-    constructor(key: string, name: string = null) {
-        super()
+    constructor(key: string, name: string, formatter: Function = null) {
+        super(name)
         this.key = key
-        if(name == null) {
-            name = key
+        this.formatter = formatter;
+    }
+
+    renderCell($: WeyaElementFunction, run: RunUI) {
+        if (this.formatter == null) {
+            $('td', `${run.run.info[this.key]}`)
+        } else {
+            $('td', this.formatter(run.run.info[this.key]))
         }
-        this.name = name
+    }
+}
+
+class ValueCell extends Cell {
+    private readonly key: string
+    private readonly formatter: Function;
+
+    constructor(key: string, formatter: Function = formatScalar) {
+        super(key)
+        this.key = key
+        this.formatter = formatter
     }
 
-    renderHeader($: WeyaElementFunction) {
-        $('th', this.key)
+    renderCell($: WeyaElementFunction, run: RunUI) {
+        if (run.values[this.key] == null) {
+            $('td', ``)
+            return
+        }
+
+        if (this.formatter == null) {
+            $('td', `${run.values[this.key].value}`)
+        } else {
+            $('td', this.formatter(run.values[this.key].value))
+        }
+    }
+}
+
+class StepCell extends Cell {
+    private readonly formatter: Function;
+
+    constructor() {
+        super("Step")
     }
 
-    renderCell($: WeyaElementFunction, run: Run) {
-        $('td', run.info[this.key])
+    renderCell($: WeyaElementFunction, run: RunUI) {
+        let maxStep = 0
+
+        for (let k in run.values) {
+            maxStep = Math.max(run.values[k].step, maxStep)
+        }
+
+        $('td', formatInt(maxStep))
+    }
+}
+
+class DateTimeCell extends Cell {
+    constructor() {
+        super("Date & Time")
+    }
+
+    renderCell($: WeyaElementFunction, run: RunUI) {
+        $('td', `${run.run.info.trial_date} ${run.run.info.trial_time}`)
+    }
+}
+
+
+class CommentCell extends Cell {
+    constructor() {
+        super("Comment", 2)
+    }
+
+    renderCell($: WeyaElementFunction, run: RunUI) {
+        $('td.header.header_2', run.run.info.comment)
+    }
+}
+
+class SizeCell extends Cell {
+    constructor() {
+        super("Size")
+    }
+
+    renderCell($: WeyaElementFunction, run: RunUI) {
+        let info = run.run.info
+        let size =
+            info.sqlite_size +
+            info.analytics_size +
+            info.checkpoints_size +
+            info.tensorboard_size
+
+        $('td', formatSize(size))
     }
 }
 
 class ExperimentNameCell extends Cell {
-    renderHeader($: WeyaElementFunction) {
-        $('th', 'Experiment')
+    constructor() {
+        super("Experiment", 1)
     }
 
-    renderCell($: WeyaElementFunction, run: Run) {
-        $('td', run.experimentName)
+    renderCell($: WeyaElementFunction, run: RunUI) {
+        $('td.header.header_1', run.run.experimentName)
     }
 }
 
 class RunsView implements ScreenView {
     elem: HTMLElement
     runsTable: HTMLTableElement
-    runs: Run[]
+    runs: RunUI[]
     format: Cell[]
 
     render(): WeyaElement {
         this.elem = <HTMLElement>$('div.full_container', $ => {
             $('h1', 'Runs')
 
-            this.runsTable = <HTMLTableElement>$('table.runs')
+            $('div.runs_container', $ => {
+                this.runsTable = <HTMLTableElement>$('table.runs')
+            })
         })
         this.renderExperiments().then()
         return this.elem
@@ -102,23 +187,52 @@ class RunsView implements ScreenView {
         let runUIs = []
         for (let e of experiments.sorted()) {
             for (let r of e.runs) {
-                runUIs.push(r)
+                runUIs.push(RunUI.create(r))
             }
         }
 
         return runUIs
     }
 
-    private static getFormat(): Cell[] {
-        return [
+    private getFormat(): Cell[] {
+        let format: Cell[] = [
             new ExperimentNameCell(),
-            new DateTimeCell()
+            new CommentCell(),
+            new DateTimeCell(),
+            new InfoCell('commit_message', "Commit Message"),
+            new InfoCell('is_dirty', 'Dirty'),
+            new InfoCell('python_file', 'Python File'),
+            new InfoCell('tags', 'Tags'),
+            new SizeCell(),
+            new InfoCell('checkpoints_size', 'Checkpoints', formatSize),
+            new InfoCell('sqlite_size', 'SQLite', formatSize),
+            new InfoCell('analytics_size', 'Analytics', formatSize),
+            new InfoCell('tensorboard_size', 'Tensorboard', formatSize)
         ]
+
+        format.push(new StepCell())
+
+        let indicators = new Set<string>()
+        for (let r of this.runs) {
+            for (let k in r.values) {
+                indicators.add(k)
+            }
+        }
+
+        for (let k of indicators.keys()) {
+            format.push(new ValueCell(k))
+        }
+
+        return format
     }
 
     private async renderExperiments() {
         this.runs = RunsView.getRuns(await getExperiments())
-        this.format = RunsView.getFormat()
+        for (let r of this.runs) {
+            await r.loadConfigs()
+            await r.loadValues()
+        }
+        this.format = this.getFormat()
 
         let views: RunView[] = []
         for (let r of this.runs) {

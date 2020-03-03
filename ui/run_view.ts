@@ -391,12 +391,12 @@ class RunView implements ScreenView {
 
     async renderIndicators() {
         // let indicators: Indicators = await this.runUI.getIndicators()
-        let values = await this.runUI.getValues()
+        let values = await this.runUI.loadValues()
         renderValues(this.indicatorsView, values)
     }
 
     async renderConfigs() {
-        let configs = await this.runUI.getConfigs()
+        let configs = await this.runUI.loadConfigs()
         renderConfigs(this.configsView, configs)
     }
 }
