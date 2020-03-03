@@ -34,20 +34,33 @@ class RunView {
     }
 }
 
-class Cell {
-    renderHeader($: WeyaElementFunction) {
+abstract class Cell {
+    abstract renderHeader($: WeyaElementFunction)
+
+    abstract renderCell($: WeyaElementFunction, run: Run)
+}
+
+class DateTimeCell extends Cell {
+    renderCell($: WeyaElementFunction, run: Run) {
+        $('td', `${run.info.trial_date} ${run.info.trial_time}`)
     }
 
-    renderCell($: WeyaElementFunction, run: Run) {
+    renderHeader($: WeyaElementFunction) {
+        $('th', "Date & Time")
     }
 }
 
 class InfoCell extends Cell {
     private readonly key: string
+    private name: string
 
-    constructor(key: string) {
+    constructor(key: string, name: string = null) {
         super()
-        this.key = key;
+        this.key = key
+        if(name == null) {
+            name = key
+        }
+        this.name = name
     }
 
     renderHeader($: WeyaElementFunction) {
@@ -99,8 +112,7 @@ class RunsView implements ScreenView {
     private static getFormat(): Cell[] {
         return [
             new ExperimentNameCell(),
-            new InfoCell('trial_time'),
-            new InfoCell('trial_date')
+            new DateTimeCell()
         ]
     }
 
