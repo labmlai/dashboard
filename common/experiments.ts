@@ -72,6 +72,9 @@ export interface RunModel {
     checkpoints_size: number
     sqlite_size: number
     analytics_size: number
+    configs?: ConfigsModel
+    values?: ScalarsModel
+    indicators?: IndicatorsModel
 }
 
 export const DEFAULT_RUN_MODEL: RunModel = {

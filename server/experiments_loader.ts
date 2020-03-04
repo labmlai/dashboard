@@ -3,6 +3,7 @@ import * as PATH from 'path'
 import {Experiment, Experiments, Run, RunModel} from '../common/experiments'
 import {LAB} from './consts'
 import {getDiskUsage, readdir, readFile} from './util'
+import {RunNodeJS} from "./run_nodejs";
 
 class ExperimentsFactory {
     private static async getExperimentsNames(): Promise<string[]> {
@@ -32,6 +33,10 @@ class ExperimentsFactory {
         res.analytics_size = await getDiskUsage(
             PATH.join(LAB.analytics, name, runUuid)
         )
+
+        let run = RunNodeJS.create(new Run(name, res))
+        res.values = await run.getValues()
+        res.configs = (await run.getConfigs()).configs
 
         return res
     }

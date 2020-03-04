@@ -125,6 +125,8 @@ export class RunNodeJS {
             return this.values
         }
 
+        console.log("loading values")
+
         try {
             await this.loadDatabase()
         } catch (e) {

@@ -21,26 +21,41 @@ export class RunUI {
     }
 
     async loadIndicators(): Promise<Indicators> {
-        if (this.indicators == null) {
-            this.indicators = new Indicators(
-                await API.getIndicators(
-                    this.run.experimentName,
-                    this.run.info.uuid
-                )
-            )
+        if (this.indicators != null) {
+            return this.indicators
         }
+
+        if (this.run.info.indicators != null) {
+            this.indicators = new Indicators(this.run.info.indicators)
+            return this.indicators
+        }
+
+        this.indicators = new Indicators(
+            await API.getIndicators(
+                this.run.experimentName,
+                this.run.info.uuid
+            )
+        )
+
         return this.indicators
     }
 
     async loadConfigs(): Promise<Configs> {
-        if (this.configs == null) {
-            this.configs = new Configs(
-                await API.getConfigs(
-                    this.run.experimentName,
-                    this.run.info.uuid
-                )
-            )
+        if (this.configs != null) {
+            return this.configs
         }
+
+        if (this.run.info.configs != null) {
+            this.configs = new Configs(this.run.info.configs)
+            return this.configs
+        }
+
+        this.configs = new Configs(
+            await API.getConfigs(
+                this.run.experimentName,
+                this.run.info.uuid
+            )
+        )
 
         return this.configs
     }
@@ -57,12 +72,19 @@ export class RunUI {
     }
 
     async loadValues(): Promise<ScalarsModel> {
-        if (this.values == null) {
-            this.values = await API.getValues(
-                this.run.experimentName,
-                this.run.info.uuid
-            )
+        if (this.values != null) {
+            return this.values
         }
+
+        if (this.run.info.values != null) {
+            this.values = this.run.info.values
+            return this.values
+        }
+
+        this.values = await API.getValues(
+            this.run.experimentName,
+            this.run.info.uuid
+        )
 
         return this.values
     }
