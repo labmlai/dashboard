@@ -278,46 +278,26 @@ button {
   opacity: 0.8;
 }
 
-.runs_container {
-  margin-left: 14em;
-  padding-bottom: 1px;
+div.table {
+  div.row, div.header {
+    white-space: nowrap;
+    height: 25px;
+  }
 
-  table {
-    td, th {
-      margin: 0;
-      border: 3px solid transparent;
-      border-top-width: 0px;
-      white-space: nowrap;
+  div.header {
+    div.cell {
+      font-weight: bold;
     }
+  }
 
-    .header {
-      position: absolute;
-      width: 14em;
-      left: 0;
-      top: auto;
-      border-right: 0px none black;
-      border-top-width: 3px;
-      margin-top: -3px;
-    }
-
-    .header_1 {
-      position: absolute;
-      width: 7em;
-      left: 0;
-      top: auto;
-      border-right: 0px none black;
-      border-top-width: 3px;
-      margin-top: -3px;
-    }
-
-    .header_2 {
-      position: absolute;
-      width: 7em;
-      left: 7em;
-      top: auto;
-      border-right: 0px none black;
-      border-top-width: 3px; /*only relevant for first row*/
-      margin-top: -3px; /*compensate for top border*/
-    }
+  div.cell {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-right: 1px solid #777;
+    border-bottom: 1px solid #777;
+    padding: 2px;
+    height: 20px;
   }
 }

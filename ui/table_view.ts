@@ -1,18 +1,10 @@
 import {ScreenView} from './screen'
 import {ROUTER, SCREEN} from './app'
-import {Weya as $, WeyaElement, WeyaElementFunction} from '../lib/weya/weya'
-import {Config, Experiments} from '../common/experiments'
+import {Weya as $, WeyaElement} from '../lib/weya/weya'
+import {Experiments} from '../common/experiments'
 import {getExperiments} from './cache'
-import {formatInt, formatScalar, formatSize, formatValue} from "./view_components/format";
 import {RunUI} from "./run_ui";
-import {
-    Cell,
-    CommentCell, ConfigComputedCell, ConfigOptionCell,
-    DateTimeCell,
-    ExperimentNameCell,
-    InfoCell,
-    SizeCell, StepCell, ValueCell
-} from "./cells/cell";
+import {Cell, CellFactory, CellOptions} from "./cells/cell";
 
 class RunView {
     elem: WeyaElement
@@ -23,8 +15,7 @@ class RunView {
     }
 
     render(format: Cell[]) {
-        this.elem = $(
-            'tr',
+        this.elem = $('div.row',
             {on: {click: this.onClick}},
             $ => {
                 for (let cell of format) {
@@ -37,10 +28,10 @@ class RunView {
     }
 
     onClick = (e: Event) => {
-        e.preventDefault()
-        e.stopPropagation()
-
-        ROUTER.navigate(`/experiment/${this.run.run.experimentName}/${this.run.run.info.uuid}`)
+        // e.preventDefault()
+        // e.stopPropagation()
+        //
+        // ROUTER.navigate(`/experiment/${this.run.run.experimentName}/${this.run.run.info.uuid}`)
     }
 }
 
@@ -52,12 +43,9 @@ class RunsView implements ScreenView {
 
     render(): WeyaElement {
         this.elem = <HTMLElement>$('div.full_container', $ => {
-            $('h1', 'Runs')
-
-            $('div.runs_container', $ => {
-                this.runsTable = <HTMLTableElement>$('table.runs')
-            })
+            this.runsTable = $('div.table')
         })
+
         this.renderExperiments().then()
         return this.elem
     }
@@ -73,23 +61,22 @@ class RunsView implements ScreenView {
         return runUIs
     }
 
-    private getFormat(): Cell[] {
-        let format: Cell[] = [
-            new ExperimentNameCell(),
-            new CommentCell(),
-            new DateTimeCell(),
-            new InfoCell('commit_message', "Commit Message"),
-            new InfoCell('is_dirty', 'Dirty'),
-            new InfoCell('python_file', 'Python File'),
-            new InfoCell('tags', 'Tags'),
-            new SizeCell(),
-            new InfoCell('checkpoints_size', 'Checkpoints', formatSize),
-            new InfoCell('sqlite_size', 'SQLite', formatSize),
-            new InfoCell('analytics_size', 'Analytics', formatSize),
-            new InfoCell('tensorboard_size', 'Tensorboard', formatSize)
+    private getFormat(): CellOptions[] {
+        let format: CellOptions[] = [
+            {type: 'experiment_name', name: 'Experiment', 'key': ''},
+            {type: 'comment', name: 'Comment', 'key': ''},
+            {type: 'date_time', name: 'Date Time', 'key': ''},
+            {type: 'info', name: 'Commit Message', 'key': 'commit_message'},
+            {type: 'info', name: 'Dirty', 'key': 'is_dirty'},
+            {type: 'info', name: 'Tags', 'key': 'tags'},
+            {type: 'size', name: 'Size', 'key': ''},
+            {type: 'size', name: 'Checkpoints', 'key': 'checkpoints_size'},
+            {type: 'size', name: 'SQLite', 'key': 'sqlite_size'},
+            {type: 'size', name: 'Analytics', 'key': 'analytics_size'},
+            {type: 'size', name: 'Tensorboard', 'key': 'tensorboard_size'},
         ]
 
-        format.push(new StepCell())
+        format.push({type: 'step', name: 'Step', 'key': ''})
 
         let indicators = new Set<string>()
         for (let r of this.runs) {
@@ -99,7 +86,7 @@ class RunsView implements ScreenView {
         }
 
         for (let k of indicators.keys()) {
-            format.push(new ValueCell(k))
+            format.push({type: 'value', name: k, 'key': k})
         }
 
         let configs = new Set<string>()
@@ -110,11 +97,20 @@ class RunsView implements ScreenView {
         }
 
         for (let k of configs.keys()) {
-            format.push(new ConfigComputedCell(k))
-            format.push(new ConfigOptionCell(k))
+            format.push({type: 'config_computed', name: k, 'key': k})
+            format.push({type: 'config_options', name: `${k} Options`, 'key': k})
         }
 
         return format
+    }
+
+    private createCells(format: CellOptions[]) {
+        let res: Cell[] = []
+        for (let opt of format) {
+            res.push(CellFactory.create(opt))
+        }
+
+        return res
     }
 
     private async renderExperiments() {
@@ -127,14 +123,14 @@ class RunsView implements ScreenView {
 
         await Promise.all(promises)
 
-        this.format = this.getFormat()
+        this.format = this.createCells(this.getFormat())
 
         let views: RunView[] = []
         for (let r of this.runs) {
             views.push(new RunView(r))
         }
 
-        $('tr', this.runsTable, $ => {
+        $('div.header', this.runsTable, $ => {
             for (let c of this.format) {
                 c.renderHeader($)
             }

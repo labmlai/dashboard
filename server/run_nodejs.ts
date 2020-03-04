@@ -77,7 +77,8 @@ export class RunNodeJS {
     }
 
     async getIndicators(): Promise<Indicators> {
-        if (this.indicators == null) {
+        // TODO: Caching
+        if (true && this.indicators == null) {
             let contents = await readFile(
                 PATH.join(
                     LAB.experiments,
@@ -92,7 +93,7 @@ export class RunNodeJS {
     }
 
     async getConfigs(): Promise<Configs> {
-        if (this.configs == null) {
+        if (true || this.configs == null) {
             try {
                 let contents = await readFile(
                     PATH.join(
@@ -121,11 +122,11 @@ export class RunNodeJS {
     }
 
     async getValues() {
-        if(this.values != null) {
+        if(false && this.values != null) {
             return this.values
         }
 
-        console.log("loading values")
+        // console.log("loading values")
 
         try {
             await this.loadDatabase()
