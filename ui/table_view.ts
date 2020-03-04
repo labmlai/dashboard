@@ -1,9 +1,9 @@
 import {ScreenView} from './screen'
 import {ROUTER, SCREEN} from './app'
 import {Weya as $, WeyaElement, WeyaElementFunction} from '../lib/weya/weya'
-import {Experiments} from '../common/experiments'
+import {Config, Experiments} from '../common/experiments'
 import {getExperiments} from './cache'
-import {formatInt, formatScalar, formatSize} from "./view_components/format";
+import {formatInt, formatScalar, formatSize, formatValue} from "./view_components/format";
 import {RunUI} from "./run_ui";
 
 class RunView {
@@ -32,7 +32,7 @@ class RunView {
         e.preventDefault()
         e.stopPropagation()
 
-        ROUTER.navigate(`/experiment/${this.run.run.experimentName}`)
+        ROUTER.navigate(`/experiment/${this.run.run.experimentName}/${this.run.run.info.uuid}`)
     }
 }
 
@@ -96,6 +96,88 @@ class ValueCell extends Cell {
         } else {
             $('td', this.formatter(run.values[this.key].value))
         }
+    }
+}
+
+class ConfigComputedCell extends Cell {
+    private readonly key: string
+
+    constructor(key: string) {
+        super(key)
+        this.key = key
+    }
+
+    renderCell($: WeyaElementFunction, run: RunUI) {
+        if (run.configs[this.key] == null) {
+            $('td', ``)
+            return
+        }
+
+        let conf: Config = run.configs[this.key]
+
+        if (conf.order < 0) {
+            $('td', ``)
+            return
+        }
+
+        if (typeof (conf.computed) === "string") {
+            let computed: string = conf.computed
+            computed = computed.replace('\n', '')
+            $('td', computed)
+        } else {
+            $('td', formatValue(conf.computed))
+        }
+    }
+}
+
+class ConfigOptionCell extends Cell {
+    private readonly key: string
+
+    constructor(key: string) {
+        super(key)
+        this.key = key
+    }
+
+    renderCell($: WeyaElementFunction, run: RunUI) {
+        if (run.configs.configs[this.key] == null) {
+            $('td', ``)
+            return
+        }
+
+        let conf: Config = run.configs.configs[this.key]
+
+        if (conf.order < 0) {
+            $('td', ``)
+            return
+        }
+
+        let options = new Set()
+        for (let opt of conf.options) {
+            options.add(opt)
+        }
+
+        $('td', $ => {
+            if (options.has(conf.value)) {
+                options.delete(conf.value)
+                if (options.size === 0) {
+                    $('span.only_option', conf.value)
+                } else {
+                    $('span.picked', conf.value)
+                }
+            } else {
+                $('span.custom', '-')
+            }
+            if (options.size > 0) {
+                $('span.options', $ => {
+                    for (let opt of options.keys()) {
+                        if (typeof opt !== 'string') {
+                            continue
+                        }
+                        $('span', <string>opt)
+                    }
+                })
+            }
+        })
     }
 }
 
@@ -223,15 +305,31 @@ class RunsView implements ScreenView {
             format.push(new ValueCell(k))
         }
 
+        let configs = new Set<string>()
+        for (let r of this.runs) {
+            for (let k in r.configs.configs) {
+                configs.add(k)
+            }
+        }
+
+        for (let k of configs.keys()) {
+            format.push(new ConfigComputedCell(k))
+            format.push(new ConfigOptionCell(k))
+        }
+
         return format
     }
 
     private async renderExperiments() {
         this.runs = RunsView.getRuns(await getExperiments())
+        let promises = []
         for (let r of this.runs) {
-            await r.loadConfigs()
-            await r.loadValues()
+            promises.push(r.loadConfigs())
+            promises.push(r.loadValues())
         }
+
+        await Promise.all(promises)
+
         this.format = this.getFormat()
 
         let views: RunView[] = []

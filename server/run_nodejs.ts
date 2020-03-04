@@ -1,5 +1,5 @@
 import * as sqlite3 from 'sqlite3'
-import {Configs, Indicators, Run, RunModel} from '../common/experiments'
+import {Configs, Indicators, Run, RunModel, ScalarsModel} from '../common/experiments'
 import * as PATH from 'path'
 import * as YAML from 'yaml'
 import {LAB} from './consts'
@@ -12,6 +12,9 @@ export class RunNodeJS {
     private static cache: { [run: string]: RunNodeJS } = {}
     run: Run
     db: sqlite3.Database
+    configs: Configs
+    values: ScalarsModel
+    indicators: Indicators
 
     private constructor(run: Run) {
         this.run = run
@@ -74,29 +77,37 @@ export class RunNodeJS {
     }
 
     async getIndicators(): Promise<Indicators> {
-        let contents = await readFile(
-            PATH.join(
-                LAB.experiments,
-                this.run.experimentName,
-                this.run.info.uuid,
-                'indicators.yaml'
-            ))
-        return new Indicators(YAML.parse(contents))
-    }
-
-    async getConfigs(): Promise<Configs> {
-        try {
+        if (this.indicators == null) {
             let contents = await readFile(
                 PATH.join(
                     LAB.experiments,
                     this.run.experimentName,
                     this.run.info.uuid,
-                    'configs.yaml'
+                    'indicators.yaml'
                 ))
-            return new Configs(YAML.parse(contents))
-        } catch (e) {
-            return new Configs({})
+            this.indicators = new Indicators(YAML.parse(contents))
         }
+
+        return this.indicators
+    }
+
+    async getConfigs(): Promise<Configs> {
+        if (this.configs == null) {
+            try {
+                let contents = await readFile(
+                    PATH.join(
+                        LAB.experiments,
+                        this.run.experimentName,
+                        this.run.info.uuid,
+                        'configs.yaml'
+                    ))
+                this.configs = new Configs(YAML.parse(contents))
+            } catch (e) {
+                return new Configs({})
+            }
+        }
+
+        return this.configs
     }
 
     async getDiff(): Promise<string> {
@@ -110,6 +121,10 @@ export class RunNodeJS {
     }
 
     async getValues() {
+        if(this.values != null) {
+            return this.values
+        }
+
         try {
             await this.loadDatabase()
         } catch (e) {
@@ -152,6 +167,7 @@ export class RunNodeJS {
             }
         }
 
+        this.values = values
         return values
     }
 
