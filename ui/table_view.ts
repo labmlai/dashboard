@@ -9,29 +9,80 @@ import {Cell, CellFactory, CellOptions} from "./cells/cell";
 class RunView {
     elem: WeyaElement
     run: RunUI
+    private controls: HTMLElement;
+    private selectIcon: HTMLElement;
+    private isSelected: boolean;
 
     constructor(r: RunUI) {
         this.run = r
+        this.isSelected = false
     }
 
     render(format: Cell[]) {
-        this.elem = $('div.row',
-            {on: {click: this.onClick}},
-            $ => {
+        this.elem = $('div.row', $ => {
                 for (let cell of format) {
-                    cell.renderCell($, this.run)
+                    if (cell.type === 'controls') {
+                        this.controls = cell.renderCell($, this.run)
+                    } else {
+                        cell.renderCell($, this.run)
+                    }
                 }
             }
         )
 
+        this.controls.innerHTML = ''
+        $('span', this.controls, $ => {
+            this.selectIcon = <HTMLElement>$('i.fa.fa-square', {on: {click: this.onSelect}})
+        })
+
         return this.elem
     }
 
-    onClick = (e: Event) => {
-        // e.preventDefault()
-        // e.stopPropagation()
-        //
-        // ROUTER.navigate(`/experiment/${this.run.run.experimentName}/${this.run.run.info.uuid}`)
+    onSelect = (e: Event) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        this.isSelected = !this.isSelected
+
+        this.selectIcon.classList.remove('fa-square')
+        this.selectIcon.classList.remove('fa-check-square')
+        if (this.isSelected) {
+            this.selectIcon.classList.add('fa-check-square')
+        } else {
+            this.selectIcon.classList.add('fa-square')
+        }
+    }
+
+    onOpen = (e: Event) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        ROUTER.navigate(`/experiment/${this.run.run.experimentName}/${this.run.run.info.uuid}`)
+    }
+
+}
+
+interface ControlsListeners {
+    onSelect(run: RunUI)
+
+    onUnSelect(run: RunUI)
+}
+
+class ControlsView implements ControlsListeners {
+    private elem: HTMLElement
+
+    onSelect(run: RunUI) {
+    }
+
+    onUnSelect(run: RunUI) {
+    }
+
+    render(): HTMLElement {
+        this.elem = <HTMLElement>$('div', $ => {
+            $('h1', "Controls")
+        })
+
+        return this.elem
     }
 }
 
@@ -43,6 +94,8 @@ class RunsView implements ScreenView {
 
     render(): WeyaElement {
         this.elem = <HTMLElement>$('div.full_container', $ => {
+            let controls = <HTMLElement>$('div.controls')
+            controls.appendChild(new ControlsView().render())
             this.runsTable = $('div.table')
         })
 
@@ -63,6 +116,7 @@ class RunsView implements ScreenView {
 
     private getFormat(): CellOptions[] {
         let format: CellOptions[] = [
+            {type: 'controls', name: '', 'key': ''},
             {type: 'experiment_name', name: 'Experiment', 'key': ''},
             {type: 'comment', name: 'Comment', 'key': ''},
             {type: 'date_time', name: 'Date Time', 'key': ''},

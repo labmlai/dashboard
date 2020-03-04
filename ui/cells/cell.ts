@@ -10,6 +10,7 @@ export interface CellOptions {
 }
 
 export abstract class Cell {
+    type: string
     name?: string
     key: string
     options: CellOptions
@@ -19,6 +20,7 @@ export abstract class Cell {
         this.options = opt
         this.name = opt.name
         this.key = opt.key
+        this.type = opt.type
         if (opt.width == null) {
             this.width = '10em'
         } else {
@@ -47,8 +49,8 @@ export abstract class Cell {
         return null
     }
 
-    renderCell($: WeyaElementFunction, run: RunUI) {
-        let elem = $('div.cell', $ => {
+    renderCell($: WeyaElementFunction, run: RunUI): HTMLElement {
+        let elem = <HTMLElement>$('div.cell', $ => {
             let value = this.getValue(run)
             if (value != null) {
                 $('span', value)
@@ -57,6 +59,8 @@ export abstract class Cell {
             }
         })
         elem.style.width = this.width
+
+        return elem
     }
 }
 
@@ -187,9 +191,17 @@ export class ExperimentNameCell extends Cell {
     }
 }
 
+export class ControlsCell extends Cell {
+    protected getValue(run: RunUI): string {
+        return ""
+    }
+}
+
 export class CellFactory {
     static create(opt: CellOptions) {
         switch (opt.type) {
+            case "controls":
+                return new ControlsCell(opt)
             case "experiment_name":
                 return new ExperimentNameCell(opt)
             case "comment":
