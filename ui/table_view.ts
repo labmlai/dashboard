@@ -88,7 +88,7 @@ class ControlsView implements ControlsListeners {
 
 class RunsView implements ScreenView {
     elem: HTMLElement
-    runsTable: HTMLTableElement
+    runsTable: HTMLElement
     runs: RunUI[]
     format: Cell[]
 
@@ -96,7 +96,7 @@ class RunsView implements ScreenView {
         this.elem = <HTMLElement>$('div.full_container', $ => {
             let controls = <HTMLElement>$('div.controls')
             controls.appendChild(new ControlsView().render())
-            this.runsTable = $('div.table')
+            this.runsTable = <HTMLElement>$('div.table')
         })
 
         this.renderExperiments().then()
