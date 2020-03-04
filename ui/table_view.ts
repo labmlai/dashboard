@@ -108,12 +108,12 @@ class ConfigComputedCell extends Cell {
     }
 
     renderCell($: WeyaElementFunction, run: RunUI) {
-        if (run.configs[this.key] == null) {
+        if (run.configs.configs[this.key] == null) {
             $('td', ``)
             return
         }
 
-        let conf: Config = run.configs[this.key]
+        let conf = run.configs.configs[this.key]
 
         if (conf.order < 0) {
             $('td', ``)
@@ -144,7 +144,7 @@ class ConfigOptionCell extends Cell {
             return
         }
 
-        let conf: Config = run.configs.configs[this.key]
+        let conf = run.configs.configs[this.key]
 
         if (conf.order < 0) {
             $('td', ``)
