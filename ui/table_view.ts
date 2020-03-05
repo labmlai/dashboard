@@ -70,8 +70,8 @@ class Format {
     dashboard: string
     cells: CellOptions[]
 
-    constructor() {
-        this.dashboard = "default"
+    constructor(dashboard: string) {
+        this.dashboard = dashboard
         this.cells = []
     }
 
@@ -111,7 +111,7 @@ interface ControlsListeners {
 
 
 interface SyncListeners {
-    onSync()
+    onSync(dashboard: string)
 }
 
 class ControlsView implements ControlsListeners {
@@ -161,7 +161,7 @@ class ControlsView implements ControlsListeners {
 
         console.log("Sync")
         this.format.update(this.codemirror.getValue())
-        this.syncListeners.onSync()
+        this.syncListeners.onSync(this.format.dashboard)
     }
 
     onSave = (e: Event) => {
@@ -170,7 +170,7 @@ class ControlsView implements ControlsListeners {
 
         console.log("Sync")
         this.format.update(this.codemirror.getValue())
-        this.syncListeners.onSync()
+        this.syncListeners.onSync(this.format.dashboard)
         this.format.save()
     }
 }
@@ -183,8 +183,8 @@ class RunsView implements ScreenView, SyncListeners {
     cells: Cell[]
     private controls: ControlsView;
 
-    constructor() {
-        this.format = new Format()
+    constructor(dashboard: string) {
+        this.format = new Format(dashboard)
     }
 
     render(): WeyaElement {
@@ -287,7 +287,8 @@ class RunsView implements ScreenView, SyncListeners {
             this.runsTable.append(v.render(this.cells))
         }
     }
-    onSync() {
+    onSync(dashboard: string) {
+        ROUTER.navigate(`table/${dashboard}`, {trigger: false})
         this.cells = this.format.createCells()
 
         this.renderTable()
@@ -297,9 +298,10 @@ class RunsView implements ScreenView, SyncListeners {
 export class TableHandler {
     constructor() {
         ROUTER.route('table', [this.handleTable])
+        ROUTER.route('table/:dashboard', [this.handleTable])
     }
 
-    handleTable = () => {
-        SCREEN.setView(new RunsView())
+    handleTable = (dashboard: string = "default") => {
+        SCREEN.setView(new RunsView(dashboard))
     }
 }
