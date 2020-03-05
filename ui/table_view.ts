@@ -75,8 +75,21 @@ class Format {
         this.cells = []
     }
 
+    private hashCell(cell: CellOptions): string {
+        return `${cell.type}-${cell.key}`
+    }
+
     defaults(cells: CellOptions[]) {
-        this.cells = cells
+        let has = new Set<string>()
+        for(let c of this.cells) {
+            has.add(this.hashCell(c))
+        }
+
+        for(let c of cells) {
+            if(!has.has(this.hashCell(c))) {
+                this.cells.push(c)
+            }
+        }
     }
 
     update(yaml: string) {
@@ -100,6 +113,14 @@ class Format {
 
     async save() {
         await API.saveDashboard(this.dashboard, this.cells)
+    }
+
+    async load() {
+        let dashboards = await API.loadDashboards()
+        console.log(dashboards, this.dashboard)
+        if(dashboards[this.dashboard] != null) {
+            this.cells = dashboards[this.dashboard]
+        }
     }
 }
 
@@ -255,6 +276,8 @@ class RunsView implements ScreenView, SyncListeners {
     }
 
     private async renderExperiments() {
+        await this.format.load()
+
         this.runs = RunsView.getRuns(await getExperiments())
         let promises = []
         for (let r of this.runs) {

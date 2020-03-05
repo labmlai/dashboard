@@ -147,6 +147,23 @@ class ApiServer extends Api {
 
         await writeFile(path, YAML.stringify(dashboards))
     }
+
+    async loadDashboards(): Promise<{ [dashboard: string]: CellOptions[] }> {
+        let path = PATH.join(
+            LAB.path,
+            ".lab_dashboard.yaml"
+        )
+
+        let dashboards: { [dashboard: string]: CellOptions[] }
+        try {
+            let contents = await readFile(path)
+            dashboards = YAML.parse(contents)
+        } catch (e) {
+            dashboards = {}
+        }
+
+        return dashboards
+    }
 }
 
 export const API = new ApiServer()

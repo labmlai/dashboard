@@ -83,6 +83,10 @@ export class Api {
     ): Promise<void> {
         return null
     }
+
+    async loadDashboards(): Promise<{[dashboard: string]: CellOptions[]}> {
+        return null
+    }
 }
 
 export const API = new Api()
