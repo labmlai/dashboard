@@ -11,9 +11,9 @@
     "lib/io/ajax.ts",
     "lib/weya/weya.ts",
     "lib/weya/router.ts",
+    "common/cell.ts",
     "common/api.ts",
     "common/api_handler.ts",
     "common/experiments.ts",
-    "@"
   ]
 }

@@ -4,9 +4,11 @@ import {Weya as $, WeyaElement} from '../lib/weya/weya'
 import {Experiments} from '../common/experiments'
 import {getExperiments} from './cache'
 import {RunUI} from "./run_ui";
-import {Cell, CellFactory, CellOptions} from "./cells/cell";
+import {Cell, CellFactory} from "./cells/cell";
 import {CodeMirror} from "./codemirror";
 import {jsyaml} from "./jsyaml";
+import {API} from "../common/api";
+import {CellOptions} from "../common/cell";
 
 class RunView {
     elem: WeyaElement
@@ -65,9 +67,11 @@ class RunView {
 }
 
 class Format {
+    dashboard: string
     cells: CellOptions[]
 
     constructor() {
+        this.dashboard = "default"
         this.cells = []
     }
 
@@ -76,7 +80,9 @@ class Format {
     }
 
     update(yaml: string) {
-        this.cells = jsyaml.load(yaml)
+        let data = jsyaml.load(yaml)
+        this.dashboard = data.dashboard
+        this.cells = data.cells
     }
 
     createCells(): Cell[] {
@@ -89,7 +95,11 @@ class Format {
     }
 
     toYAML() {
-        return jsyaml.dump(this.cells)
+        return jsyaml.dump({dashboard: this.dashboard, cells: this.cells})
+    }
+
+    async save() {
+        await API.saveDashboard(this.dashboard, this.cells)
     }
 }
 
@@ -127,6 +137,7 @@ class ControlsView implements ControlsListeners {
         this.elem = <HTMLElement>$('div', $ => {
             $('div.editor_controls', $ => {
                 $('i.fa.fa-sync', {on: {click: this.onSync}})
+                $('i.fa.fa-save', {on: {click: this.onSave}})
             })
             codemirrorDiv = $('div')
         })
@@ -151,7 +162,18 @@ class ControlsView implements ControlsListeners {
         console.log("Sync")
         this.format.update(this.codemirror.getValue())
         this.syncListeners.onSync()
-    }}
+    }
+
+    onSave = (e: Event) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        console.log("Sync")
+        this.format.update(this.codemirror.getValue())
+        this.syncListeners.onSync()
+        this.format.save()
+    }
+}
 
 class RunsView implements ScreenView, SyncListeners {
     elem: HTMLElement

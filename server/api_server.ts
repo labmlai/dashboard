@@ -1,14 +1,14 @@
-import {
-    IndicatorsModel,
-    ExperimentsModel,
-    ConfigsModel,
-    ScalarsModel
-} from '../common/experiments'
-import { Api } from '../common/api'
-import { ExperimentsFactory } from './experiments_loader'
-import { RunNodeJS } from './run_nodejs'
-import { Tensorboard } from './tensorboard'
-import { Jupyter } from './jupyter'
+import {ConfigsModel, ExperimentsModel, IndicatorsModel, ScalarsModel} from '../common/experiments'
+import {Api} from '../common/api'
+import {ExperimentsFactory} from './experiments_loader'
+import {RunNodeJS} from './run_nodejs'
+import {Tensorboard} from './tensorboard'
+import {Jupyter} from './jupyter'
+import {CellOptions} from "../common/cell";
+import * as PATH from "path";
+import {LAB} from "./consts";
+import {readFile, writeFile} from "./util";
+import * as YAML from "yaml";
 
 let TENSORBOARD: Tensorboard = null
 let JUPYTER: Jupyter = null
@@ -128,6 +128,24 @@ class ApiServer extends Api {
     ): Promise<void> {
         let run = await getRun(experimentName, runUuid)
         await run.update(data)
+    }
+
+    async saveDashboard(name: string, cells: CellOptions[]): Promise<void> {
+        let path = PATH.join(
+            LAB.path,
+            ".lab_dashboard.yaml"
+        )
+
+        let dashboards: { [dashboard: string]: CellOptions[] }
+        try {
+            let contents = await readFile(path)
+            dashboards = YAML.parse(contents)
+        } catch (e) {
+            dashboards = {}
+        }
+        dashboards[name] = cells
+
+        await writeFile(path, YAML.stringify(dashboards))
     }
 }
 

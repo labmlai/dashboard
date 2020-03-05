@@ -1,13 +1,9 @@
 import {WeyaElementFunction} from "../../lib/weya/weya";
 import {RunUI} from "../run_ui";
 import {formatInt, formatScalar, formatSize, formatValue} from "../view_components/format";
+import {CellOptions} from "../../common/cell";
 
-export interface CellOptions {
-    type: string
-    key: string
-    name?: string
-    width?: string
-}
+
 
 export abstract class Cell {
     type: string

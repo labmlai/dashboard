@@ -4,6 +4,7 @@ import {
     ConfigsModel,
     ScalarsModel
 } from './experiments'
+import {CellOptions} from "./cell";
 
 export class Api {
     async getExperiments(): Promise<ExperimentsModel> {
@@ -72,6 +73,13 @@ export class Api {
         experimentName: string,
         runUuid: string,
         data: { [key: string]: string }
+    ): Promise<void> {
+        return null
+    }
+
+    async saveDashboard(
+        name: string,
+        cells: CellOptions[]
     ): Promise<void> {
         return null
     }
