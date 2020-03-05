@@ -13,6 +13,7 @@
     "lib/weya/router.ts",
     "common/api.ts",
     "common/api_handler.ts",
-    "common/experiments.ts"
+    "common/experiments.ts",
+    "@"
   ]
 }
