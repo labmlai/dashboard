@@ -64,12 +64,6 @@ class RunView {
 
 }
 
-interface ControlsListeners {
-    onSelect(run: RunUI)
-
-    onUnSelect(run: RunUI)
-}
-
 class Format {
     cells: CellOptions[]
 
@@ -77,8 +71,12 @@ class Format {
         this.cells = []
     }
 
-    update(cells: CellOptions[]) {
+    defaults(cells: CellOptions[]) {
         this.cells = cells
+    }
+
+    update(yaml: string) {
+        this.cells = jsyaml.load(yaml)
     }
 
     createCells(): Cell[] {
@@ -95,13 +93,26 @@ class Format {
     }
 }
 
+interface ControlsListeners {
+    onSelect(run: RunUI)
+
+    onUnSelect(run: RunUI)
+}
+
+
+interface SyncListeners {
+    onSync()
+}
+
 class ControlsView implements ControlsListeners {
     private elem: HTMLElement
     private codemirror: any
     private format: Format
+    private syncListeners: SyncListeners;
 
-    constructor(format: Format) {
+    constructor(format: Format, syncListeners: SyncListeners) {
         this.format = format
+        this.syncListeners = syncListeners;
     }
 
     onSelect(run: RunUI) {
@@ -114,6 +125,9 @@ class ControlsView implements ControlsListeners {
         let codemirrorDiv = null
 
         this.elem = <HTMLElement>$('div', $ => {
+            $('div.editor_controls', $ => {
+                $('i.fa.fa-sync', {on: {click: this.onSync}})
+            })
             codemirrorDiv = $('div')
         })
 
@@ -129,9 +143,17 @@ class ControlsView implements ControlsListeners {
     updateFormat() {
         this.codemirror.setValue(this.format.toYAML())
     }
-}
 
-class RunsView implements ScreenView {
+    onSync = (e: Event) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        console.log("Sync")
+        this.format.update(this.codemirror.getValue())
+        this.syncListeners.onSync()
+    }}
+
+class RunsView implements ScreenView, SyncListeners {
     elem: HTMLElement
     runsTable: HTMLElement
     runs: RunUI[]
@@ -146,7 +168,7 @@ class RunsView implements ScreenView {
     render(): WeyaElement {
         this.elem = <HTMLElement>$('div.full_container', $ => {
             let controls = <HTMLElement>$('div.controls')
-            this.controls = new ControlsView(this.format)
+            this.controls = new ControlsView(this.format, this)
             controls.appendChild(this.controls.render())
             this.runsTable = <HTMLElement>$('div.table')
         })
@@ -220,11 +242,16 @@ class RunsView implements ScreenView {
 
         await Promise.all(promises)
 
-        this.format.update(this.getFormat())
+        this.format.defaults(this.getFormat())
         this.controls.updateFormat()
         this.cells = this.format.createCells()
 
-        let views: RunView[] = []
+        this.renderTable()
+    }
+
+    private renderTable() {
+        this.runsTable.innerHTML = ''
+                let views: RunView[] = []
         for (let r of this.runs) {
             views.push(new RunView(r))
         }
@@ -237,6 +264,11 @@ class RunsView implements ScreenView {
         for (let v of views) {
             this.runsTable.append(v.render(this.cells))
         }
+    }
+    onSync() {
+        this.cells = this.format.createCells()
+
+        this.renderTable()
     }
 }
 
