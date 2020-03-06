@@ -2,7 +2,7 @@ import {ScreenView} from './screen'
 import {ROUTER, SCREEN} from './app'
 import {Weya as $, WeyaElement} from '../lib/weya/weya'
 import {Experiments} from '../common/experiments'
-import {getExperiments} from './cache'
+import {clearCache, getExperiments} from './cache'
 import {RunUI} from "./run_ui";
 import {Cell, CellFactory} from "./cells/cell";
 import {CodeMirror} from "./codemirror";
@@ -137,6 +137,8 @@ interface SelectListeners {
 
 interface SyncListeners {
     onSync(dashboard: string)
+
+    onReload()
 }
 
 class ControlsView implements SelectListeners {
@@ -146,7 +148,8 @@ class ControlsView implements SelectListeners {
     private syncListeners: SyncListeners
     private codemirrorDiv: HTMLElement
     private selectedCountElem: HTMLElement
-    private readonly selectedRuns: {[hash: string]: RunUI}
+    private readonly selectedRuns: { [hash: string]: RunUI }
+    private tensorboardBtn: HTMLButtonElement
 
     constructor(format: Format, syncListeners: SyncListeners) {
         this.format = format
@@ -156,7 +159,7 @@ class ControlsView implements SelectListeners {
 
     private updateSelectedRunsCount() {
         let count = 0
-        for(let r in this.selectedRuns) {
+        for (let r in this.selectedRuns) {
             count++
         }
 
@@ -182,6 +185,32 @@ class ControlsView implements SelectListeners {
             })
             this.codemirrorDiv = <HTMLElement>$('div')
             this.selectedCountElem = <HTMLElement>$('div.test')
+
+            this.tensorboardBtn = <HTMLButtonElement>(
+                $('button.small',
+                    {on: {click: this.onTensorboard}},
+                    $ => {
+                        $('i.fa.fa-chart-bar')
+                        $('span', ' Launch Tensorboard')
+                    })
+            )
+
+            $('button.small.danger',
+                {on: {click: this.onRemove}},
+                $ => {
+                    $('i.fa.fa-trash')
+                    $('span', ' Remove')
+                }
+            )
+
+            $('button.small.danger',
+                {on: {click: this.onCleanupCheckpoints}},
+                $ => {
+                    $('i.fa.fa-trash')
+                    $('span', ' Cleanup Checkpoints')
+                }
+            )
+
         })
 
         this.codemirror = CodeMirror(this.codemirrorDiv, {
@@ -197,6 +226,33 @@ class ControlsView implements SelectListeners {
 
     updateFormat() {
         this.codemirror.setValue(this.format.toYAML())
+    }
+
+    onTensorboard = async () => {
+        for (let r in this.selectedRuns) {
+            let run = this.selectedRuns[r].run
+            console.log(run.experimentName, run.info.uuid)
+        }
+    }
+
+    onRemove = async (e: Event) => {
+        if (confirm('Are you sure')) {
+            for (let r in this.selectedRuns) {
+                let run = this.selectedRuns[r]
+                await run.remove()
+            }
+            clearCache()
+            this.syncListeners.onReload()
+        }
+    }
+
+    onCleanupCheckpoints = async (e: Event) => {
+        for (let r in this.selectedRuns) {
+            let run = this.selectedRuns[r]
+            await run.cleanupCheckpoints()
+        }
+        clearCache()
+        this.syncListeners.onReload()
     }
 
     onSync = (e: Event) => {
@@ -349,6 +405,20 @@ class RunsView implements ScreenView, SyncListeners {
 
     onSync(dashboard: string) {
         ROUTER.navigate(`table/${dashboard}`, {trigger: false})
+        this.cells = this.format.createCells()
+
+        this.renderTable()
+    }
+
+    async onReload() {
+        this.runs = RunsView.getRuns(await getExperiments())
+        let promises = []
+        for (let r of this.runs) {
+            promises.push(r.loadConfigs())
+            promises.push(r.loadValues())
+        }
+
+        await Promise.all(promises)
         this.cells = this.format.createCells()
 
         this.renderTable()

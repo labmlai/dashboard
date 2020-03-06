@@ -20,6 +20,10 @@ export class RunUI {
         return RunUI.cache[run.hash()]
     }
 
+    static clearCache() {
+        this.cache = {}
+    }
+
     async loadIndicators(): Promise<Indicators> {
         if (this.indicators != null) {
             return this.indicators
