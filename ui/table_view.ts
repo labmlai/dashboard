@@ -16,9 +16,11 @@ class RunView {
     private controls: HTMLElement;
     private selectIcon: HTMLElement;
     private isSelected: boolean;
+    private selectListeners: SelectListeners;
 
-    constructor(r: RunUI) {
+    constructor(r: RunUI, selectListeners: SelectListeners) {
         this.run = r
+        this.selectListeners = selectListeners;
         this.isSelected = false
     }
 
@@ -51,8 +53,10 @@ class RunView {
         this.selectIcon.classList.remove('fa-square')
         this.selectIcon.classList.remove('fa-check-square')
         if (this.isSelected) {
+            this.selectListeners.onSelect(this.run)
             this.selectIcon.classList.add('fa-check-square')
         } else {
+            this.selectListeners.onUnSelect(this.run)
             this.selectIcon.classList.add('fa-square')
         }
     }
@@ -81,12 +85,12 @@ class Format {
 
     defaults(cells: CellOptions[]) {
         let has = new Set<string>()
-        for(let c of this.cells) {
+        for (let c of this.cells) {
             has.add(this.hashCell(c))
         }
 
-        for(let c of cells) {
-            if(!has.has(this.hashCell(c))) {
+        for (let c of cells) {
+            if (!has.has(this.hashCell(c))) {
                 this.cells.push(c)
             }
         }
@@ -118,13 +122,13 @@ class Format {
     async load() {
         let dashboards = await API.loadDashboards()
         console.log(dashboards, this.dashboard)
-        if(dashboards[this.dashboard] != null) {
+        if (dashboards[this.dashboard] != null) {
             this.cells = dashboards[this.dashboard]
         }
     }
 }
 
-interface ControlsListeners {
+interface SelectListeners {
     onSelect(run: RunUI)
 
     onUnSelect(run: RunUI)
@@ -135,39 +139,58 @@ interface SyncListeners {
     onSync(dashboard: string)
 }
 
-class ControlsView implements ControlsListeners {
+class ControlsView implements SelectListeners {
     private elem: HTMLElement
     private codemirror: any
     private format: Format
-    private syncListeners: SyncListeners;
+    private syncListeners: SyncListeners
+    private codemirrorDiv: HTMLElement
+    private selectedCountElem: HTMLElement
+    private readonly selectedRuns: {[hash: string]: RunUI}
 
     constructor(format: Format, syncListeners: SyncListeners) {
         this.format = format
-        this.syncListeners = syncListeners;
+        this.syncListeners = syncListeners
+        this.selectedRuns = {}
+    }
+
+    private updateSelectedRunsCount() {
+        let count = 0
+        for(let r in this.selectedRuns) {
+            count++
+        }
+
+        this.selectedCountElem.textContent = `${count} runs selected`
     }
 
     onSelect(run: RunUI) {
+        this.selectedRuns[run.run.hash()] = run
+        this.updateSelectedRunsCount()
     }
 
     onUnSelect(run: RunUI) {
+        delete this.selectedRuns[run.run.hash()]
+        this.updateSelectedRunsCount()
     }
 
     render(): HTMLElement {
-        let codemirrorDiv = null
-
         this.elem = <HTMLElement>$('div', $ => {
             $('div.editor_controls', $ => {
+                $('i.fa.fa-edit', {on: {click: this.onEdit}})
                 $('i.fa.fa-sync', {on: {click: this.onSync}})
                 $('i.fa.fa-save', {on: {click: this.onSave}})
             })
-            codemirrorDiv = $('div')
+            this.codemirrorDiv = <HTMLElement>$('div')
+            this.selectedCountElem = <HTMLElement>$('div.test')
         })
 
-        this.codemirror = CodeMirror(codemirrorDiv, {
+        this.codemirror = CodeMirror(this.codemirrorDiv, {
                 mode: "yaml",
                 theme: "darcula"
             }
         )
+
+        this.codemirrorDiv.style.display = 'none'
 
         return this.elem
     }
@@ -185,6 +208,19 @@ class ControlsView implements ControlsListeners {
         this.syncListeners.onSync(this.format.dashboard)
     }
 
+    onEdit = (e: Event) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        if (this.codemirrorDiv.style.display === 'none') {
+            this.codemirrorDiv.style.display = null
+            this.codemirror.setValue(this.format.toYAML())
+            this.codemirror.focus()
+        } else {
+            this.codemirrorDiv.style.display = 'none'
+        }
+    }
+
     onSave = (e: Event) => {
         e.preventDefault()
         e.stopPropagation()
@@ -192,7 +228,7 @@ class ControlsView implements ControlsListeners {
         console.log("Sync")
         this.format.update(this.codemirror.getValue())
         this.syncListeners.onSync(this.format.dashboard)
-        this.format.save()
+        this.format.save().then()
     }
 }
 
@@ -296,9 +332,9 @@ class RunsView implements ScreenView, SyncListeners {
 
     private renderTable() {
         this.runsTable.innerHTML = ''
-                let views: RunView[] = []
+        let views: RunView[] = []
         for (let r of this.runs) {
-            views.push(new RunView(r))
+            views.push(new RunView(r, this.controls))
         }
 
         $('div.header', this.runsTable, $ => {
@@ -310,6 +346,7 @@ class RunsView implements ScreenView, SyncListeners {
             this.runsTable.append(v.render(this.cells))
         }
     }
+
     onSync(dashboard: string) {
         ROUTER.navigate(`table/${dashboard}`, {trigger: false})
         this.cells = this.format.createCells()
