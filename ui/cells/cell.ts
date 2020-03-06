@@ -90,9 +90,9 @@ export class ConfigComputedCell extends Cell {
         if (typeof (conf.computed) === "string") {
             let computed: string = conf.computed
             computed = computed.replace('\n', '')
-            $('span', computed)
+            $('span', computed, {title: computed})
         } else {
-            $('span', formatValue(conf.computed))
+            $('span', {title: `${conf.computed}`}, formatValue(conf.computed))
         }
     }
 }
