@@ -281,7 +281,7 @@ button {
 div.table {
   div.row, div.header {
     white-space: nowrap;
-    height: 25px;
+    line-height: 0;
   }
 
   div.header {
@@ -297,7 +297,8 @@ div.table {
     text-overflow: ellipsis;
     border-right: 1px solid #777;
     border-bottom: 1px solid #777;
-    padding: 2px;
-    height: 20px;
+    padding: 0 4px;
+    min-height: 1.5em;
+    line-height: 1.5;
   }
 }
