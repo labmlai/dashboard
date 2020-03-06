@@ -2,7 +2,7 @@ import {
     IndicatorsModel,
     ExperimentsModel,
     ConfigsModel,
-    ScalarsModel
+    ScalarsModel, RunIdentifier
 } from './experiments'
 import {CellOptions} from "./cell";
 
@@ -40,6 +40,10 @@ export class Api {
         experimentName: string,
         runUuid: string
     ): Promise<string> {
+        return null
+    }
+
+    async launchTensorboards(runs: RunIdentifier[]): Promise<string> {
         return null
     }
 

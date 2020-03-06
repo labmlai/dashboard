@@ -1,4 +1,11 @@
-import {ConfigsModel, ExperimentsModel, IndicatorsModel, ScalarsModel} from '../common/experiments'
+import {
+    ConfigsModel,
+    ExperimentsModel,
+    IndicatorsModel,
+    Run,
+    RunIdentifier,
+    ScalarsModel
+} from '../common/experiments'
 import {Api} from '../common/api'
 import {ExperimentsFactory} from './experiments_loader'
 import {RunNodeJS} from './run_nodejs'
@@ -65,6 +72,25 @@ class ApiServer extends Api {
             TENSORBOARD.stop()
         }
         TENSORBOARD = new Tensorboard([run])
+        try {
+            await TENSORBOARD.start()
+            return 'http://localhost:6006'
+        } catch (e) {
+            TENSORBOARD = null
+            return ''
+        }
+    }
+
+    async launchTensorboards(runs: RunIdentifier[]): Promise<string> {
+        let runsList: Run[] = []
+        for (let r of runs) {
+            let experiment = await ExperimentsFactory.loadExperiment(r.experimentName)
+            runsList.push(experiment.getRun(r.runUuid))
+        }
+        if (TENSORBOARD != null) {
+            TENSORBOARD.stop()
+        }
+        TENSORBOARD = new Tensorboard(runsList)
         try {
             await TENSORBOARD.start()
             return 'http://localhost:6006'

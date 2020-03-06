@@ -1,7 +1,7 @@
 import {ScreenView} from './screen'
 import {ROUTER, SCREEN} from './app'
 import {Weya as $, WeyaElement} from '../lib/weya/weya'
-import {Experiments} from '../common/experiments'
+import {Experiments, RunIdentifier} from '../common/experiments'
 import {clearCache, getExperiments} from './cache'
 import {RunUI} from "./run_ui";
 import {Cell, CellFactory} from "./cells/cell";
@@ -229,9 +229,17 @@ class ControlsView implements SelectListeners {
     }
 
     onTensorboard = async () => {
+        let runs: RunIdentifier[] = []
         for (let r in this.selectedRuns) {
             let run = this.selectedRuns[r].run
-            console.log(run.experimentName, run.info.uuid)
+            runs.push({experimentName: run.experimentName, runUuid: run.info.uuid})
+        }
+
+        let url = await API.launchTensorboards(runs)
+        if (url === '') {
+            alert("Couldn't start Tensorboard")
+        } else {
+            window.open(url, '_blank')
         }
     }
 

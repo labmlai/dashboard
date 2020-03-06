@@ -95,6 +95,11 @@ export const DEFAULT_RUN_MODEL: RunModel = {
     analytics_size: 0
 }
 
+export interface RunIdentifier {
+    experimentName: string
+    runUuid: string
+}
+
 export class Run {
     experimentName: string
     info: RunModel
