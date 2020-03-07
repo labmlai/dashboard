@@ -1,6 +1,5 @@
-import { PORT } from './app'
-import { ExperimentsModel, Experiments } from '../common/experiments'
-import { API } from '../common/api'
+import {API} from './app'
+import {Experiments} from '../common/experiments'
 import {RunUI} from "./run_ui";
 
 let EXPERIMENTS = null

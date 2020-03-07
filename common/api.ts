@@ -93,4 +93,4 @@ export class Api {
     }
 }
 
-export const API = new Api()
+export const API_SPEC = new Api()

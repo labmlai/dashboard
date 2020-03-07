@@ -1,5 +1,5 @@
 import {Configs, Indicators, Run, ScalarsModel} from '../common/experiments'
-import {API} from '../common/api'
+import {API} from "./app";
 
 export class RunUI {
     private static cache: { [run: string]: RunUI } = {}

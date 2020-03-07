@@ -24,6 +24,10 @@ export abstract class Cell {
         }
     }
 
+    get isHidden(): boolean {
+        return false
+    }
+
     renderHeader($: WeyaElementFunction) {
         let elem = $('div.cell', $ => {
             if (this.name != null) {
@@ -57,6 +61,9 @@ export abstract class Cell {
         elem.style.width = this.width
 
         return elem
+    }
+
+    update(runs: RunUI[]) {
     }
 }
 
