@@ -11,6 +11,7 @@ export abstract class Cell {
     key: string
     options: CellOptions
     width: string
+    protected isEmpty = false
 
     constructor(opt: CellOptions) {
         this.options = opt
@@ -25,10 +26,14 @@ export abstract class Cell {
     }
 
     get isHidden(): boolean {
-        return false
+        return this.isEmpty
     }
 
     renderHeader($: WeyaElementFunction) {
+        if(this.isHidden) {
+            return
+        }
+
         let elem = $('div.cell', $ => {
             if (this.name != null) {
                 $('span', this.name)
@@ -50,6 +55,10 @@ export abstract class Cell {
     }
 
     renderCell($: WeyaElementFunction, run: RunUI): HTMLElement {
+        if(this.isHidden) {
+            return null
+        }
+
         let elem = <HTMLElement>$('div.cell', $ => {
             let value = this.getValue(run)
             if (value != null) {
@@ -140,6 +149,39 @@ export class ConfigOptionCell extends Cell {
                     $('span', <string>opt)
                 }
             })
+        }
+    }
+
+    update(runs: RunUI[]) {
+        let count = 0
+
+        for(let run of runs) {
+            if (run.configs.configs[this.key] == null) {
+                continue
+            }
+
+            let conf = run.configs.configs[this.key]
+
+            if (conf.order < 0) {
+                continue
+            }
+
+            let options = new Set()
+            for (let opt of conf.options) {
+                options.add(opt)
+            }
+
+            if (options.size === 0) {
+                continue
+            }
+
+            count++
+        }
+
+        if(count > 0) {
+            this.isEmpty = false
+        } else {
+            this.isEmpty = true
         }
     }
 }
