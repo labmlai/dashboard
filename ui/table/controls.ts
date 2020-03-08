@@ -17,6 +17,8 @@ export class ControlsView implements SelectListeners {
     private selectedRuns: { [hash: string]: RunUI }
     private tensorboardBtn: HTMLButtonElement
     private searchInput: HTMLInputElement;
+    private syncControls: HTMLElement
+    private editorControls: HTMLElement;
 
     constructor(format: Format, syncListeners: SyncListeners) {
         this.format = format
@@ -50,10 +52,12 @@ export class ControlsView implements SelectListeners {
 
     render(): HTMLElement {
         this.elem = <HTMLElement>$('div.control_panel', $ => {
-            $('div.editor_controls', $ => {
+            this.editorControls = $('div.editor_controls', $ => {
                 $('i.fa.fa-edit', {on: {click: this.onEdit}})
-                $('i.fa.fa-sync', {on: {click: this.onSync}})
-                $('i.fa.fa-save', {on: {click: this.onSave}})
+                this.syncControls = $('span', $ => {
+                    $('i.fa.fa-sync', {on: {click: this.onSync}})
+                    $('i.fa.fa-save', {on: {click: this.onSave}})
+                })
             })
             this.codemirrorDiv = <HTMLElement>$('div.editor')
 
@@ -104,6 +108,8 @@ export class ControlsView implements SelectListeners {
         )
 
         this.codemirrorDiv.style.display = 'none'
+        this.syncControls.style.display = 'none'
+        this.editorControls.style.float = 'right'
 
         return this.elem
     }
@@ -114,9 +120,9 @@ export class ControlsView implements SelectListeners {
         // }
         let search = this.searchInput.value
         let terms: string[] = []
-        for(let t of search.split(' ')) {
+        for (let t of search.split(' ')) {
             t = t.trim()
-            if(t !== '') {
+            if (t !== '') {
                 terms.push(t)
             }
         }
@@ -183,11 +189,15 @@ export class ControlsView implements SelectListeners {
         e.stopPropagation()
 
         if (this.codemirrorDiv.style.display === 'none') {
+            this.syncControls.style.display = null
             this.codemirrorDiv.style.display = null
+            this.editorControls.style.float = null
             this.codemirror.setValue(this.format.toYAML())
             this.codemirror.focus()
         } else {
+            this.syncControls.style.display = 'none'
             this.codemirrorDiv.style.display = 'none'
+            this.editorControls.style.float = 'right'
         }
     }
 
