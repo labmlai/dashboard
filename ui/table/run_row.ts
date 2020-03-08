@@ -4,7 +4,7 @@ import {Cell} from "./cell";
 import {ROUTER} from "../app";
 import {SelectListeners} from "./table_view";
 
-export class RunView {
+export class RunRowView {
     elem: WeyaElement
     run: RunUI
     private controls: HTMLElement;
@@ -45,7 +45,11 @@ export class RunView {
         e.preventDefault()
         e.stopPropagation()
 
-        this.isSelected = !this.isSelected
+        this.setSelection(!this.isSelected)
+    }
+
+    setSelection(isSelected: boolean) {
+        this.isSelected = isSelected
 
         this.selectIcon.classList.remove('fa-square')
         this.selectIcon.classList.remove('fa-check-square')

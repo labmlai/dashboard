@@ -56,7 +56,6 @@ export class ControlsView implements SelectListeners {
                 $('i.fa.fa-save', {on: {click: this.onSave}})
             })
             this.codemirrorDiv = <HTMLElement>$('div.editor')
-            this.selectedCountElem = <HTMLElement>$('div.test')
 
             $('div.search', $ => {
                 this.searchInput = <HTMLInputElement>$('input', {
@@ -67,6 +66,9 @@ export class ControlsView implements SelectListeners {
                 })
 
             })
+
+            this.selectedCountElem = <HTMLElement>$('div.selected_count', 'No runs selected')
+
             $('div.actions', $ => {
                 this.tensorboardBtn = <HTMLButtonElement>(
                     $('button',

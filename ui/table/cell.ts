@@ -43,7 +43,7 @@ export abstract class Cell {
         return this.isEmpty
     }
 
-    renderHeader($: WeyaElementFunction) {
+    renderHeader($: WeyaElementFunction): HTMLElement {
         if (this.isHidden) {
             return
         }
@@ -52,7 +52,7 @@ export abstract class Cell {
         if (this.isSame) {
             tag += '.same'
         }
-        let elem = $(tag, $ => {
+        let elem = <HTMLElement>$(tag, $ => {
             if (this.name != null) {
                 $('span', this.name, {title: this.name})
             } else {
@@ -60,6 +60,8 @@ export abstract class Cell {
             }
         })
         elem.style.width = this.width
+
+        return elem
     }
 
     protected renderHeaderContent($: WeyaElementFunction) {

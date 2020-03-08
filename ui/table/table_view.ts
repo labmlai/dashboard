@@ -8,7 +8,7 @@ import {Cell} from "./cell";
 import {CellOptions} from "../../common/cell";
 import {Format} from "./format";
 import {ControlsView} from "./controls";
-import {RunView} from "./run_row";
+import {RunRowView} from "./run_row";
 
 
 export interface SelectListeners {
@@ -37,6 +37,10 @@ class RunsView implements ScreenView, SyncListeners {
     cells: Cell[]
     private controls: ControlsView;
     private filterTerms: string[] = []
+    private controlsCell: HTMLElement;
+    private selectAllIcon: HTMLElement;
+    private isAllSelected: boolean = false
+    private runRows: RunRowView[];
 
     constructor(dashboard: string) {
         this.format = new Format(dashboard)
@@ -178,9 +182,37 @@ class RunsView implements ScreenView, SyncListeners {
         return filtered
     }
 
+    private renderControlsCell() {
+        $('span', this.controlsCell, $ => {
+            this.selectAllIcon = <HTMLElement>$('i.fa.fa-square', {on: {click: this.onSelectAll}})
+        })
+    }
+
+    onSelectAll = (e: Event) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        this.isAllSelected = !this.isAllSelected
+
+        this.selectAllIcon.classList.remove('fa-square')
+        this.selectAllIcon.classList.remove('fa-check-square')
+        if (this.isAllSelected) {
+            for (let r of this.runRows) {
+                r.setSelection(true)
+            }
+            this.selectAllIcon.classList.add('fa-check-square')
+        } else {
+            for (let r of this.runRows) {
+                r.setSelection(false)
+            }
+            this.selectAllIcon.classList.add('fa-square')
+        }
+    }
+
+
     private renderTable() {
         this.runsTable.innerHTML = ''
-        let views: RunView[] = []
+        this.runRows = []
         let runs = this.filterRuns(this.runs)
         this.sortRuns(runs)
         for (let c of this.cells) {
@@ -188,15 +220,22 @@ class RunsView implements ScreenView, SyncListeners {
         }
         for (let i = 0; i < runs.length; ++i) {
             let r = runs[i]
-            views.push(new RunView(r, i, this.controls))
+            this.runRows.push(new RunRowView(r, i, this.controls))
         }
 
         $('div.header', this.runsTable, $ => {
             for (let c of this.cells) {
-                c.renderHeader($)
+                if (c.type === 'controls') {
+                    this.controlsCell = c.renderHeader($)
+                } else {
+                    c.renderHeader($)
+                }
             }
         })
-        for (let v of views) {
+
+        this.renderControlsCell()
+
+        for (let v of this.runRows) {
             this.runsTable.append(v.render(this.cells))
         }
     }
