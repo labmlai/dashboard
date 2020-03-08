@@ -24,6 +24,8 @@ export interface SyncListeners {
     onReload()
 
     onChanging()
+
+    setFilter(filterTerms: string[])
 }
 
 
@@ -34,6 +36,7 @@ class RunsView implements ScreenView, SyncListeners {
     format: Format
     cells: Cell[]
     private controls: ControlsView;
+    private filterTerms: string[] = []
 
     constructor(dashboard: string) {
         this.format = new Format(dashboard)
@@ -125,8 +128,8 @@ class RunsView implements ScreenView, SyncListeners {
         this.renderTable()
     }
 
-    private sortRuns() {
-        this.runs.sort((a, b) => {
+    private sortRuns(runs: RunUI[]) {
+        runs.sort((a, b) => {
             let minRank = 1e6
             let direction = 0
 
@@ -147,15 +150,44 @@ class RunsView implements ScreenView, SyncListeners {
         })
     }
 
+    private isFiltered(run: RunUI): boolean {
+        for (let t of this.filterTerms) {
+            let matched = false
+            for (let c of this.cells) {
+                if (c.isFiltered(run, t)) {
+                    matched = true
+                    break
+                }
+            }
+
+            if (!matched) {
+                return false
+            }
+        }
+        return true
+    }
+
+    private filterRuns(runs: RunUI[]) {
+        let filtered: RunUI[] = []
+        for (let r of runs) {
+            if (this.isFiltered(r)) {
+                filtered.push(r)
+            }
+        }
+
+        return filtered
+    }
+
     private renderTable() {
         this.runsTable.innerHTML = ''
         let views: RunView[] = []
-        this.sortRuns()
+        let runs = this.filterRuns(this.runs)
+        this.sortRuns(runs)
         for (let c of this.cells) {
-            c.update(this.runs)
+            c.update(runs)
         }
-        for (let i = 0; i < this.runs.length; ++i) {
-            let r = this.runs[i]
+        for (let i = 0; i < runs.length; ++i) {
+            let r = runs[i]
             views.push(new RunView(r, i, this.controls))
         }
 
@@ -167,6 +199,11 @@ class RunsView implements ScreenView, SyncListeners {
         for (let v of views) {
             this.runsTable.append(v.render(this.cells))
         }
+    }
+
+    setFilter(filterTerms: string[]) {
+        this.filterTerms = filterTerms
+        this.renderTable()
     }
 
     onSync(dashboard: string) {

@@ -16,6 +16,7 @@ export class ControlsView implements SelectListeners {
     private selectedCountElem: HTMLElement
     private selectedRuns: { [hash: string]: RunUI }
     private tensorboardBtn: HTMLButtonElement
+    private searchInput: HTMLInputElement;
 
     constructor(format: Format, syncListeners: SyncListeners) {
         this.format = format
@@ -57,6 +58,15 @@ export class ControlsView implements SelectListeners {
             this.codemirrorDiv = <HTMLElement>$('div.editor')
             this.selectedCountElem = <HTMLElement>$('div.test')
 
+            $('div.search', $ => {
+                this.searchInput = <HTMLInputElement>$('input', {
+                    type: 'text',
+                    on: {
+                        keyup: this.onSearchKeyUp
+                    }
+                })
+
+            })
             $('div.actions', $ => {
                 this.tensorboardBtn = <HTMLButtonElement>(
                     $('button',
@@ -94,6 +104,24 @@ export class ControlsView implements SelectListeners {
         this.codemirrorDiv.style.display = 'none'
 
         return this.elem
+    }
+
+    onSearchKeyUp = async (e: KeyboardEvent) => {
+        // if (e.key === 'Enter') {
+        //     this.saveComment(this.commentInput.value)
+        // }
+        let search = this.searchInput.value
+        let terms: string[] = []
+        for(let t of search.split(' ')) {
+            t = t.trim()
+            if(t !== '') {
+                terms.push(t)
+            }
+        }
+
+        this.resetSelection()
+
+        this.syncListeners.setFilter(terms)
     }
 
     updateFormat() {

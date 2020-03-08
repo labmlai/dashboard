@@ -86,7 +86,7 @@ export abstract class Cell {
         let elem = <HTMLElement>$(tag, $ => {
             let value = this.getString(run)
             if (value != null) {
-                $('span', value)
+                $('span', value, {title: value})
             } else {
                 this.renderCellContent($, run)
             }
@@ -122,17 +122,27 @@ export abstract class Cell {
     protected getValue(run: RunUI): any {
         return this.getString(run)
     }
+
+    isFiltered(run: RunUI, t: string): boolean {
+        let s = this.getString(run)
+        if (s == null) {
+            return false
+        }
+
+        return s.includes(t)
+    }
 }
 
 export class InfoCell extends Cell {
     constructor(opt: CellOptions) {
         super(opt)
-        if(opt.key === 'is_dirty') {
+        if (opt.key === 'is_dirty') {
             this.defaultWidth = '3em'
         }
     }
-    renderCellContent($: WeyaElementFunction, run: RunUI) {
-        $('span', `${run.run.info[this.key]}`)
+
+    protected getString(run: RunUI): string {
+        return `${run.run.info[this.key]}`
     }
 
     protected getValue(run: RunUI): any {
@@ -161,18 +171,18 @@ export class ValueCell extends Cell {
     update(runs: RunUI[]) {
         let min = null
         let max = null
-        for(let r of runs) {
+        for (let r of runs) {
             let v = this.getValue(r)
-            if(v == null) {
+            if (v == null) {
                 continue
             }
-            if(min == null) {
+            if (min == null) {
                 min = max = v
             }
-            if(v < min) {
+            if (v < min) {
                 min = v
             }
-            if(v > max) {
+            if (v > max) {
                 max = v
             }
         }
@@ -180,9 +190,9 @@ export class ValueCell extends Cell {
         let estimate = Math.max(Math.abs(max), Math.abs(min))
 
         let lg: number
-        if(estimate < 1e-9) {
+        if (estimate < 1e-9) {
             lg = 0
-        }        else {
+        } else {
             lg = Math.ceil(Math.log10(estimate)) + 1
         }
 
