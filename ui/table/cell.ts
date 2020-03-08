@@ -1,6 +1,12 @@
 import {WeyaElementFunction} from "../../lib/weya/weya";
 import {RunUI} from "../run_ui";
-import {formatInt, formatScalar, formatSize, formatValue} from "../view_components/format";
+import {
+    formatFixed,
+    formatInt,
+    formatScalar,
+    formatSize,
+    formatValue
+} from "../view_components/format";
 import {CellOptions} from "../../common/cell";
 
 
@@ -14,6 +20,7 @@ export abstract class Cell {
     protected isSame = false
     protected sortRank?: number = null
     protected defaultWidth = '10em'
+    protected align = 'left'
 
     constructor(opt: CellOptions) {
         this.options = opt
@@ -74,6 +81,7 @@ export abstract class Cell {
         if (this.isSame) {
             tag += '.same'
         }
+        tag += `.${this.align}`
 
         let elem = <HTMLElement>$(tag, $ => {
             let value = this.getString(run)
@@ -127,14 +135,56 @@ export class InfoCell extends Cell {
 }
 
 export class ValueCell extends Cell {
+    private decimals = 7
+    protected align = 'right'
+
     renderCellContent($: WeyaElementFunction, run: RunUI) {
         if (run.values[this.key] != null) {
-            $('span', formatScalar(run.values[this.key].value))
+            $('span', formatFixed(run.values[this.key].value, this.decimals))
         }
     }
 
     protected getValue(run: RunUI): any {
-        return run.values[this.key]
+        if (run.values[this.key] != null) {
+            return run.values[this.key].value
+        } else {
+            return null
+        }
+    }
+
+    update(runs: RunUI[]) {
+        let min = null
+        let max = null
+        for(let r of runs) {
+            let v = this.getValue(r)
+            if(v == null) {
+                continue
+            }
+            if(min == null) {
+                min = max = v
+            }
+            if(v < min) {
+                min = v
+            }
+            if(v > max) {
+                max = v
+            }
+        }
+
+        let estimate = Math.max(Math.abs(max), Math.abs(min))
+
+        let lg: number
+        if(estimate < 1e-9) {
+            lg = 0
+        }        else {
+            lg = Math.ceil(Math.log10(estimate)) + 1
+        }
+
+        let decimals = 7 - lg
+        decimals = Math.max(1, decimals)
+        decimals = Math.min(6, decimals)
+
+        this.decimals = decimals
     }
 }
 
@@ -282,6 +332,7 @@ export class ConfigOptionCell extends Cell {
 
 export class StepCell extends Cell {
     protected defaultWidth = '6em'
+    protected align = 'right'
 
     private getMaxStep(run: RunUI) {
         let maxStep = 0
@@ -318,6 +369,7 @@ export class CommentCell extends Cell {
 
 export class SizeCell extends Cell {
     protected defaultWidth = '5em'
+    protected align = 'right'
 
     private getSize(run: RunUI) {
         let info = run.run.info

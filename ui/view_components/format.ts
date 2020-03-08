@@ -15,6 +15,12 @@ export function formatScalar(value: number) {
     return numberWithCommas(str)
 }
 
+export function formatFixed(value: number, decimals: number) {
+    let str = value.toFixed(decimals)
+
+    return numberWithCommas(str)
+}
+
 export function formatInt(value: number) {
     let str = value.toString()
     return numberWithCommas(str)
@@ -32,7 +38,7 @@ export function formatSize(size: number) {
     }
 
     return ($: WeyaElementFunction) => {
-        $('span.size', size.toPrecision(4))
+        $('span.size', size.toFixed(2))
         $('span.size_unit', unit)
     }
 }

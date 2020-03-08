@@ -326,5 +326,9 @@ div.table {
       width: 1em !important;
       opacity: 0.3;
     }
+
+    &.right {
+      text-align: right;
+    }
   }
 }
