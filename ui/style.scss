@@ -330,5 +330,27 @@ div.table {
     &.right {
       text-align: right;
     }
+
+    span.ignored {
+      opacity: 0.25;
+    }
+  }
+}
+
+div.control_panel {
+  padding: 10px;
+  div.editor_controls {
+    i {
+      margin: 8px;
+      cursor: pointer;
+    }
+  }
+
+  div.editor {
+    font-size: 0.9rem;
+  }
+
+  div.actions {
+    margin-top: 12px;
   }
 }

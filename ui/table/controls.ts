@@ -48,40 +48,41 @@ export class ControlsView implements SelectListeners {
     }
 
     render(): HTMLElement {
-        this.elem = <HTMLElement>$('div', $ => {
+        this.elem = <HTMLElement>$('div.control_panel', $ => {
             $('div.editor_controls', $ => {
                 $('i.fa.fa-edit', {on: {click: this.onEdit}})
                 $('i.fa.fa-sync', {on: {click: this.onSync}})
                 $('i.fa.fa-save', {on: {click: this.onSave}})
             })
-            this.codemirrorDiv = <HTMLElement>$('div')
+            this.codemirrorDiv = <HTMLElement>$('div.editor')
             this.selectedCountElem = <HTMLElement>$('div.test')
 
-            this.tensorboardBtn = <HTMLButtonElement>(
-                $('button.small',
-                    {on: {click: this.onTensorboard}},
+            $('div.actions', $ => {
+                this.tensorboardBtn = <HTMLButtonElement>(
+                    $('button',
+                        {on: {click: this.onTensorboard}},
+                        $ => {
+                            $('i.fa.fa-chart-bar')
+                            $('span', ' Launch Tensorboard')
+                        })
+                )
+
+                $('button.danger',
+                    {on: {click: this.onRemove}},
                     $ => {
-                        $('i.fa.fa-chart-bar')
-                        $('span', ' Launch Tensorboard')
-                    })
-            )
+                        $('i.fa.fa-trash')
+                        $('span', ' Remove')
+                    }
+                )
 
-            $('button.small.danger',
-                {on: {click: this.onRemove}},
-                $ => {
-                    $('i.fa.fa-trash')
-                    $('span', ' Remove')
-                }
-            )
-
-            $('button.small.danger',
-                {on: {click: this.onCleanupCheckpoints}},
-                $ => {
-                    $('i.fa.fa-trash')
-                    $('span', ' Cleanup Checkpoints')
-                }
-            )
-
+                $('button.danger',
+                    {on: {click: this.onCleanupCheckpoints}},
+                    $ => {
+                        $('i.fa.fa-trash')
+                        $('span', ' Cleanup Checkpoints')
+                    }
+                )
+            })
         })
 
         this.codemirror = CodeMirror(this.codemirrorDiv, {

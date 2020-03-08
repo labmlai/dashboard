@@ -125,6 +125,12 @@ export abstract class Cell {
 }
 
 export class InfoCell extends Cell {
+    constructor(opt: CellOptions) {
+        super(opt)
+        if(opt.key === 'is_dirty') {
+            this.defaultWidth = '3em'
+        }
+    }
     renderCellContent($: WeyaElementFunction, run: RunUI) {
         $('span', `${run.run.info[this.key]}`)
     }
