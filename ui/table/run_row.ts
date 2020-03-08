@@ -34,8 +34,9 @@ export class RunRowView {
         )
 
         this.controls.innerHTML = ''
-        $('span', this.controls, $ => {
+        $('span.controls', this.controls, $ => {
             this.selectIcon = <HTMLElement>$('i.fa.fa-square', {on: {click: this.onSelect}})
+            $('i.fa.fa-file', {on: {click: this.onOpen}})
         })
 
         return this.elem

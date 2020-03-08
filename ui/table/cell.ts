@@ -331,6 +331,22 @@ export class ConfigOptionCell extends Cell {
         }
 
         this.isEmpty = count <= 0;
+
+        this.isSame = false
+        let value = this.getValue(runs[0])
+
+        for (let run of runs) {
+            let v = this.getValue(run)
+            if (v == null) {
+                if (value != null) {
+                    return
+                }
+            } else if (v !== value) {
+                return
+            }
+        }
+
+        this.isSame = true
     }
 
     protected getValue(run: RunUI): any {

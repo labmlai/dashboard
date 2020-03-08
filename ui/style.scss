@@ -149,34 +149,6 @@ body {
   .options {
     font-family: $monoFont;
     font-size: 0.9rem;
-
-    &::before {
-      content: '[';
-      opacity: 0.7;
-      color: #e84118;
-    }
-
-    &::after {
-      content: ']';
-      opacity: 0.7;
-      color: #e84118;
-    }
-
-    span {
-      &::after {
-        content: ', ';
-        opacity: 0.7;
-        color: #e84118;
-      }
-
-      &:last-child {
-        &::after {
-          content: '';
-          opacity: 0.7;
-          color: #e84118;
-        }
-      }
-    }
   }
 
   &.only_option {
@@ -334,28 +306,87 @@ div.table {
     span.ignored {
       opacity: 0.25;
     }
-  }
-}
 
-div.control_panel {
-  padding: 10px;
-  div.editor_controls {
-    i {
-      margin: 8px;
-      cursor: pointer;
+    span.controls {
+      i {
+        margin-right: 8px;
+        cursor: pointer;
+
+        &.fa-file {
+          color: #00a8ff;
+        }
+      }
+    }
+
+    span.only_option {
+      opacity: 0.6;
+    }
+
+    span.picked {
+      margin-right: 4px;
+    }
+
+    span.custom {
+      margin-right: 4px;
+      color: #00a8ff;
+    }
+
+    span.options {
     }
   }
 
-  div.editor {
-    font-size: 0.9rem;
+  div.control_panel {
+    padding: 10px;
+
+    div.editor_controls {
+      i {
+        margin: 8px;
+        cursor: pointer;
+      }
+    }
+
+    div.editor {
+      font-size: 0.9rem;
+    }
+
+    div.actions {
+      margin-top: 4px;
+    }
+
+    div.search {
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+  }
+}
+
+.config .options, div.table div.cell span.options {
+  &::before {
+    content: '[';
+    opacity: 0.7;
+    color: #e84118;
   }
 
-  div.actions {
-    margin-top: 4px;
+  &::after {
+    content: ']';
+    opacity: 0.7;
+    color: #e84118;
   }
 
-  div.search {
-    margin-top: 10px;
-    margin-bottom: 4px;
+  span {
+    &::after {
+      content: ', ';
+      opacity: 0.7;
+      color: #e84118;
+    }
+
+    &:last-child {
+      &::after {
+        content: '';
+        opacity: 0.7;
+        color: #e84118;
+      }
+    }
   }
+
 }
