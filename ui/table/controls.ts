@@ -14,7 +14,7 @@ export class ControlsView implements SelectListeners {
     private syncListeners: SyncListeners
     private codemirrorDiv: HTMLElement
     private selectedCountElem: HTMLElement
-    private readonly selectedRuns: { [hash: string]: RunUI }
+    private selectedRuns: { [hash: string]: RunUI }
     private tensorboardBtn: HTMLButtonElement
 
     constructor(format: Format, syncListeners: SyncListeners) {
@@ -39,6 +39,11 @@ export class ControlsView implements SelectListeners {
 
     onUnSelect(run: RunUI) {
         delete this.selectedRuns[run.run.hash()]
+        this.updateSelectedRunsCount()
+    }
+
+    private resetSelection() {
+        this.selectedRuns = {}
         this.updateSelectedRunsCount()
     }
 
@@ -111,20 +116,24 @@ export class ControlsView implements SelectListeners {
 
     onRemove = async (e: Event) => {
         if (confirm('Are you sure')) {
+            this.syncListeners.onChanging()
             for (let r in this.selectedRuns) {
                 let run = this.selectedRuns[r]
                 await run.remove()
             }
+            this.resetSelection()
             clearCache()
             this.syncListeners.onReload()
         }
     }
 
     onCleanupCheckpoints = async (e: Event) => {
+        this.syncListeners.onChanging()
         for (let r in this.selectedRuns) {
             let run = this.selectedRuns[r]
             await run.cleanupCheckpoints()
         }
+        this.resetSelection()
         clearCache()
         this.syncListeners.onReload()
     }

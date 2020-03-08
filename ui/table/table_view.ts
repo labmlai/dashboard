@@ -22,6 +22,8 @@ export interface SyncListeners {
     onSync(dashboard: string)
 
     onReload()
+
+    onChanging()
 }
 
 
@@ -128,14 +130,14 @@ class RunsView implements ScreenView, SyncListeners {
             let minRank = 1e6
             let direction = 0
 
-            for(let c of this.cells) {
+            for (let c of this.cells) {
                 let s = c.compare(a, b)
-                if(s === 0) {
+                if (s === 0) {
                     continue
                 }
 
                 let r = Math.abs(s)
-                if(s < minRank) {
+                if (s < minRank) {
                     minRank = s
                     direction = s / r
                 }
@@ -185,6 +187,10 @@ class RunsView implements ScreenView, SyncListeners {
         this.cells = this.format.createCells()
 
         this.renderTable()
+    }
+
+    onChanging() {
+        this.runsTable.innerHTML = ''
     }
 }
 
