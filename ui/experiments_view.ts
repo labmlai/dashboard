@@ -97,6 +97,6 @@ export class ExperimentsHandler {
     }
 
     handleExperiments = () => {
-        SCREEN.setView(new ExperimentsView())
+        ROUTER.navigate('table', {replace: true, trigger: true})
     }
 }
