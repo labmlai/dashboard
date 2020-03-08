@@ -1,7 +1,7 @@
 # 🎛 A gui for [lab](https://github.com/vpj/lab)
 
 <p align="center">
-  <img style="max-width:100%;" src="https://github.com/vpj/lab_dashboard/blob/master/images/dashboard.png?raw=true" width="320" title="Logo">
+  <img style="max-width:100%;" src="https://github.com/vpj/lab_dashboard/blob/master/images/dashboard.png?raw=true" width="1080" title="Logo">
 </p>
 
 ### Clone and install
