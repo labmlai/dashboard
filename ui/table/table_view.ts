@@ -154,8 +154,9 @@ class RunsView implements ScreenView, SyncListeners {
         for (let c of this.cells) {
             c.update(this.runs)
         }
-        for (let r of this.runs) {
-            views.push(new RunView(r, this.controls))
+        for (let i = 0; i < this.runs.length; ++i) {
+            let r = this.runs[i]
+            views.push(new RunView(r, i, this.controls))
         }
 
         $('div.header', this.runsTable, $ => {

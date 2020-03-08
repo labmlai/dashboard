@@ -279,15 +279,36 @@ button {
 }
 
 div.table {
+  display: table;
+
   div.row, div.header {
     white-space: nowrap;
     line-height: 0;
   }
 
+  div.row {
+    &:hover {
+      background: #555b68;
+    }
+
+    &.even {
+      background: #353b48;
+
+      &:hover {
+        background: #555b68;
+      }
+    }
+  }
+
   div.header {
     div.cell {
       font-weight: bold;
+      line-height: 3;
     }
+
+    background: #2f3640;
+    box-shadow: 00px 5px 5px -5px #000;
+    position: relative;
   }
 
   div.cell {
@@ -295,10 +316,15 @@ div.table {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    border-right: 1px solid #777;
-    border-bottom: 1px solid #777;
+    border-right: 1px solid #555;
+    //border-bottom: 1px solid #777;
     padding: 0 4px;
     min-height: 1.5em;
-    line-height: 1.5;
+    line-height: 2;
+
+    &.same {
+      width: 1em !important;
+      opacity: 0.3;
+    }
   }
 }

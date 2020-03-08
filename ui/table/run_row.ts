@@ -11,15 +11,18 @@ export class RunView {
     private selectIcon: HTMLElement;
     private isSelected: boolean;
     private selectListeners: SelectListeners;
+    private index: number
 
-    constructor(r: RunUI, selectListeners: SelectListeners) {
+    constructor(r: RunUI, index: number, selectListeners: SelectListeners) {
         this.run = r
+        this.index = index
         this.selectListeners = selectListeners;
         this.isSelected = false
     }
 
     render(format: Cell[]) {
-        this.elem = $('div.row', $ => {
+        let indexClass = this.index % 2 == 0 ? 'even' : 'odd'
+        this.elem = $('div.row.' + indexClass, $ => {
                 for (let cell of format) {
                     if (cell.type === 'controls') {
                         this.controls = cell.renderCell($, this.run)

@@ -2,7 +2,6 @@ import {WeyaElementFunction} from "../../lib/weya/weya";
 import {RunUI} from "../run_ui";
 import {formatInt, formatScalar, formatSize, formatValue} from "../view_components/format";
 import {CellOptions} from "../../common/cell";
-import {Run} from "../../common/experiments";
 
 
 export abstract class Cell {
@@ -10,9 +9,11 @@ export abstract class Cell {
     name?: string
     key: string
     options: CellOptions
-    width: string
+    specifiedWidth: string
     protected isEmpty = false
+    protected isSame = false
     protected sortRank?: number = null
+    protected defaultWidth = '10em'
 
     constructor(opt: CellOptions) {
         this.options = opt
@@ -20,10 +21,14 @@ export abstract class Cell {
         this.key = opt.key
         this.type = opt.type
         this.sortRank = opt.sortRank
-        if (opt.width == null) {
-            this.width = '10em'
+        this.specifiedWidth = opt.width
+    }
+
+    get width(): string {
+        if (this.specifiedWidth == null) {
+            return this.defaultWidth
         } else {
-            this.width = opt.width
+            return this.specifiedWidth
         }
     }
 
@@ -36,9 +41,13 @@ export abstract class Cell {
             return
         }
 
-        let elem = $('div.cell', $ => {
+        let tag = 'div.cell'
+        if (this.isSame) {
+            tag += '.same'
+        }
+        let elem = $(tag, $ => {
             if (this.name != null) {
-                $('span', this.name)
+                $('span', this.name, {title: this.name})
             } else {
                 this.renderHeaderContent($)
             }
@@ -61,7 +70,12 @@ export abstract class Cell {
             return null
         }
 
-        let elem = <HTMLElement>$('div.cell', $ => {
+        let tag = 'div.cell'
+        if (this.isSame) {
+            tag += '.same'
+        }
+
+        let elem = <HTMLElement>$(tag, $ => {
             let value = this.getString(run)
             if (value != null) {
                 $('span', value)
@@ -159,6 +173,28 @@ export class ConfigComputedCell extends Cell {
 
         return conf.computed
     }
+
+    update(runs: RunUI[]) {
+        this.isSame = false
+        if (runs.length === 0) {
+            this.isSame = true
+            return
+        }
+        let value = this.getValue(runs[0])
+
+        for (let run of runs) {
+            let v = this.getValue(run)
+            if (v == null) {
+                if (value != null) {
+                    return
+                }
+            } else if (v !== value) {
+                return
+            }
+        }
+
+        this.isSame = true
+    }
 }
 
 export class ConfigOptionCell extends Cell {
@@ -245,6 +281,8 @@ export class ConfigOptionCell extends Cell {
 }
 
 export class StepCell extends Cell {
+    protected defaultWidth = '6em'
+
     private getMaxStep(run: RunUI) {
         let maxStep = 0
 
@@ -279,6 +317,8 @@ export class CommentCell extends Cell {
 }
 
 export class SizeCell extends Cell {
+    protected defaultWidth = '5em'
+
     private getSize(run: RunUI) {
         let info = run.run.info
         let size: number
@@ -312,6 +352,8 @@ export class ExperimentNameCell extends Cell {
 }
 
 export class ControlsCell extends Cell {
+    protected defaultWidth = '3em'
+
     protected getString(run: RunUI): string {
         return ""
     }
