@@ -2,7 +2,7 @@ import {WeyaElementFunction} from "../../lib/weya/weya";
 import {RunUI} from "../run_ui";
 import {formatInt, formatScalar, formatSize, formatValue} from "../view_components/format";
 import {CellOptions} from "../../common/cell";
-
+import {Run} from "../../common/experiments";
 
 
 export abstract class Cell {
@@ -12,12 +12,14 @@ export abstract class Cell {
     options: CellOptions
     width: string
     protected isEmpty = false
+    protected sortRank?: number = null
 
     constructor(opt: CellOptions) {
         this.options = opt
         this.name = opt.name
         this.key = opt.key
         this.type = opt.type
+        this.sortRank = opt.sortRank
         if (opt.width == null) {
             this.width = '10em'
         } else {
@@ -30,7 +32,7 @@ export abstract class Cell {
     }
 
     renderHeader($: WeyaElementFunction) {
-        if(this.isHidden) {
+        if (this.isHidden) {
             return
         }
 
@@ -50,17 +52,17 @@ export abstract class Cell {
     protected renderCellContent($: WeyaElementFunction, run: RunUI) {
     }
 
-    protected getValue(run: RunUI): string {
+    protected getString(run: RunUI): string {
         return null
     }
 
     renderCell($: WeyaElementFunction, run: RunUI): HTMLElement {
-        if(this.isHidden) {
+        if (this.isHidden) {
             return null
         }
 
         let elem = <HTMLElement>$('div.cell', $ => {
-            let value = this.getValue(run)
+            let value = this.getString(run)
             if (value != null) {
                 $('span', value)
             } else {
@@ -74,11 +76,39 @@ export abstract class Cell {
 
     update(runs: RunUI[]) {
     }
+
+    compare(a: RunUI, b: RunUI) {
+        if (this.sortRank == null) {
+            return 0
+        } else {
+            return this.sortRank * this.compareDirection(a, b)
+        }
+    }
+
+    protected compareDirection(a: RunUI, b: RunUI) {
+        let av = this.getValue(a)
+        let bv = this.getValue(b)
+        if (av < bv) {
+            return -1
+        } else if (av > bv) {
+            return +1
+        } else {
+            return 0
+        }
+    }
+
+    protected getValue(run: RunUI): any {
+        return this.getString(run)
+    }
 }
 
 export class InfoCell extends Cell {
     renderCellContent($: WeyaElementFunction, run: RunUI) {
         $('span', `${run.run.info[this.key]}`)
+    }
+
+    protected getValue(run: RunUI): any {
+        return run.run.info[this.key]
     }
 }
 
@@ -87,6 +117,10 @@ export class ValueCell extends Cell {
         if (run.values[this.key] != null) {
             $('span', formatScalar(run.values[this.key].value))
         }
+    }
+
+    protected getValue(run: RunUI): any {
+        return run.values[this.key]
     }
 }
 
@@ -110,6 +144,20 @@ export class ConfigComputedCell extends Cell {
         } else {
             $('span', {title: `${conf.computed}`}, formatValue(conf.computed))
         }
+    }
+
+    protected getValue(run: RunUI): any {
+        if (run.configs.configs[this.key] == null) {
+            return null
+        }
+
+        let conf = run.configs.configs[this.key]
+
+        if (conf.order < 0) {
+            return null
+        }
+
+        return conf.computed
     }
 }
 
@@ -155,7 +203,7 @@ export class ConfigOptionCell extends Cell {
     update(runs: RunUI[]) {
         let count = 0
 
-        for(let run of runs) {
+        for (let run of runs) {
             if (run.configs.configs[this.key] == null) {
                 continue
             }
@@ -178,42 +226,60 @@ export class ConfigOptionCell extends Cell {
             count++
         }
 
-        if(count > 0) {
-            this.isEmpty = false
-        } else {
-            this.isEmpty = true
+        this.isEmpty = count <= 0;
+    }
+
+    protected getValue(run: RunUI): any {
+        if (run.configs.configs[this.key] == null) {
+            return null
         }
+
+        let conf = run.configs.configs[this.key]
+
+        if (conf.order < 0) {
+            return null
+        }
+
+        return conf.value
     }
 }
 
 export class StepCell extends Cell {
-    renderCellContent($: WeyaElementFunction, run: RunUI) {
+    private getMaxStep(run: RunUI) {
         let maxStep = 0
 
         for (let k in run.values) {
             maxStep = Math.max(run.values[k].step, maxStep)
         }
 
+        return maxStep
+    }
+
+    renderCellContent($: WeyaElementFunction, run: RunUI) {
+        let maxStep = this.getMaxStep(run)
         $('span', formatInt(maxStep))
+    }
+
+    protected getValue(run: RunUI): any {
+        return this.getMaxStep(run)
     }
 }
 
 export class DateTimeCell extends Cell {
-    protected getValue(run: RunUI): string {
+    protected getString(run: RunUI): string {
         return `${run.run.info.trial_date} ${run.run.info.trial_time}`
     }
-
 }
 
 
 export class CommentCell extends Cell {
-    protected getValue(run: RunUI): string {
+    protected getString(run: RunUI): string {
         return run.run.info.comment
     }
 }
 
 export class SizeCell extends Cell {
-    renderCellContent($: WeyaElementFunction, run: RunUI) {
+    private getSize(run: RunUI) {
         let info = run.run.info
         let size: number
         if (this.key === '') {
@@ -226,18 +292,27 @@ export class SizeCell extends Cell {
             size = info[this.key]
         }
 
+        return size
+    }
+
+    renderCellContent($: WeyaElementFunction, run: RunUI) {
+        let size = this.getSize(run)
         $('span', formatSize(size))
+    }
+
+    protected getValue(run: RunUI): any {
+        return this.getSize(run)
     }
 }
 
 export class ExperimentNameCell extends Cell {
-    protected getValue(run: RunUI): string {
+    protected getString(run: RunUI): string {
         return run.run.experimentName
     }
 }
 
 export class ControlsCell extends Cell {
-    protected getValue(run: RunUI): string {
+    protected getString(run: RunUI): string {
         return ""
     }
 }
@@ -270,4 +345,3 @@ export class CellFactory {
         }
     }
 }
-

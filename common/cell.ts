@@ -3,4 +3,5 @@ export interface CellOptions {
     key: string
     name?: string
     width?: string
+    sortRank?: number
 }

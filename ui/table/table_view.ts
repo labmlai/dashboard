@@ -123,10 +123,33 @@ class RunsView implements ScreenView, SyncListeners {
         this.renderTable()
     }
 
+    private sortRuns() {
+        this.runs.sort((a, b) => {
+            let minRank = 1e6
+            let direction = 0
+
+            for(let c of this.cells) {
+                let s = c.compare(a, b)
+                if(s === 0) {
+                    continue
+                }
+
+                let r = Math.abs(s)
+                if(s < minRank) {
+                    minRank = s
+                    direction = s / r
+                }
+            }
+
+            return direction
+        })
+    }
+
     private renderTable() {
         this.runsTable.innerHTML = ''
         let views: RunView[] = []
-        for(let c of this.cells) {
+        this.sortRuns()
+        for (let c of this.cells) {
             c.update(this.runs)
         }
         for (let r of this.runs) {
