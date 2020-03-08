@@ -52,9 +52,9 @@ export class ControlsView implements SelectListeners {
 
     render(): HTMLElement {
         this.elem = <HTMLElement>$('div.control_panel', $ => {
-            this.editorControls = $('div.editor_controls', $ => {
+            this.editorControls = <HTMLElement>$('div.editor_controls', $ => {
                 $('i.fa.fa-edit', {on: {click: this.onEdit}})
-                this.syncControls = $('span', $ => {
+                this.syncControls = <HTMLElement>$('span', $ => {
                     $('i.fa.fa-sync', {on: {click: this.onSync}})
                     $('i.fa.fa-save', {on: {click: this.onSave}})
                 })
