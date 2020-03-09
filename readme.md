@@ -4,6 +4,8 @@
   <img style="max-width:100%;" src="https://github.com/vpj/lab_dashboard/blob/master/images/dashboard.png?raw=true" width="1080" title="Logo">
 </p>
 
+# [Slack workspace for discussions](https://join.slack.com/t/labforml/shared_invite/zt-cg5iui5u-4cJPT7DUwRGqup9z8RHwhQ)
+
 ### Clone and install
 
 ```bash
