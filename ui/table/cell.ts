@@ -1,12 +1,6 @@
 import {WeyaElementFunction} from "../../lib/weya/weya";
 import {RunUI} from "../run_ui";
-import {
-    formatFixed,
-    formatInt,
-    formatScalar,
-    formatSize,
-    formatValue
-} from "../view_components/format";
+import {formatFixed, formatInt, formatSize, formatValue} from "../view_components/format";
 import {CellOptions} from "../../common/cell";
 
 
@@ -173,11 +167,15 @@ export class ValueCell extends Cell {
     update(runs: RunUI[]) {
         let min = null
         let max = null
+        let count = 0
+
         for (let r of runs) {
             let v = this.getValue(r)
             if (v == null) {
                 continue
             }
+
+            count++
             if (min == null) {
                 min = max = v
             }
@@ -188,6 +186,8 @@ export class ValueCell extends Cell {
                 max = v
             }
         }
+
+        this.isEmpty = count <= 0;
 
         let estimate = Math.max(Math.abs(max), Math.abs(min))
 
@@ -243,25 +243,23 @@ export class ConfigComputedCell extends Cell {
     }
 
     update(runs: RunUI[]) {
-        this.isSame = false
+        this.isSame = true
+        this.isEmpty = true
+
         if (runs.length === 0) {
-            this.isSame = true
             return
         }
         let value = this.getValue(runs[0])
 
         for (let run of runs) {
             let v = this.getValue(run)
-            if (v == null) {
-                if (value != null) {
-                    return
-                }
-            } else if (v !== value) {
-                return
+            if (v !== value) {
+                this.isSame = false
+            }
+            if (v != null) {
+                this.isEmpty = false
             }
         }
-
-        this.isSame = true
     }
 }
 
@@ -305,7 +303,12 @@ export class ConfigOptionCell extends Cell {
     }
 
     update(runs: RunUI[]) {
-        let count = 0
+        this.isEmpty = true
+        this.isSame = true
+
+        if (runs.length === 0) {
+            return
+        }
 
         for (let run of runs) {
             if (run.configs.configs[this.key] == null) {
@@ -327,26 +330,17 @@ export class ConfigOptionCell extends Cell {
                 continue
             }
 
-            count++
+            this.isEmpty = false
         }
 
-        this.isEmpty = count <= 0;
-
-        this.isSame = false
         let value = this.getValue(runs[0])
 
         for (let run of runs) {
             let v = this.getValue(run)
-            if (v == null) {
-                if (value != null) {
-                    return
-                }
-            } else if (v !== value) {
-                return
+            if (v !== value) {
+                this.isSame = false
             }
         }
-
-        this.isSame = true
     }
 
     protected getValue(run: RunUI): any {
