@@ -28,10 +28,10 @@ abstract class CacheEntry<T> {
             let loaded = await this.load()
             if (this.cached == null || this.isUpdated(this.cached, loaded)) {
                 this.delay = Math.max(this.minDelay, this.delay / this.exponentialFactor)
-                console.log("Reduced checking time to ", this.delay)
+                // console.log("Reduced checking time to ", this.delay)
             } else {
                 this.delay = Math.min(this.maxDelay, this.delay * this.exponentialFactor)
-                console.log("Extended checking time to ", this.delay)
+                // console.log("Extended checking time to ", this.delay)
             }
             this.cached = loaded
 
@@ -39,6 +39,10 @@ abstract class CacheEntry<T> {
         }
 
         return this.cached
+    }
+
+    reset() {
+        this.cached = null
     }
 }
 
@@ -54,7 +58,7 @@ class RunModelCacheEntry extends CacheEntry<RunModel> {
 
     private getMaxStep(run: RunModel) {
         let maxStep = 0
-        for(let k in run.values) {
+        for (let k in run.values) {
             let value = run.values[k]
             maxStep = Math.max(maxStep, value.step)
         }
@@ -67,6 +71,7 @@ class RunModelCacheEntry extends CacheEntry<RunModel> {
     }
 
     protected async load(): Promise<RunModel> {
+        // console.log("loaded", this.experimentName, this.runUuid)
         let contents = await readFile(
             PATH.join(LAB.experiments, this.experimentName, this.runUuid, 'run.yaml'),
         )
@@ -179,6 +184,14 @@ class Cache {
 
         return new Experiments(experiments)
     }
+
+    resetRun(experimentName: string, runUuid: string) {
+        if (this.runs[experimentName] != null && this.runs[experimentName][runUuid] != null) {
+            // console.log('resetCache', experimentName, runUuid)
+            this.runs[experimentName][runUuid].reset()
+        }
+        this.experimentRunsSet.reset()
+    }
 }
 
 const _CACHE = new Cache()
@@ -190,6 +203,11 @@ class ExperimentsFactory {
 
     static async load(): Promise<Experiments> {
         return await _CACHE.getAll()
+    }
+
+    static cacheReset(experimentName: string, runUuid: string) {
+        // console.log('reset', experimentName, runUuid)
+        _CACHE.resetRun(experimentName, runUuid)
     }
 }
 

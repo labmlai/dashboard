@@ -346,16 +346,21 @@ class RunView implements ScreenView {
 
     }
 
-    private saveComment(comment: string) {
+    private async saveComment(comment: string) {
+        if (this.run.info.comment === comment) {
+            return
+        }
+
+        this.run.info.comment = comment
+
+        await this.runUI.update({comment: comment})
+
         this.commentSpan.style.display = null
         this.commentInput.style.display = 'none'
-        this.run.info.comment = comment
         this.commentSpan.textContent = comment
-
-        this.runUI.update({comment: comment}).then()
     }
 
-    private saveTags(tags: string) {
+    private async saveTags(tags: string) {
         let tagList = []
         for (let tag of tags.split(',')) {
             tag = tag.trim()
@@ -364,12 +369,12 @@ class RunView implements ScreenView {
             }
         }
 
+        await this.runUI.update({tags: tagList})
+
         this.tagsList.style.display = null
         this.tagsInput.style.display = 'none'
         this.run.info.tags = tagList
         this.renderTagList()
-
-        this.runUI.update({tags: tagList}).then()
     }
 
     async renderAnalyticsBtns() {

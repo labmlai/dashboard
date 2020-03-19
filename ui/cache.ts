@@ -9,6 +9,7 @@ export async function getExperiments(): Promise<Experiments> {
         return EXPERIMENTS
     }
 
+    console.log("Reloading all")
     return new Experiments(await API.getExperiments())
 }
 

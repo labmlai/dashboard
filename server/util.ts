@@ -8,7 +8,7 @@ export let readdir = UTIL.promisify(FS.readdir)
 
 export function readFile(path: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
-        FS.readFile(path, {encoding: 'utf-8'}, (err, contents) => {
+        FS.readFile(path, {flag: 'rs', encoding: 'utf-8'}, (err, contents) => {
             if (err != null) {
                 reject(err)
             } else {

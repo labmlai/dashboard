@@ -9,7 +9,6 @@ import {exists, readdir, readFile, rmtree, writeFile} from './util'
 const UPDATABLE_KEYS = new Set(['comment', 'notes', 'tags'])
 
 export class RunNodeJS {
-    private static cache: { [run: string]: RunNodeJS } = {}
     run: Run
     db: sqlite3.Database
     configs: Configs
@@ -21,10 +20,7 @@ export class RunNodeJS {
     }
 
     static create(run: Run) {
-        if (!(run.hash() in RunNodeJS.cache)) {
-            RunNodeJS.cache[run.hash()] = new RunNodeJS(run)
-        }
-        return RunNodeJS.cache[run.hash()]
+        return new RunNodeJS(run)
     }
 
     private loadDatabase(): Promise<void> {

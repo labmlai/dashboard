@@ -1,5 +1,6 @@
 import {Configs, Indicators, Run, ScalarsModel} from '../common/experiments'
 import {API} from "./app";
+import {clearCache} from "./cache";
 
 export class RunUI {
     private static cache: { [run: string]: RunUI } = {}
@@ -127,6 +128,8 @@ export class RunUI {
     }
 
     async update(data: { [key: string]: any }) {
+        clearCache()
+
         return await API.updateRun(
             this.run.experimentName,
             this.run.info.uuid,
