@@ -132,6 +132,10 @@ export class ControlsView implements SelectListeners {
         this.syncListeners.setFilter(terms)
     }
 
+    setSearch(search: string) {
+        this.searchInput.value = search
+    }
+
     updateFormat() {
         this.codemirror.setValue(this.format.toYAML())
     }

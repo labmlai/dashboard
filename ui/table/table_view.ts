@@ -36,14 +36,21 @@ class RunsView implements ScreenView, SyncListeners {
     format: Format
     cells: Cell[]
     private controls: ControlsView;
-    private filterTerms: string[] = []
+    private filterTerms: string[]
     private controlsCell: HTMLElement;
     private selectAllIcon: HTMLElement;
     private isAllSelected: boolean = false
     private runRows: RunRowView[];
 
-    constructor(dashboard: string) {
+    constructor(dashboard: string, search: string) {
         this.format = new Format(dashboard)
+        this.filterTerms = []
+        for (let t of search.split(' ')) {
+            t = t.trim()
+            if (t !== '') {
+                this.filterTerms.push(t)
+            }
+        }
     }
 
     render(): WeyaElement {
@@ -54,6 +61,7 @@ class RunsView implements ScreenView, SyncListeners {
             this.runsTable = <HTMLElement>$('div.table')
         })
 
+        this.controls.setSearch(this.filterTerms.join(' '))
         this.renderExperiments().then()
         return this.elem
     }
@@ -241,7 +249,10 @@ class RunsView implements ScreenView, SyncListeners {
     }
 
     setFilter(filterTerms: string[]) {
+        const isReplaceUrl = this.filterTerms.length === filterTerms.length
         this.filterTerms = filterTerms
+        ROUTER.navigate(`table/${this.format.dashboard}/${this.filterTerms.join()}`,
+            {trigger: false, replace: isReplaceUrl})
         this.renderTable()
     }
 
@@ -273,11 +284,16 @@ class RunsView implements ScreenView, SyncListeners {
 
 export class TableHandler {
     constructor() {
-        ROUTER.route('table', [this.handleTable])
+        ROUTER.route('table', [this.handleTableDefault])
         ROUTER.route('table/:dashboard', [this.handleTable])
+        ROUTER.route('table/:dashboard/:search', [this.handleTable])
     }
 
-    handleTable = (dashboard: string = "default") => {
-        SCREEN.setView(new RunsView(dashboard))
+    handleTableDefault = () => {
+        ROUTER.navigate('table/default', {trigger: true, replace: true})
+    }
+
+    handleTable = (dashboard: string, search: string = '') => {
+        SCREEN.setView(new RunsView(dashboard, search))
     }
 }
