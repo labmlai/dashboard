@@ -7,7 +7,7 @@ import {
     ScalarsModel
 } from '../common/experiments'
 import {Api} from '../common/api'
-import {ExperimentsFactory} from './experiments_loader'
+import {ExperimentsFactory} from './experiments/cache'
 import {RunNodeJS} from './run_nodejs'
 import {Tensorboard} from './tensorboard'
 import {Jupyter} from './jupyter'
