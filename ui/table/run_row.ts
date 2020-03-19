@@ -36,7 +36,13 @@ export class RunRowView {
         this.controls.innerHTML = ''
         $('span.controls', this.controls, $ => {
             this.selectIcon = <HTMLElement>$('i.fa.fa-square', {on: {click: this.onSelect}})
-            $('i.fa.fa-file', {on: {click: this.onOpen}})
+            $('a',
+                {
+                    on: {click: this.onOpen},
+                    href: `/experiment/${this.run.run.experimentName}/${this.run.run.info.uuid}`
+                }, $ => {
+                    $('i.fa.fa-file')
+                })
         })
 
         return this.elem
