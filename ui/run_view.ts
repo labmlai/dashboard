@@ -138,6 +138,10 @@ class RunView implements ScreenView {
                 $('i.fa.fa-clock.key_icon')
                 $('span', info.trial_time)
             })
+            if(info.load_run != null) {
+                $('i.fa.fa-download.key_icon')
+                $('span', info.load_run)
+            }
 
             $('div.block', $ => {
                 let commit_info: InfoItem[] = [

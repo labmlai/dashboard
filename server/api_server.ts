@@ -136,8 +136,11 @@ class ApiServer extends Api {
 
     async removeRun(experimentName: string, runUuid: string): Promise<void> {
         ExperimentsFactory.cacheReset(experimentName, runUuid)
-        let run = await getRun(experimentName, runUuid)
-        await run.remove()
+        try {
+            let run = await getRun(experimentName, runUuid)
+            await run.remove()
+        } catch(e) {
+        }
     }
 
     async cleanupCheckpoints(

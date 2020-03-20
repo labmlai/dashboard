@@ -68,6 +68,9 @@ export interface RunModel {
     start_step: number
     trial_date: string // '2019-11-29',
     trial_time: string // '09:05:24',
+
+    load_run?: string
+
     tensorboard_size: number // folder size
     checkpoints_size: number
     sqlite_size: number
