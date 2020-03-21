@@ -439,11 +439,28 @@ export class ControlsCell extends Cell {
     }
 }
 
+export class GenerationsCell extends Cell {
+    protected defaultWidth = '3em'
+
+    renderCellContent($: WeyaElementFunction, run: RunUI) {
+        for(let i = 0; i < run.generations; ++i) {
+            $('i.generation.fas.fa-circle')
+        }
+        if(run.children > 0) {
+            $('i.generation.fas.fa-circle')
+        } else {
+            $('i.generation.far.fa-circle')
+        }
+    }
+}
+
 export class CellFactory {
     static create(opt: CellOptions) {
         switch (opt.type) {
             case "controls":
                 return new ControlsCell(opt)
+            case "generations":
+                return new GenerationsCell(opt)
             case "experiment_name":
                 return new ExperimentNameCell(opt)
             case "comment":

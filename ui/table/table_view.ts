@@ -9,6 +9,7 @@ import {CellOptions} from "../../common/cell";
 import {Format} from "./format";
 import {ControlsView} from "./controls";
 import {RunRowView} from "./run_row";
+import {RunsTree} from "./tree";
 
 
 export interface SelectListeners {
@@ -80,6 +81,7 @@ class RunsView implements ScreenView, SyncListeners {
     private getFormat(): CellOptions[] {
         let format: CellOptions[] = [
             {type: 'controls', name: '', 'key': ''},
+            {type: 'generations', name: '', 'key': ''},
             {type: 'experiment_name', name: 'Experiment', 'key': ''},
             {type: 'comment', name: 'Comment', 'key': ''},
             {type: 'date_time', name: 'Date Time', 'key': ''},
@@ -190,6 +192,11 @@ class RunsView implements ScreenView, SyncListeners {
         return filtered
     }
 
+    private addParentRuns(runs: RunUI[]) {
+        let tree = new RunsTree(this.runs, runs)
+        return tree.getList()
+    }
+
     private renderControlsCell() {
         $('span', this.controlsCell, $ => {
             this.selectAllIcon = <HTMLElement>$('i.fa.fa-square', {on: {click: this.onSelectAll}})
@@ -223,6 +230,7 @@ class RunsView implements ScreenView, SyncListeners {
         this.runRows = []
         let runs = this.filterRuns(this.runs)
         this.sortRuns(runs)
+        runs = this.addParentRuns(runs)
         for (let c of this.cells) {
             c.update(runs)
         }

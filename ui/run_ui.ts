@@ -9,6 +9,8 @@ export class RunUI {
     values: ScalarsModel
     indicators: Indicators
     diff: string
+    generations: number = 0
+    children: number = 0
 
     private constructor(run: Run) {
         this.run = run
