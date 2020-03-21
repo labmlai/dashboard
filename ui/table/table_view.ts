@@ -259,7 +259,7 @@ class RunsView implements ScreenView, SyncListeners {
     setFilter(filterTerms: string[]) {
         const isReplaceUrl = this.filterTerms.length === filterTerms.length
         this.filterTerms = filterTerms
-        ROUTER.navigate(`table/${this.format.dashboard}/${this.filterTerms.join()}`,
+        ROUTER.navigate(`table/${this.format.dashboard}/${this.filterTerms.join(' ')}`,
             {trigger: false, replace: isReplaceUrl})
         this.renderTable()
     }
