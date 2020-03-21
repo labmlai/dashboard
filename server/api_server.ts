@@ -135,10 +135,10 @@ class ApiServer extends Api {
     }
 
     async removeRun(experimentName: string, runUuid: string): Promise<void> {
-        ExperimentsFactory.cacheReset(experimentName, runUuid)
         try {
             let run = await getRun(experimentName, runUuid)
             await run.remove()
+            ExperimentsFactory.cacheReset(experimentName, runUuid)
         } catch(e) {
         }
     }
@@ -147,9 +147,9 @@ class ApiServer extends Api {
         experimentName: string,
         runUuid: string
     ): Promise<void> {
-        ExperimentsFactory.cacheReset(experimentName, runUuid)
         let run = await getRun(experimentName, runUuid)
         await run.cleanupCheckpoints()
+        ExperimentsFactory.cacheReset(experimentName, runUuid)
     }
 
     async updateRun(
@@ -157,9 +157,9 @@ class ApiServer extends Api {
         runUuid: string,
         data: { [key: string]: string }
     ): Promise<void> {
-        ExperimentsFactory.cacheReset(experimentName, runUuid)
         let run = await getRun(experimentName, runUuid)
         await run.update(data)
+        ExperimentsFactory.cacheReset(experimentName, runUuid)
     }
 
     async saveDashboard(name: string, cells: CellOptions[]): Promise<void> {

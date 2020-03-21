@@ -18,7 +18,13 @@ export function readFile(path: string): Promise<string> {
     })
 }
 
-export let writeFile = UTIL.promisify(FS.writeFile)
+export function writeFile(path: string, content: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        FS.writeFile(path, content, {flag: 'w', encoding: 'utf-8'}, () => {
+            resolve()
+        })
+    })
+}
 
 export let lstat = UTIL.promisify(FS.lstat)
 let unlink = UTIL.promisify(FS.unlink)
