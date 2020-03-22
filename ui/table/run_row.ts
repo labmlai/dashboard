@@ -12,6 +12,7 @@ export class RunRowView {
     private isSelected: boolean;
     private selectListeners: SelectListeners;
     private index: number
+    cells: HTMLElement[] = []
 
     constructor(r: RunUI, index: number, selectListeners: SelectListeners) {
         this.run = r
@@ -22,12 +23,13 @@ export class RunRowView {
 
     render(format: Cell[]) {
         let indexClass = this.index % 2 == 0 ? 'even' : 'odd'
+        this.cells = []
         this.elem = $('div.row.' + indexClass, $ => {
                 for (let cell of format) {
+                    let rendered = cell.renderCell($, this.run)
+                    this.cells.push(rendered)
                     if (cell.type === 'controls') {
-                        this.controls = cell.renderCell($, this.run)
-                    } else {
-                        cell.renderCell($, this.run)
+                        this.controls = rendered
                     }
                 }
             }

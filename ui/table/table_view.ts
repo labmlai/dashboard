@@ -42,6 +42,7 @@ class RunsView implements ScreenView, SyncListeners {
     private selectAllIcon: HTMLElement;
     private isAllSelected: boolean = false
     private runRows: RunRowView[];
+    private headerCells: HTMLElement[];
 
     constructor(dashboard: string, search: string) {
         this.format = new Format(dashboard)
@@ -239,12 +240,13 @@ class RunsView implements ScreenView, SyncListeners {
             this.runRows.push(new RunRowView(r, i, this.controls))
         }
 
+        this.headerCells = []
         $('div.header', this.runsTable, $ => {
             for (let c of this.cells) {
+                let rendered = c.renderHeader($)
+                this.headerCells.push(rendered)
                 if (c.type === 'controls') {
-                    this.controlsCell = c.renderHeader($)
-                } else {
-                    c.renderHeader($)
+                    this.controlsCell = rendered
                 }
             }
         })
@@ -253,6 +255,52 @@ class RunsView implements ScreenView, SyncListeners {
 
         for (let v of this.runRows) {
             this.runsTable.append(v.render(this.cells))
+        }
+
+        this.adjustCellWidths()
+    }
+
+    private adjustCellWidths() {
+        for (let i = 0; i < this.cells.length; ++i) {
+            let header = this.headerCells[i]
+            if (header == null) {
+                continue
+            }
+
+            let defaultWidth = header.offsetWidth
+            let width = header.style.width
+            header.style.width = null
+            let maxWidth = header.offsetWidth
+            header.style.width = width
+
+            for (let r of this.runRows) {
+                let c = r.cells[i]
+                if (c == null) {
+                    continue
+                }
+                defaultWidth = c.offsetWidth
+                let width = c.style.width
+                c.style.width = null
+                maxWidth = Math.max(c.offsetWidth, maxWidth)
+                c.style.width = width
+            }
+
+            if (defaultWidth <= maxWidth) {
+                continue
+            }
+
+            if (this.cells[i].specifiedWidth != null) {
+                continue
+            }
+
+            header.style.width = `${maxWidth}px`
+            for (let r of this.runRows) {
+                let c = r.cells[i]
+                if (c == null) {
+                    continue
+                }
+                c.style.width = `${maxWidth}px`
+            }
         }
     }
 
