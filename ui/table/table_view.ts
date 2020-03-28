@@ -261,47 +261,49 @@ class RunsView implements ScreenView, SyncListeners {
     }
 
     private adjustCellWidths() {
-        for (let i = 0; i < this.cells.length; ++i) {
-            let header = this.headerCells[i]
-            if (header == null) {
-                continue
-            }
-
-            let defaultWidth = header.offsetWidth
-            let width = header.style.width
-            header.style.width = null
-            let maxWidth = header.offsetWidth
-            header.style.width = width
-
-            for (let r of this.runRows) {
-                let c = r.cells[i]
-                if (c == null) {
-                    continue
-                }
-                defaultWidth = c.offsetWidth
-                let width = c.style.width
-                c.style.width = null
-                maxWidth = Math.max(c.offsetWidth, maxWidth)
-                c.style.width = width
-            }
-
-            if (defaultWidth <= maxWidth) {
-                continue
-            }
-
-            if (this.cells[i].specifiedWidth != null) {
-                continue
-            }
-
-            header.style.width = `${maxWidth}px`
-            for (let r of this.runRows) {
-                let c = r.cells[i]
-                if (c == null) {
-                    continue
-                }
-                c.style.width = `${maxWidth}px`
-            }
-        }
+        // let start = new Date().getTime()
+        // for (let i = 0; i < this.cells.length; ++i) {
+        //     let header = this.headerCells[i]
+        //     if (header == null) {
+        //         continue
+        //     }
+        //
+        //     let defaultWidth = header.offsetWidth
+        //     let width = header.style.width
+        //     header.style.width = null
+        //     let maxWidth = header.offsetWidth
+        //     header.style.width = width
+        //
+        //     for (let r of this.runRows) {
+        //         let c = r.cells[i]
+        //         if (c == null) {
+        //             continue
+        //         }
+        //         defaultWidth = c.offsetWidth
+        //         let width = c.style.width
+        //         c.style.width = null
+        //         maxWidth = Math.max(c.offsetWidth, maxWidth)
+        //         c.style.width = width
+        //     }
+        //
+        //     if (defaultWidth <= maxWidth) {
+        //         continue
+        //     }
+        //
+        //     if (this.cells[i].specifiedWidth != null) {
+        //         continue
+        //     }
+        //
+        //     header.style.width = `${maxWidth}px`
+        //     for (let r of this.runRows) {
+        //         let c = r.cells[i]
+        //         if (c == null) {
+        //             continue
+        //         }
+        //         c.style.width = `${maxWidth}px`
+        //     }
+        // }
+        // console.log((new Date().getTime()) - start)
     }
 
     setFilter(filterTerms: string[]) {
