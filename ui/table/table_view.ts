@@ -270,20 +270,20 @@ class RunsView implements ScreenView, SyncListeners {
         console.log("Render Header", new Date().getTime() - start)
 
         start = new Date().getTime()
-        for (let v of this.runRows) {
-            this.runsTable.append(v.render(this.cells))
+        for(let j = 0; j < this.runRows.length; ) {
+            j = await this.renderRows(j, 5)
         }
-
         console.log("Render Rows", new Date().getTime() - start)
+
         start = new Date().getTime()
         this.adjustCellWidths()
         console.log("Adjust widths", new Date().getTime() - start)
     }
 
     private async renderRows(offset: number, count: number): Promise<number> {
-        let to = Math.max(offset + count, this.runRows.length)
+        let to = Math.min(offset + count, this.runRows.length)
 
-        for (let i = 0; i < to; ++i) {
+        for (let i = offset; i < to; ++i) {
             let v = this.runRows[i]
             this.runsTable.append(v.render(this.cells))
         }
@@ -298,8 +298,8 @@ class RunsView implements ScreenView, SyncListeners {
     private getCellWidth(elem: HTMLElement) {
         let children = elem.children
         let width = 0
-        for (let x: HTMLElement of children) {
-            width += x.offsetWidth
+        for (let x of children) {
+            width += (<HTMLElement>x).offsetWidth
         }
 
         return width
