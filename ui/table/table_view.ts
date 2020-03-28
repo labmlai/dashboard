@@ -125,6 +125,7 @@ class RunsView implements ScreenView, SyncListeners {
     }
 
     private async renderExperiments() {
+        let start = new Date().getTime()
         await this.format.load()
 
         this.runs = RunsView.getRuns(await getExperiments())
@@ -140,6 +141,7 @@ class RunsView implements ScreenView, SyncListeners {
         this.controls.updateFormat()
         this.cells = this.format.createCells()
 
+        console.log('Get Experiments', new Date().getTime() - start)
         this.renderTable()
     }
 
@@ -227,19 +229,31 @@ class RunsView implements ScreenView, SyncListeners {
 
 
     private renderTable() {
+        let start = new Date().getTime()
         this.runsTable.innerHTML = ''
         this.runRows = []
+        console.log("Render table")
         let runs = this.filterRuns(this.runs)
+        console.log("Filter", new Date().getTime() - start)
+        start = new Date().getTime()
         this.sortRuns(runs)
+        console.log("Sort", new Date().getTime() - start)
+        start = new Date().getTime()
         runs = this.addParentRuns(runs)
+        console.log("Add parent", new Date().getTime() - start)
+        start = new Date().getTime()
         for (let c of this.cells) {
             c.update(runs)
         }
+        console.log("Update cells", new Date().getTime() - start)
+        start = new Date().getTime()
         for (let i = 0; i < runs.length; ++i) {
             let r = runs[i]
             this.runRows.push(new RunRowView(r, i, this.controls))
         }
 
+        console.log("Create Views", new Date().getTime() - start)
+        start = new Date().getTime()
         this.headerCells = []
         $('div.header', this.runsTable, $ => {
             for (let c of this.cells) {
@@ -253,57 +267,111 @@ class RunsView implements ScreenView, SyncListeners {
 
         this.renderControlsCell()
 
+        console.log("Render Header", new Date().getTime() - start)
+        start = new Date().getTime()
         for (let v of this.runRows) {
             this.runsTable.append(v.render(this.cells))
         }
 
+        console.log("Render Rows", new Date().getTime() - start)
+        start = new Date().getTime()
         this.adjustCellWidths()
+        console.log("Adjust widths", new Date().getTime() - start)
+    }
+
+    private adjustCellWidthsOld() {
+        let start = new Date().getTime()
+        for (let i = 0; i < this.cells.length; ++i) {
+            let header = this.headerCells[i]
+            if (header == null) {
+                continue
+            }
+
+            let defaultWidth = header.offsetWidth
+            let width = header.style.width
+            header.style.width = null
+            let maxWidth = header.offsetWidth
+            header.style.width = width
+
+            for (let r of this.runRows) {
+                let c = r.cells[i]
+                if (c == null) {
+                    continue
+                }
+                defaultWidth = c.offsetWidth
+                let width = c.style.width
+                c.style.width = null
+                maxWidth = Math.max(c.offsetWidth, maxWidth)
+                c.style.width = width
+            }
+
+            if (defaultWidth <= maxWidth) {
+                continue
+            }
+
+            if (this.cells[i].specifiedWidth != null) {
+                continue
+            }
+
+            header.style.width = `${maxWidth}px`
+            for (let r of this.runRows) {
+                let c = r.cells[i]
+                if (c == null) {
+                    continue
+                }
+                c.style.width = `${maxWidth}px`
+            }
+        }
+        console.log((new Date().getTime()) - start)
+    }
+
+    private getCellWidth(elem: HTMLElement) {
+        let children = elem.children
+        let width = 0
+        for(let x: HTMLElement of children) {
+            width += x.offsetWidth
+        }
+
+        return width
     }
 
     private adjustCellWidths() {
-        // let start = new Date().getTime()
-        // for (let i = 0; i < this.cells.length; ++i) {
-        //     let header = this.headerCells[i]
-        //     if (header == null) {
-        //         continue
-        //     }
-        //
-        //     let defaultWidth = header.offsetWidth
-        //     let width = header.style.width
-        //     header.style.width = null
-        //     let maxWidth = header.offsetWidth
-        //     header.style.width = width
-        //
-        //     for (let r of this.runRows) {
-        //         let c = r.cells[i]
-        //         if (c == null) {
-        //             continue
-        //         }
-        //         defaultWidth = c.offsetWidth
-        //         let width = c.style.width
-        //         c.style.width = null
-        //         maxWidth = Math.max(c.offsetWidth, maxWidth)
-        //         c.style.width = width
-        //     }
-        //
-        //     if (defaultWidth <= maxWidth) {
-        //         continue
-        //     }
-        //
-        //     if (this.cells[i].specifiedWidth != null) {
-        //         continue
-        //     }
-        //
-        //     header.style.width = `${maxWidth}px`
-        //     for (let r of this.runRows) {
-        //         let c = r.cells[i]
-        //         if (c == null) {
-        //             continue
-        //         }
-        //         c.style.width = `${maxWidth}px`
-        //     }
-        // }
-        // console.log((new Date().getTime()) - start)
+        let start = new Date().getTime()
+        for (let i = 0; i < this.cells.length; ++i) {
+            let header = this.headerCells[i]
+            if (header == null) {
+                continue
+            }
+
+            let defaultWidth = header.offsetWidth
+            let maxWidth = this.getCellWidth(header)
+
+            for (let r of this.runRows) {
+                let c = r.cells[i]
+                if (c == null) {
+                    continue
+                }
+                maxWidth = Math.max(this.getCellWidth(c), maxWidth)
+            }
+
+            if (defaultWidth <= maxWidth) {
+                continue
+            }
+
+            if (this.cells[i].specifiedWidth != null) {
+                continue
+            }
+
+            header.style.width = `${maxWidth}px`
+            for (let r of this.runRows) {
+                let c = r.cells[i]
+                if (c == null) {
+                    continue
+                }
+                c.style.width = `${maxWidth}px`
+            }
+        }
+        console.log((new Date().getTime()) - start)
     }
 
     setFilter(filterTerms: string[]) {
@@ -330,6 +398,7 @@ class RunsView implements ScreenView, SyncListeners {
         }
 
         await Promise.all(promises)
+
         this.cells = this.format.createCells()
 
         this.renderTable()
