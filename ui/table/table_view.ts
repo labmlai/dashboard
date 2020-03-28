@@ -228,7 +228,7 @@ class RunsView implements ScreenView, SyncListeners {
     }
 
 
-    private renderTable() {
+    private async renderTable(): Promise<void> {
         let start = new Date().getTime()
         this.runsTable.innerHTML = ''
         this.runRows = []
@@ -268,6 +268,7 @@ class RunsView implements ScreenView, SyncListeners {
         this.renderControlsCell()
 
         console.log("Render Header", new Date().getTime() - start)
+
         start = new Date().getTime()
         for (let v of this.runRows) {
             this.runsTable.append(v.render(this.cells))
@@ -279,97 +280,77 @@ class RunsView implements ScreenView, SyncListeners {
         console.log("Adjust widths", new Date().getTime() - start)
     }
 
-    private adjustCellWidthsOld() {
-        let start = new Date().getTime()
-        for (let i = 0; i < this.cells.length; ++i) {
-            let header = this.headerCells[i]
-            if (header == null) {
-                continue
-            }
+    private async renderRows(offset: number, count: number): Promise<number> {
+        let to = Math.max(offset + count, this.runRows.length)
 
-            let defaultWidth = header.offsetWidth
-            let width = header.style.width
-            header.style.width = null
-            let maxWidth = header.offsetWidth
-            header.style.width = width
-
-            for (let r of this.runRows) {
-                let c = r.cells[i]
-                if (c == null) {
-                    continue
-                }
-                defaultWidth = c.offsetWidth
-                let width = c.style.width
-                c.style.width = null
-                maxWidth = Math.max(c.offsetWidth, maxWidth)
-                c.style.width = width
-            }
-
-            if (defaultWidth <= maxWidth) {
-                continue
-            }
-
-            if (this.cells[i].specifiedWidth != null) {
-                continue
-            }
-
-            header.style.width = `${maxWidth}px`
-            for (let r of this.runRows) {
-                let c = r.cells[i]
-                if (c == null) {
-                    continue
-                }
-                c.style.width = `${maxWidth}px`
-            }
+        for (let i = 0; i < to; ++i) {
+            let v = this.runRows[i]
+            this.runsTable.append(v.render(this.cells))
         }
-        console.log((new Date().getTime()) - start)
+
+        return new Promise<number>((resolve => {
+            window.requestAnimationFrame(() => {
+                resolve(to)
+            })
+        }))
     }
 
     private getCellWidth(elem: HTMLElement) {
         let children = elem.children
         let width = 0
-        for(let x: HTMLElement of children) {
+        for (let x: HTMLElement of children) {
             width += x.offsetWidth
         }
 
         return width
     }
 
-    private adjustCellWidths() {
+    private async adjustCellWidth(i: number): Promise<void> {
+        let header = this.headerCells[i]
+        if (header == null) {
+            return
+        }
+
+        let defaultWidth = header.offsetWidth
+        let maxWidth = this.getCellWidth(header)
+        if (defaultWidth <= maxWidth) {
+        }
+
+        if (this.cells[i].specifiedWidth != null) {
+            return
+        }
+
+        for (let r of this.runRows) {
+            let c = r.cells[i]
+            if (c == null) {
+                continue
+            }
+            maxWidth = Math.max(this.getCellWidth(c), maxWidth)
+            if (defaultWidth <= maxWidth) {
+                return
+            }
+        }
+
+        header.style.width = `${maxWidth}px`
+        for (let r of this.runRows) {
+            let c = r.cells[i]
+            if (c == null) {
+                continue
+            }
+            c.style.width = `${maxWidth}px`
+        }
+
+        return new Promise<void>((resolve, reject) => {
+            window.requestAnimationFrame(() => {
+                resolve()
+            })
+        })
+    }
+
+    private async adjustCellWidths() {
         let start = new Date().getTime()
         for (let i = 0; i < this.cells.length; ++i) {
-            let header = this.headerCells[i]
-            if (header == null) {
-                continue
-            }
-
-            let defaultWidth = header.offsetWidth
-            let maxWidth = this.getCellWidth(header)
-
-            for (let r of this.runRows) {
-                let c = r.cells[i]
-                if (c == null) {
-                    continue
-                }
-                maxWidth = Math.max(this.getCellWidth(c), maxWidth)
-            }
-
-            if (defaultWidth <= maxWidth) {
-                continue
-            }
-
-            if (this.cells[i].specifiedWidth != null) {
-                continue
-            }
-
-            header.style.width = `${maxWidth}px`
-            for (let r of this.runRows) {
-                let c = r.cells[i]
-                if (c == null) {
-                    continue
-                }
-                c.style.width = `${maxWidth}px`
-            }
+            await this.adjustCellWidth(i)
         }
         console.log((new Date().getTime()) - start)
     }
