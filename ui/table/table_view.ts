@@ -274,7 +274,7 @@ class RunsView implements ScreenView, SyncListeners {
             this.renderer.cancel()
         }
         this.renderer = new RunsRenderer(this.runsTable, this.runRows, this.headerCells, this.cells)
-        this.renderer.render().then()
+        await this.renderer.render()
     }
 
     setFilter(filterTerms: string[]) {
@@ -282,14 +282,14 @@ class RunsView implements ScreenView, SyncListeners {
         this.filterTerms = filterTerms
         ROUTER.navigate(`table/${this.format.dashboard}/${this.filterTerms.join(' ')}`,
             {trigger: false, replace: isReplaceUrl})
-        this.renderTable()
+        this.renderTable().then()
     }
 
     onSync(dashboard: string) {
         ROUTER.navigate(`table/${dashboard}`, {trigger: false})
         this.cells = this.format.createCells()
 
-        this.renderTable()
+        this.renderTable().then()
     }
 
     async onReload() {

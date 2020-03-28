@@ -102,7 +102,7 @@ export class RunsRenderer {
             c.style.width = `${maxWidth}px`
         }
 
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<void>((resolve) => {
             window.requestAnimationFrame(() => {
                 resolve()
             })
