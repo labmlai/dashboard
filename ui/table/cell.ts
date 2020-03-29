@@ -99,17 +99,29 @@ export abstract class Cell {
         if (this.sortRank == null) {
             return 0
         } else {
-            return this.sortRank * this.compareDirection(a, b)
+            return this.compareDirection(this.sortRank, a, b)
         }
     }
 
-    protected compareDirection(a: RunUI, b: RunUI) {
+    protected compareDirection(rank: number, a: RunUI, b: RunUI) {
         let av = this.getValue(a)
         let bv = this.getValue(b)
-        if (av < bv) {
-            return -1
+        if(av === '') {
+            av = null
+        }
+        if(bv === '') {
+            bv = null
+        }
+        if(av == null && bv == null) {
+            return 0
+        } else if(av == null && bv != null) {
+            return Math.abs(rank)
+        } else if(av != null && bv == null) {
+            return -Math.abs(rank)
+        } else if (av < bv) {
+            return -rank
         } else if (av > bv) {
-            return +1
+            return +rank
         } else {
             return 0
         }

@@ -11,7 +11,7 @@ import {ControlsView} from "./controls";
 import {RunRowView} from "./run_row";
 import {RunsTree} from "./tree";
 import {RunsRenderer} from "./renderer";
-import {HeaderControls} from "./header_controls";
+import {FormatUpdateListener, HeaderControls} from "./header_controls";
 
 
 export interface SelectListeners {
@@ -32,11 +32,11 @@ export interface SyncListeners {
 }
 
 
-class RunsView implements ScreenView, SyncListeners {
-    elem: HTMLElement
-    runsTable: HTMLElement
-    runs: RunUI[]
-    format: Format
+class RunsView implements ScreenView, SyncListeners, FormatUpdateListener {
+    private elem: HTMLElement
+    private runsTable: HTMLElement
+    private runs: RunUI[]
+    private readonly format: Format
     cells: Cell[]
     private controls: ControlsView;
     private filterTerms: string[]
@@ -81,7 +81,7 @@ class RunsView implements ScreenView, SyncListeners {
             })
         })
 
-        this.headerControls = new HeaderControls(this.tableContainer)
+        this.headerControls = new HeaderControls(this.tableContainer, this.format, this)
 
         this.controls.setSearch(this.filterTerms.join(' '))
         this.renderExperiments().then()
@@ -302,11 +302,6 @@ class RunsView implements ScreenView, SyncListeners {
             for (let c of this.cells) {
                 let rendered = c.renderHeader($)
                 this.headerControls.addCell(c, rendered)
-                // TODO add a onclick listener
-                // On click create a controller and place it below it
-                // Position it inside within a 1x1 div with overflow
-                // Put an overlay on the whole view and an click on it should close this
-                // Have sort, move, resize and hide buttons
                 this.headerCells.push(rendered)
                 if (c.type === 'controls') {
                     this.controlsCell = rendered
@@ -323,6 +318,13 @@ class RunsView implements ScreenView, SyncListeners {
         this.renderer = new RunsRenderer(this.runsTable, this.runRows, this.headerCells, this.cells)
         await this.renderer.render()
     }
+
+    async onFormatUpdated() {
+        this.cells = this.format.createCells()
+
+        await this.renderTable()
+    }
+
 }
 
 export class TableHandler {

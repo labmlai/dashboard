@@ -95,7 +95,7 @@ export class RunsRenderer {
         }
 
         maxWidth += ADJUST_CELL_WIDTH_MARGIN
-        
+
         header.style.width = `${maxWidth}px`
         for (let r of this.runRows) {
             let c = r.cells[i]

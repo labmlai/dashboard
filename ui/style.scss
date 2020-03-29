@@ -403,7 +403,7 @@ div.table_container {
   position: relative;
 
   div.header_controls_background {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
@@ -419,6 +419,16 @@ div.table_container {
     position: absolute;
     z-index: 1000;
     background: $baseBackground;
+
+    i {
+      padding: 4px;
+      margin: 4px;
+      &:hover {
+        background: $hoverBackground;
+        color:  $hoverColor;
+        cursor: pointer;
+      }
+    }
   }
 }
 

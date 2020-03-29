@@ -59,4 +59,36 @@ export class Format {
     private static hashCell(cell: CellOptions): string {
         return `${cell.type}-${cell.key}`
     }
+
+    sortAscending(index: number) {
+        for (let c of this.cells) {
+            c.sortRank = null
+        }
+        this.cells[index].sortRank = 1
+    }
+
+    sortDescending(index: number) {
+        for (let c of this.cells) {
+            c.sortRank = null
+        }
+        this.cells[index].sortRank = -1
+    }
+
+    moveLeft(index: number) {
+        if (index <= 0) {
+            return
+        }
+        let temp = this.cells[index]
+        this.cells[index] = this.cells[index - 1]
+        this.cells[index - 1] = temp
+    }
+
+    moveRight(index: number) {
+        if (index >= this.cells.length - 1) {
+            return
+        }
+        let temp = this.cells[index]
+        this.cells[index] = this.cells[index + 1]
+        this.cells[index + 1] = temp
+    }
 }

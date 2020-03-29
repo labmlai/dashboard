@@ -1,16 +1,27 @@
 import {Weya as $} from '../../lib/weya/weya'
 import {Cell} from "./cell";
+import {Format} from "./format";
 
-class HeaderControlsView {
+class ControlsView {
     private readonly container: HTMLElement;
     private elem: HTMLElement;
+    private listener: EventsListener;
 
-    constructor(container: HTMLElement) {
+    constructor(container: HTMLElement, listener: EventsListener) {
         this.container = container;
+        this.listener = listener;
     }
 
     render() {
-        this.elem = <HTMLElement>$('div.header_controls', this.container, "Controls")
+        this.elem = <HTMLElement>$('div.header_controls', this.container,
+            $ => {
+                $('i.fa.fa-sort-amount-down', {on: {click: this.listener.onSortDescending}})
+                $('i.fa.fa-sort-amount-up-alt', {on: {click: this.listener.onSortAscending}})
+                $('i.fa.fa-arrow-left', {on: {click: this.listener.onMoveLeft}})
+                $('i.fa.fa-arrow-right', {on: {click: this.listener.onMoveRight}})
+                // $('i.fa.fa-compress')
+                // $('i.fa.fa-expand')
+            })
     }
 
     show(x: number, y: number) {
@@ -26,13 +37,13 @@ class HeaderControlsView {
     }
 }
 
-class HeaderControlsBackgroundView {
+class BackgroundView {
     private readonly container: HTMLElement;
     private elem: HTMLElement;
-    private listener: HeaderControlsClickListener;
+    private listener: EventsListener;
 
 
-    constructor(container: HTMLElement, listener: HeaderControlsClickListener) {
+    constructor(container: HTMLElement, listener: EventsListener) {
         this.container = container;
         this.listener = listener;
     }
@@ -58,19 +69,27 @@ class HeaderControlsBackgroundView {
     }
 }
 
-interface HeaderControlsClickListener {
+interface EventsListener {
     onClickHeader(index: number)
 
     onHide()
+
+    onSortAscending()
+
+    onSortDescending()
+
+    onMoveLeft()
+
+    onMoveRight()
 }
 
 class HeaderCell {
     private elem: HTMLElement
     private controls: HeaderControls;
     private readonly index: number;
-    private listener: HeaderControlsClickListener;
+    private listener: EventsListener;
 
-    constructor(index: number, elem: HTMLElement, listener: HeaderControlsClickListener) {
+    constructor(index: number, elem: HTMLElement, listener: EventsListener) {
         this.elem = elem
         this.index = index
         this.listener = listener;
@@ -106,17 +125,26 @@ class HeaderCell {
     }
 }
 
-export class HeaderControls implements HeaderControlsClickListener {
-    private readonly container: HTMLElement
-    private controls: HeaderControlsView;
-    private headers: HeaderCell[];
-    private background: HeaderControlsBackgroundView;
+export interface FormatUpdateListener {
+    onFormatUpdated()
+}
 
-    constructor(container: HTMLElement) {
+export class HeaderControls implements EventsListener {
+    private readonly container: HTMLElement
+    private controls: ControlsView;
+    private headers: HeaderCell[];
+    private background: BackgroundView;
+    private readonly format: Format;
+    private listener: FormatUpdateListener;
+    private selected: number;
+
+    constructor(container: HTMLElement, format: Format, listener: FormatUpdateListener) {
         this.container = container
-        this.controls = new HeaderControlsView(this.container)
+        this.format = format;
+        this.listener = listener;
+        this.controls = new ControlsView(this.container, this)
         this.controls.render()
-        this.background = new HeaderControlsBackgroundView(this.container, this)
+        this.background = new BackgroundView(this.container, this)
         this.background.render()
         this.headers = []
     }
@@ -126,6 +154,8 @@ export class HeaderControls implements HeaderControlsClickListener {
     }
 
     onClickHeader(index: number) {
+        this.selected = index
+
         let [x, y] = this.headers[index].getXY(this.container)
         this.controls.show(x, y)
         this.background.show(x, y)
@@ -140,5 +170,25 @@ export class HeaderControls implements HeaderControlsClickListener {
     onHide() {
         this.controls.hide()
         this.background.hide()
+    }
+
+    onSortAscending = () => {
+        this.format.sortAscending(this.selected)
+        this.listener.onFormatUpdated()
+    }
+
+    onSortDescending = () => {
+        this.format.sortDescending(this.selected)
+        this.listener.onFormatUpdated()
+    }
+
+    onMoveLeft = () => {
+        this.format.moveLeft(this.selected)
+        this.listener.onFormatUpdated()
+    }
+
+    onMoveRight = () => {
+        this.format.moveRight(this.selected)
+        this.listener.onFormatUpdated()
     }
 }
