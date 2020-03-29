@@ -7,10 +7,10 @@ interface RunNode {
 
 
 export class RunsTree {
-    private runs: RunUI[];
-    private tree: RunNode[]
-    private fullMap: { [p: string]: { [p: string]: RunUI } };
-    private treeMap: { [p: string]: { [p: string]: RunNode } };
+    private readonly runs: RunUI[];
+    private readonly tree: RunNode[]
+    private readonly fullMap: { [p: string]: { [p: string]: RunUI } };
+    private readonly treeMap: { [p: string]: { [p: string]: RunNode } };
 
     constructor(allRuns: RunUI[], runs: RunUI[]) {
         this.runs = runs;
@@ -31,6 +31,18 @@ export class RunsTree {
         }
 
         return indexes
+    }
+
+    getList() {
+        this.buildTree()
+
+        let runs: RunUI[] = []
+
+        for (let node of this.tree) {
+            runs = runs.concat(this.nodeToList(node))
+        }
+
+        return runs
     }
 
     private getParent(run: RunUI): RunUI {
@@ -61,7 +73,7 @@ export class RunsTree {
             this.treeMap[parentRun.run.experimentName][parentRun.run.info.uuid].children.push(node)
         }
 
-        if(this.treeMap[exp] == null) {
+        if (this.treeMap[exp] == null) {
             this.treeMap[exp] = {}
         }
         this.treeMap[exp][uuid] = node
@@ -76,20 +88,8 @@ export class RunsTree {
     private nodeToList(node: RunNode): RunUI[] {
         let runs = [node.run]
 
-        for(let r of node.children) {
+        for (let r of node.children) {
             runs = runs.concat(this.nodeToList(r))
-        }
-
-        return runs
-    }
-
-    getList() {
-        this.buildTree()
-
-        let runs: RunUI[] = []
-
-        for(let node of this.tree) {
-            runs = runs.concat(this.nodeToList(node))
         }
 
         return runs

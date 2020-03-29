@@ -7,12 +7,12 @@ import {SelectListeners} from "./table_view";
 export class RunRowView {
     elem: WeyaElement
     run: RunUI
+    cells: HTMLElement[] = []
     private controls: HTMLElement;
     private selectIcon: HTMLElement;
     private isSelected: boolean;
     private selectListeners: SelectListeners;
-    private index: number
-    cells: HTMLElement[] = []
+    private readonly index: number
 
     constructor(r: RunUI, index: number, selectListeners: SelectListeners) {
         this.run = r

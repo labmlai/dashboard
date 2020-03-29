@@ -443,10 +443,10 @@ export class GenerationsCell extends Cell {
     protected defaultWidth = '3em'
 
     renderCellContent($: WeyaElementFunction, run: RunUI) {
-        for(let i = 0; i < run.generations; ++i) {
+        for (let i = 0; i < run.generations; ++i) {
             $('i.generation.fas.fa-circle')
         }
-        if(run.children > 0) {
+        if (run.children > 0) {
             $('i.generation.fas.fa-circle')
         } else {
             $('i.generation.far.fa-circle')

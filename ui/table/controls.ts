@@ -26,15 +26,6 @@ export class ControlsView implements SelectListeners {
         this.selectedRuns = {}
     }
 
-    private updateSelectedRunsCount() {
-        let count = 0
-        for (let r in this.selectedRuns) {
-            count++
-        }
-
-        this.selectedCountElem.textContent = `${count} runs selected`
-    }
-
     onSelect(run: RunUI) {
         this.selectedRuns[run.run.hash()] = run
         this.updateSelectedRunsCount()
@@ -42,11 +33,6 @@ export class ControlsView implements SelectListeners {
 
     onUnSelect(run: RunUI) {
         delete this.selectedRuns[run.run.hash()]
-        this.updateSelectedRunsCount()
-    }
-
-    private resetSelection() {
-        this.selectedRuns = {}
         this.updateSelectedRunsCount()
     }
 
@@ -213,5 +199,19 @@ export class ControlsView implements SelectListeners {
         this.format.update(this.codemirror.getValue())
         this.syncListeners.onSync(this.format.dashboard)
         this.format.save().then()
+    }
+
+    private updateSelectedRunsCount() {
+        let count = 0
+        for (let r in this.selectedRuns) {
+            count++
+        }
+
+        this.selectedCountElem.textContent = `${count} runs selected`
+    }
+
+    private resetSelection() {
+        this.selectedRuns = {}
+        this.updateSelectedRunsCount()
     }
 }

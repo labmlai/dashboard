@@ -282,6 +282,7 @@ div.table {
     div.cell {
       font-weight: bold;
       line-height: 3;
+      cursor: pointer;
     }
 
     background: #2f3640;
@@ -395,5 +396,29 @@ div.control_panel {
       }
     }
   }
-
 }
+
+div.table_container {
+  display: table;
+  position: relative;
+
+  div.header_controls_background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #000;
+    opacity: 0.4;
+    z-index: 100;
+    display: none;
+  }
+
+  div.header_controls {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    background: $baseBackground;
+  }
+}
+

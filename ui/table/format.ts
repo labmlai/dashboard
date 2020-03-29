@@ -12,18 +12,14 @@ export class Format {
         this.cells = []
     }
 
-    private hashCell(cell: CellOptions): string {
-        return `${cell.type}-${cell.key}`
-    }
-
     defaults(cells: CellOptions[]) {
         let has = new Set<string>()
         for (let c of this.cells) {
-            has.add(this.hashCell(c))
+            has.add(Format.hashCell(c))
         }
 
         for (let c of cells) {
-            if (!has.has(this.hashCell(c))) {
+            if (!has.has(Format.hashCell(c))) {
                 this.cells.push(c)
             }
         }
@@ -58,5 +54,9 @@ export class Format {
         if (dashboards[this.dashboard] != null) {
             this.cells = dashboards[this.dashboard]
         }
+    }
+
+    private static hashCell(cell: CellOptions): string {
+        return `${cell.type}-${cell.key}`
     }
 }

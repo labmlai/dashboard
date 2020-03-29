@@ -1,6 +1,7 @@
 import {Cell} from "./cell";
 import {RunRowView} from "./run_row";
 
+const ADJUST_CELL_WIDTH_MARGIN = 2
 
 export class RunsRenderer {
     private readonly runsTable: HTMLElement
@@ -16,6 +17,16 @@ export class RunsRenderer {
         this.runsTable = runsTable
         this.cells = cells
         this.cancelled = false
+    }
+
+    private static getCellWidth(elem: HTMLElement) {
+        let children = elem.children
+        let width = 0
+        for (let x of children) {
+            width += (<HTMLElement>x).offsetWidth
+        }
+
+        return width
     }
 
     cancel() {
@@ -57,16 +68,6 @@ export class RunsRenderer {
         }))
     }
 
-    private static getCellWidth(elem: HTMLElement) {
-        let children = elem.children
-        let width = 0
-        for (let x of children) {
-            width += (<HTMLElement>x).offsetWidth
-        }
-
-        return width
-    }
-
     private async adjustCellWidth(i: number): Promise<void> {
         let header = this.headerCells[i]
         if (header == null) {
@@ -93,6 +94,8 @@ export class RunsRenderer {
             }
         }
 
+        maxWidth += ADJUST_CELL_WIDTH_MARGIN
+        
         header.style.width = `${maxWidth}px`
         for (let r of this.runRows) {
             let c = r.cells[i]

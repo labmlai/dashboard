@@ -11,6 +11,7 @@ import {ControlsView} from "./controls";
 import {RunRowView} from "./run_row";
 import {RunsTree} from "./tree";
 import {RunsRenderer} from "./renderer";
+import {HeaderControls} from "./header_controls";
 
 
 export interface SelectListeners {
@@ -45,6 +46,8 @@ class RunsView implements ScreenView, SyncListeners {
     private runRows: RunRowView[];
     private headerCells: HTMLElement[];
     private renderer: RunsRenderer;
+    private headerControls: HeaderControls;
+    private tableContainer: HTMLElement;
 
     constructor(dashboard: string, search: string) {
         this.format = new Format(dashboard)
@@ -57,19 +60,6 @@ class RunsView implements ScreenView, SyncListeners {
         }
     }
 
-    render(): WeyaElement {
-        this.elem = <HTMLElement>$('div.full_container', $ => {
-            let controls = <HTMLElement>$('div.controls')
-            this.controls = new ControlsView(this.format, this)
-            controls.appendChild(this.controls.render())
-            this.runsTable = <HTMLElement>$('div.table')
-        })
-
-        this.controls.setSearch(this.filterTerms.join(' '))
-        this.renderExperiments().then()
-        return this.elem
-    }
-
     private static getRuns(experiments: Experiments) {
         let runUIs = []
         for (let e of experiments.sorted()) {
@@ -79,6 +69,78 @@ class RunsView implements ScreenView, SyncListeners {
         }
 
         return runUIs
+    }
+
+    render(): WeyaElement {
+        this.elem = <HTMLElement>$('div.full_container', $ => {
+            let controls = <HTMLElement>$('div.controls')
+            this.controls = new ControlsView(this.format, this)
+            controls.appendChild(this.controls.render())
+            this.tableContainer = <HTMLElement>$('div.table_container', $ => {
+                this.runsTable = <HTMLElement>$('div.table')
+            })
+        })
+
+        this.headerControls = new HeaderControls(this.tableContainer)
+
+        this.controls.setSearch(this.filterTerms.join(' '))
+        this.renderExperiments().then()
+        return this.elem
+    }
+
+    onSelectAll = (e: Event) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        this.isAllSelected = !this.isAllSelected
+
+        this.selectAllIcon.classList.remove('fa-square')
+        this.selectAllIcon.classList.remove('fa-check-square')
+        if (this.isAllSelected) {
+            for (let r of this.runRows) {
+                r.setSelection(true)
+            }
+            this.selectAllIcon.classList.add('fa-check-square')
+        } else {
+            for (let r of this.runRows) {
+                r.setSelection(false)
+            }
+            this.selectAllIcon.classList.add('fa-square')
+        }
+    }
+
+    setFilter(filterTerms: string[]) {
+        const isReplaceUrl = this.filterTerms.length === filterTerms.length
+        this.filterTerms = filterTerms
+        ROUTER.navigate(`table/${this.format.dashboard}/${this.filterTerms.join(' ')}`,
+            {trigger: false, replace: isReplaceUrl})
+        this.renderTable().then()
+    }
+
+    onSync(dashboard: string) {
+        ROUTER.navigate(`table/${dashboard}`, {trigger: false})
+        this.cells = this.format.createCells()
+
+        this.renderTable().then()
+    }
+
+    async onReload() {
+        this.runs = RunsView.getRuns(await getExperiments())
+        let promises = []
+        for (let r of this.runs) {
+            promises.push(r.loadConfigs())
+            promises.push(r.loadValues())
+        }
+
+        await Promise.all(promises)
+
+        this.cells = this.format.createCells()
+
+        this.renderTable()
+    }
+
+    onChanging() {
+        this.runsTable.innerHTML = ''
     }
 
     private getFormat(): CellOptions[] {
@@ -208,28 +270,6 @@ class RunsView implements ScreenView, SyncListeners {
         })
     }
 
-    onSelectAll = (e: Event) => {
-        e.preventDefault()
-        e.stopPropagation()
-
-        this.isAllSelected = !this.isAllSelected
-
-        this.selectAllIcon.classList.remove('fa-square')
-        this.selectAllIcon.classList.remove('fa-check-square')
-        if (this.isAllSelected) {
-            for (let r of this.runRows) {
-                r.setSelection(true)
-            }
-            this.selectAllIcon.classList.add('fa-check-square')
-        } else {
-            for (let r of this.runRows) {
-                r.setSelection(false)
-            }
-            this.selectAllIcon.classList.add('fa-square')
-        }
-    }
-
-
     private async renderTable(): Promise<void> {
         let start = new Date().getTime()
         this.runsTable.innerHTML = ''
@@ -257,9 +297,16 @@ class RunsView implements ScreenView, SyncListeners {
         console.log("Create Views", new Date().getTime() - start)
         start = new Date().getTime()
         this.headerCells = []
+        this.headerControls.reset()
         $('div.header', this.runsTable, $ => {
             for (let c of this.cells) {
                 let rendered = c.renderHeader($)
+                this.headerControls.addCell(c, rendered)
+                // TODO add a onclick listener
+                // On click create a controller and place it below it
+                // Position it inside within a 1x1 div with overflow
+                // Put an overlay on the whole view and an click on it should close this
+                // Have sort, move, resize and hide buttons
                 this.headerCells.push(rendered)
                 if (c.type === 'controls') {
                     this.controlsCell = rendered
@@ -270,45 +317,11 @@ class RunsView implements ScreenView, SyncListeners {
         this.renderControlsCell()
         console.log("Render Header", new Date().getTime() - start)
 
-        if(this.renderer != null) {
+        if (this.renderer != null) {
             this.renderer.cancel()
         }
         this.renderer = new RunsRenderer(this.runsTable, this.runRows, this.headerCells, this.cells)
         await this.renderer.render()
-    }
-
-    setFilter(filterTerms: string[]) {
-        const isReplaceUrl = this.filterTerms.length === filterTerms.length
-        this.filterTerms = filterTerms
-        ROUTER.navigate(`table/${this.format.dashboard}/${this.filterTerms.join(' ')}`,
-            {trigger: false, replace: isReplaceUrl})
-        this.renderTable().then()
-    }
-
-    onSync(dashboard: string) {
-        ROUTER.navigate(`table/${dashboard}`, {trigger: false})
-        this.cells = this.format.createCells()
-
-        this.renderTable().then()
-    }
-
-    async onReload() {
-        this.runs = RunsView.getRuns(await getExperiments())
-        let promises = []
-        for (let r of this.runs) {
-            promises.push(r.loadConfigs())
-            promises.push(r.loadValues())
-        }
-
-        await Promise.all(promises)
-
-        this.cells = this.format.createCells()
-
-        this.renderTable()
-    }
-
-    onChanging() {
-        this.runsTable.innerHTML = ''
     }
 }
 
