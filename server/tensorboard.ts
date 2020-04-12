@@ -26,7 +26,7 @@ export class Tensorboard {
                 )
         )
         let args = [
-            `--logdir_spec=${paths.join(',')}`,
+            `--logdir=${paths.join(',')}`,
             '--port',
             `${this.port}`
         ]
