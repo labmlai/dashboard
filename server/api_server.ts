@@ -76,6 +76,7 @@ class ApiServer extends Api {
             await TENSORBOARD.start()
             return 'http://localhost:6006'
         } catch (e) {
+            console.log(e)
             TENSORBOARD = null
             return ''
         }

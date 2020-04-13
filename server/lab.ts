@@ -11,6 +11,7 @@ export class Lab {
     analyticsPath: string
     analyticsTemplates: { [name: string]: string }
     currentPath: string
+    tensorboardLogDir: string = '_tensorboard'
 
     constructor(path: string) {
         this.currentPath = path

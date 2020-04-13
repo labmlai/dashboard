@@ -1,7 +1,8 @@
 import {Run} from '../common/experiments'
 import {LAB} from './consts'
 import * as PATH from 'path'
-import {spawn, ChildProcessWithoutNullStreams} from 'child_process'
+import {ChildProcessWithoutNullStreams, spawn} from 'child_process'
+import {mkdir, rmtree, symlink} from "./util";
 
 export class Tensorboard {
     runs: Run[]
@@ -15,18 +16,26 @@ export class Tensorboard {
     }
 
     async start(): Promise<void> {
-        let paths = this.runs.map(
-            r =>
-                `${r.experimentName}_${r.info.uuid}:` +
-                PATH.join(
+        let path = PATH.join(LAB.analytics,
+            LAB.tensorboardLogDir)
+        await rmtree(path)
+        await mkdir(path, {recursive: true})
+
+        for (let r of this.runs) {
+            try {
+                await symlink(PATH.join(
                     LAB.experiments,
                     r.experimentName,
                     r.info.uuid,
                     'tensorboard'
-                )
-        )
+                    ),
+                    PATH.join(path, `${r.experimentName}_${r.info.uuid}`))
+            } catch (e) {
+                console.log(e)
+            }
+        }
         let args = [
-            `--logdir=${paths.join(',')}`,
+            `--logdir=${path}`,
             '--port',
             `${this.port}`
         ]

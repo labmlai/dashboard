@@ -43,9 +43,9 @@ export function mkdir(path: string, options: MakeDirectoryOptions | null = null)
 }
 
 export let copyFile = UTIL.promisify(FS.copyFile)
+export let symlink = UTIL.promisify(FS.symlink)
 
 export async function rmtree(path: string) {
-
     if (!(await exists(path))) {
         return
     }
