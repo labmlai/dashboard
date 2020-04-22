@@ -1,6 +1,6 @@
 [submodule "lib/io"]
 	path = lib/io
-	url = ../IO.git
+	url = https://github.com/vpj/IO.git
 [submodule "lib/weya"]
 	path = lib/weya
-	url = ../weya.git
+	url = https://github.com/vpj/weya.git
