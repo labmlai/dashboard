@@ -16,6 +16,7 @@ export abstract class Cell {
     protected defaultWidth = '10em'
     protected align = 'left'
     private readonly visible: boolean
+    protected cssClasses: string = ''
 
     constructor(opt: CellOptions) {
         this.options = opt
@@ -45,16 +46,24 @@ export abstract class Cell {
         }
 
         let tag = 'div.cell'
+        tag += this.cssClasses
+
         if (this.isSame) {
             tag += '.same'
         }
         let elem = <HTMLElement>$(tag, $ => {
             if (this.name != null) {
-                $('span', this.name, {title: this.name})
+                if (this.name.trim() !== '') {
+                    $('span', this.name, {title: this.name})
+                }
             } else {
                 this.renderHeaderContent($)
             }
         })
+        if (elem.childElementCount === 0) {
+            elem.innerHTML = '&nbsp;'
+        }
+
         elem.style.width = this.width
 
         return elem
@@ -79,12 +88,13 @@ export abstract class Cell {
         if (this.isSame) {
             tag += '.same'
         }
+        tag += this.cssClasses
         tag += `.${this.align}`
 
         let elem = <HTMLElement>$(tag, $ => {
             let value = this.getString(run)
             if (value != null) {
-                if(value.trim() !== '') {
+                if (value.trim() !== '') {
                     $('span', value, {title: value})
                 }
             } else {
@@ -92,7 +102,7 @@ export abstract class Cell {
             }
         })
 
-        if(elem.childElementCount === 0) {
+        if (elem.childElementCount === 0) {
             elem.innerHTML = '&nbsp;'
         }
 
@@ -158,8 +168,11 @@ export abstract class Cell {
 }
 
 export class InfoCell extends Cell {
+    protected cssClasses = '.info'
+
     constructor(opt: CellOptions) {
         super(opt)
+
         if (opt.key === 'is_dirty') {
             this.defaultWidth = '3em'
         }
@@ -175,6 +188,7 @@ export class InfoCell extends Cell {
 }
 
 export class ValueCell extends Cell {
+    protected cssClasses = '.value'
     private decimals = 7
     protected align = 'right'
 
@@ -387,6 +401,8 @@ export class ConfigOptionCell extends Cell {
 }
 
 export class ConfigCalculatedCell extends Cell {
+    protected cssClasses = '.config'
+
     renderCellContent($: WeyaElementFunction, run: RunUI) {
         if (run.configs.configs[this.key] == null) {
             return
@@ -474,6 +490,7 @@ export class ConfigCalculatedCell extends Cell {
 }
 
 export class StepCell extends Cell {
+    protected cssClasses = '.step'
     protected defaultWidth = '6em'
     protected align = 'right'
 
@@ -498,6 +515,8 @@ export class StepCell extends Cell {
 }
 
 export class DateTimeCell extends Cell {
+    protected cssClasses = '.date-time'
+
     protected getString(run: RunUI): string {
         return `${run.run.info.trial_date} ${run.run.info.trial_time}`
     }
@@ -505,12 +524,15 @@ export class DateTimeCell extends Cell {
 
 
 export class CommentCell extends Cell {
+    protected cssClasses = '.comment'
+
     protected getString(run: RunUI): string {
         return run.run.info.comment
     }
 }
 
 export class SizeCell extends Cell {
+    protected cssClasses = '.size'
     protected defaultWidth = '5em'
     protected align = 'right'
 
@@ -541,12 +563,16 @@ export class SizeCell extends Cell {
 }
 
 export class ExperimentNameCell extends Cell {
+    protected cssClasses = '.experiment-name'
+
     protected getString(run: RunUI): string {
         return run.run.experimentName
     }
 }
 
 export class ControlsCell extends Cell {
+    protected cssClasses = '.controls'
+
     protected defaultWidth = '3em'
 
     protected getString(run: RunUI): string {

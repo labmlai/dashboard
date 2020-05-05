@@ -17,6 +17,12 @@ Arial, sans-serif;
 $monoFont: monospace;
 $primary: #00a8ff;
 
+$tableOdd: $baseBackground;
+$tableEven: #353b48;
+$tableHighlight: #555b68;
+$tableConfig: #fbc531;
+$tableValue: #4cd137;
+
 html {
   font-size: 14px;
 }
@@ -268,8 +274,30 @@ button {
   margin-right: 2px;
 }
 
+@mixin row-colors($rowColor) {
+  background: $rowColor;
+
+  div.cell {
+    &.config {
+      background: mix($rowColor, $tableConfig, 95%);
+    }
+
+    &.value {
+      background: mix($rowColor, $tableValue, 95%);
+    }
+  }
+
+  &:hover {
+    div.cell {
+      background: $tableHighlight !important;
+    }
+  }
+
+}
+
 div.table {
   display: table;
+  box-shadow: 0px 0px 5px -1px #000;
 
   div.row, div.header {
     white-space: nowrap;
@@ -277,16 +305,18 @@ div.table {
   }
 
   div.row {
+    background: $baseBackground;
+
     &:hover {
-      background: #555b68;
+      background: $tableHighlight;
     }
 
     &.even {
-      background: #353b48;
+      @include row-colors($tableEven);
+    }
 
-      &:hover {
-        background: #555b68;
-      }
+    &.odd {
+      @include row-colors($tableOdd);
     }
   }
 
