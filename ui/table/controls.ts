@@ -19,6 +19,10 @@ export class ControlsView implements SelectListeners {
     private searchInput: HTMLInputElement;
     private syncControls: HTMLElement
     private editorControls: HTMLElement;
+    private actionsElem: HTMLElement;
+    private actionsContainer: HTMLElement;
+    private removeBtn: HTMLButtonElement;
+    private cleanupBtn: HTMLButtonElement;
 
     constructor(format: Format, syncListeners: SyncListeners) {
         this.format = format
@@ -48,42 +52,45 @@ export class ControlsView implements SelectListeners {
             this.codemirrorDiv = <HTMLElement>$('div.editor')
 
             $('div.search', $ => {
-                this.searchInput = <HTMLInputElement>$('input', {
-                    type: 'text',
-                    on: {
-                        keyup: this.onSearchKeyUp
-                    }
+                $('div.input-container', $ => {
+                    $('i.input-icon.fa.fa-search')
+                    this.searchInput = <HTMLInputElement>$('input', {
+                        type: 'text',
+                        on: {
+                            keyup: this.onSearchKeyUp
+                        }
+                    })
                 })
-
             })
 
-            this.selectedCountElem = <HTMLElement>$('div.selected_count', 'No runs selected')
+            this.actionsContainer = <HTMLElement>$('div.actions-container', $ => {
+                this.actionsElem = <HTMLElement>$('div.actions', $ => {
+                    this.tensorboardBtn = <HTMLButtonElement>(
+                        $('button',
+                            {on: {click: this.onTensorboard}},
+                            $ => {
+                                $('i.fa.fa-chart-bar')
+                                $('span', ' Launch Tensorboard')
+                            })
+                    )
 
-            $('div.actions', $ => {
-                this.tensorboardBtn = <HTMLButtonElement>(
-                    $('button',
-                        {on: {click: this.onTensorboard}},
+                    this.removeBtn = <HTMLButtonElement>$('button.danger',
+                        {on: {click: this.onRemove}},
                         $ => {
-                            $('i.fa.fa-chart-bar')
-                            $('span', ' Launch Tensorboard')
-                        })
-                )
+                            $('i.fa.fa-trash')
+                            $('span', ' Remove')
+                        }
+                    )
 
-                $('button.danger',
-                    {on: {click: this.onRemove}},
-                    $ => {
-                        $('i.fa.fa-trash')
-                        $('span', ' Remove')
-                    }
-                )
-
-                $('button.danger',
-                    {on: {click: this.onCleanupCheckpoints}},
-                    $ => {
-                        $('i.fa.fa-trash')
-                        $('span', ' Cleanup Checkpoints')
-                    }
-                )
+                    this.cleanupBtn = <HTMLButtonElement>$('button.danger',
+                        {on: {click: this.onCleanupCheckpoints}},
+                        $ => {
+                            $('i.fa.fa-trash')
+                            $('span', ' Cleanup Checkpoints')
+                        }
+                    )
+                })
+                this.selectedCountElem = <HTMLElement>$('div.selected_count', 'No runs selected')
             })
         })
 
@@ -96,6 +103,8 @@ export class ControlsView implements SelectListeners {
         this.codemirrorDiv.style.display = 'none'
         this.syncControls.style.display = 'none'
         this.editorControls.style.float = 'right'
+
+        this.updateSelectedRunsCount()
 
         return this.elem
     }
@@ -205,6 +214,16 @@ export class ControlsView implements SelectListeners {
         let count = 0
         for (let r in this.selectedRuns) {
             count++
+        }
+
+        if(count === 0) {
+            this.tensorboardBtn.disabled = true
+            this.cleanupBtn.disabled = true
+            this.removeBtn.disabled = true
+        } else {
+            this.tensorboardBtn.disabled = false
+            this.cleanupBtn.disabled = false
+            this.removeBtn.disabled = false
         }
 
         this.selectedCountElem.textContent = `${count} runs selected`

@@ -1,6 +1,11 @@
 $baseBackground: #2f3640;
 $baseColor: #dcdde1;
 
+$inputColor: #2f3640;
+$inputBackground: #dcdde1;
+
+$disabledColor: #656670;
+
 $hoverBackground: #353b48;
 $hoverColor: #f5f6fa;
 
@@ -82,7 +87,7 @@ body {
 .block {
   margin: 10px 0;
 
-  >h3 {
+  > h3 {
     margin: 0;
     font-weight: normal;
   }
@@ -218,6 +223,12 @@ button {
   &.danger {
     color: #e84118;
     border-color: #e84118;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    color: $disabledColor;
+    border-color: $disabledColor;
   }
 }
 
@@ -358,16 +369,49 @@ div.control_panel {
     font-size: 0.9rem;
   }
 
-  div.actions {
-    margin-top: 4px;
-  }
 
   div.search {
     margin-top: 10px;
     margin-bottom: 4px;
+
+    > input {
+      width: 200px;
+    }
+  }
+
+  div.actions-container {
+    margin-top: 10px;
+
+    div.actions {
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    div.selected_count {
+      display: inline-block;
+      vertical-align: middle;
+    }
   }
 }
 
+div.input-container {
+  background: $inputBackground;
+  color: $inputColor;
+  display: inline-block;
+
+  .input-icon {
+    padding: 5px;
+  }
+
+  input {
+    background: $inputBackground;
+    color: $inputColor;
+    outline: none;
+    border: none;
+    font-size: 1rem;
+    padding: 5px;
+  }
+}
 
 .config .options, div.table div.cell span.options {
   &::before {
@@ -424,9 +468,10 @@ div.table_container {
     i {
       padding: 4px;
       margin: 4px;
+
       &:hover {
         background: $hoverBackground;
-        color:  $hoverColor;
+        color: $hoverColor;
         cursor: pointer;
       }
     }
