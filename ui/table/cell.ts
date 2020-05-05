@@ -84,11 +84,18 @@ export abstract class Cell {
         let elem = <HTMLElement>$(tag, $ => {
             let value = this.getString(run)
             if (value != null) {
-                $('span', value, {title: value})
+                if(value.trim() !== '') {
+                    $('span', value, {title: value})
+                }
             } else {
                 this.renderCellContent($, run)
             }
         })
+
+        if(elem.childElementCount === 0) {
+            elem.innerHTML = '&nbsp;'
+        }
+
         elem.style.width = this.width
 
         return elem
