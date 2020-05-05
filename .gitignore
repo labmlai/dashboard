@@ -2,10 +2,11 @@
 notes.json
 node_modules/
 .*.swp
-package-lock.json
 __pycache__
 *.egg-info/
 .sass-cache/
 dist/
+app/
 .idea/*
+lab
 !.idea/dictionaries
