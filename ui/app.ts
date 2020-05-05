@@ -1,6 +1,6 @@
-import { ScreenContainer } from './screen'
-import { Router } from '../lib/weya/router'
-import { AjaxHttpPort } from '../lib/io/ajax'
+import {ScreenContainer} from './screen'
+import {Router} from '../lib/weya/router'
+import {AjaxHttpPort} from '../lib/io/ajax'
 import {wrapAPI} from "../common/api_handler";
 import {API_SPEC} from "../common/api";
 
@@ -16,7 +16,13 @@ export let ROUTER = new Router({
 
 export let SCREEN = new ScreenContainer()
 
-export let PORT = new AjaxHttpPort('http', 'localhost', 8082, '/api')
+const protocol = window.location.protocol === 'http:' ? 'http' : 'https'
+
+export let PORT = new AjaxHttpPort(
+    protocol,
+    window.location.hostname,
+    parseInt(window.location.port),
+    '/api')
 
 wrapAPI(PORT, API_SPEC)
 
