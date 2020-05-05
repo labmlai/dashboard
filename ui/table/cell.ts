@@ -15,6 +15,7 @@ export abstract class Cell {
     protected sortRank?: number = null
     protected defaultWidth = '10em'
     protected align = 'left'
+    private readonly visible: boolean
 
     constructor(opt: CellOptions) {
         this.options = opt
@@ -22,6 +23,7 @@ export abstract class Cell {
         this.key = opt.key
         this.type = opt.type
         this.sortRank = opt.sortRank
+        this.visible = !(opt.visible === false)
         this.specifiedWidth = opt.width
     }
 
@@ -34,7 +36,7 @@ export abstract class Cell {
     }
 
     get isHidden(): boolean {
-        return this.isEmpty
+        return !this.visible || this.isEmpty
     }
 
     renderHeader($: WeyaElementFunction): HTMLElement {
@@ -92,7 +94,14 @@ export abstract class Cell {
         return elem
     }
 
-    update(runs: RunUI[]) {
+    updateCellState(runs: RunUI[]) {
+        if (!this.visible) {
+            return
+        }
+        this.update(runs)
+    }
+
+    protected update(runs: RunUI[]) {
     }
 
     compare(a: RunUI, b: RunUI) {
@@ -176,7 +185,7 @@ export class ValueCell extends Cell {
         }
     }
 
-    update(runs: RunUI[]) {
+    protected update(runs: RunUI[]) {
         let min = null
         let max = null
         let count = 0
@@ -254,7 +263,7 @@ export class ConfigComputedCell extends Cell {
         return conf.computed
     }
 
-    update(runs: RunUI[]) {
+    protected update(runs: RunUI[]) {
         this.isSame = true
         this.isEmpty = true
 
@@ -314,7 +323,7 @@ export class ConfigOptionCell extends Cell {
         }
     }
 
-    update(runs: RunUI[]) {
+    protected update(runs: RunUI[]) {
         this.isEmpty = true
         this.isSame = true
 
@@ -429,7 +438,7 @@ export class ConfigCalculatedCell extends Cell {
         return conf.computed
     }
 
-    update(runs: RunUI[]) {
+    protected update(runs: RunUI[]) {
         this.isSame = true
         this.isEmpty = true
 

@@ -151,13 +151,13 @@ class RunsView implements ScreenView, SyncListeners, FormatUpdateListener {
             {type: 'comment', name: 'Comment', 'key': ''},
             {type: 'date_time', name: 'Date Time', 'key': ''},
             {type: 'info', name: 'Commit Message', 'key': 'commit_message'},
-            {type: 'info', name: 'Dirty', 'key': 'is_dirty'},
+            {type: 'info', name: 'Dirty', 'key': 'is_dirty', visible: false},
             {type: 'info', name: 'Tags', 'key': 'tags'},
             {type: 'size', name: 'Size', 'key': ''},
-            {type: 'size', name: 'Checkpoints', 'key': 'checkpoints_size'},
-            {type: 'size', name: 'SQLite', 'key': 'sqlite_size'},
-            {type: 'size', name: 'Analytics', 'key': 'analytics_size'},
-            {type: 'size', name: 'Tensorboard', 'key': 'tensorboard_size'},
+            {type: 'size', name: 'Checkpoints', 'key': 'checkpoints_size', visible: false},
+            {type: 'size', name: 'SQLite', 'key': 'sqlite_size', visible: false},
+            {type: 'size', name: 'Analytics', 'key': 'analytics_size', visible: false},
+            {type: 'size', name: 'Tensorboard', 'key': 'tensorboard_size', visible: false},
         ]
 
         format.push({type: 'step', name: 'Step', 'key': ''})
@@ -286,7 +286,7 @@ class RunsView implements ScreenView, SyncListeners, FormatUpdateListener {
         console.log("Add parent", new Date().getTime() - start)
         start = new Date().getTime()
         for (let c of this.cells) {
-            c.update(runs)
+            c.updateCellState(runs)
         }
         console.log("Update cells", new Date().getTime() - start)
         start = new Date().getTime()

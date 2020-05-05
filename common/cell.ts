@@ -4,4 +4,5 @@ export interface CellOptions {
     name?: string
     width?: string
     sortRank?: number
+    visible?: boolean
 }
