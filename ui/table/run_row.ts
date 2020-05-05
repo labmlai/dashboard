@@ -24,7 +24,8 @@ export class RunRowView {
     render(format: Cell[]) {
         let indexClass = this.index % 2 == 0 ? 'even' : 'odd'
         this.cells = []
-        this.elem = $('div.row.' + indexClass, $ => {
+        this.elem = $('div.row.' + indexClass,
+            {on: {click: this.onSelect}}, $ => {
                 for (let cell of format) {
                     let rendered = cell.renderCell($, this.run)
                     this.cells.push(rendered)
@@ -32,19 +33,17 @@ export class RunRowView {
                         this.controls = rendered
                     }
                 }
-            }
-        )
+            })
 
         this.controls.innerHTML = ''
         $('span.controls', this.controls, $ => {
             this.selectIcon = <HTMLElement>$('i.fa.fa-square', {on: {click: this.onSelect}})
-            $('a',
-                {
-                    on: {click: this.onOpen},
-                    href: `/experiment/${this.run.run.experimentName}/${this.run.run.info.uuid}`
-                }, $ => {
-                    $('i.fa.fa-file')
-                })
+            $('a', {
+                on: {click: this.onOpen},
+                href: `/experiment/${this.run.run.experimentName}/${this.run.run.info.uuid}`
+            }, $ => {
+                $('i.fa.fa-file')
+            })
         })
 
         return this.elem

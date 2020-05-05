@@ -220,10 +220,12 @@ export class ControlsView implements SelectListeners {
             this.tensorboardBtn.disabled = true
             this.cleanupBtn.disabled = true
             this.removeBtn.disabled = true
+            this.selectedCountElem.classList.remove('items-selected')
         } else {
             this.tensorboardBtn.disabled = false
             this.cleanupBtn.disabled = false
             this.removeBtn.disabled = false
+            this.selectedCountElem.classList.add('items-selected')
         }
 
         this.selectedCountElem.textContent = `${count} runs selected`

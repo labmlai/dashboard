@@ -342,6 +342,7 @@ div.table {
     padding: 0 4px;
     min-height: 1.5em;
     line-height: 2;
+    user-select: none;
 
     &.same {
       width: 1em !important;
@@ -420,6 +421,10 @@ div.control_panel {
     div.selected_count {
       display: inline-block;
       vertical-align: middle;
+
+      &.items-selected {
+        font-weight: bold;
+      }
     }
   }
 }
