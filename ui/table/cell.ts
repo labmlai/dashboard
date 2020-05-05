@@ -106,17 +106,17 @@ export abstract class Cell {
     protected compareDirection(rank: number, a: RunUI, b: RunUI) {
         let av = this.getValue(a)
         let bv = this.getValue(b)
-        if(av === '') {
+        if (av === '') {
             av = null
         }
-        if(bv === '') {
+        if (bv === '') {
             bv = null
         }
-        if(av == null && bv == null) {
+        if (av == null && bv == null) {
             return 0
-        } else if(av == null && bv != null) {
+        } else if (av == null && bv != null) {
             return Math.abs(rank)
-        } else if(av != null && bv == null) {
+        } else if (av != null && bv == null) {
             return -Math.abs(rank)
         } else if (av < bv) {
             return -rank
@@ -370,6 +370,86 @@ export class ConfigOptionCell extends Cell {
     }
 }
 
+export class ConfigCalculatedCell extends Cell {
+    renderCellContent($: WeyaElementFunction, run: RunUI) {
+        if (run.configs.configs[this.key] == null) {
+            return
+        }
+
+        let conf = run.configs.configs[this.key]
+
+        if (conf.order < 0) {
+            $('span.ignored', `ignored`)
+            return
+        }
+
+        let options = new Set()
+        for (let opt of conf.options) {
+            options.add(opt)
+        }
+
+        if (options.has(conf.value)) {
+            options.delete(conf.value)
+            if (options.size === 0) {
+                $('span.only_option', conf.value)
+            } else {
+                $('span.picked', conf.value)
+            }
+        } else {
+            if (typeof (conf.computed) === "string") {
+                let computed: string = conf.computed
+                computed = computed.replace('\n', '')
+                $('span.computed', computed, {title: computed})
+            } else {
+                $('span.computed', {title: `${conf.computed}`}, formatValue(conf.computed))
+            }
+        }
+    }
+
+    protected getValue(run: RunUI): any {
+        if (run.configs.configs[this.key] == null) {
+            return null
+        }
+
+        let conf = run.configs.configs[this.key]
+
+        if (conf.order < 0) {
+            return null
+        }
+
+        let options = new Set()
+        for (let opt of conf.options) {
+            options.add(opt)
+        }
+
+        if (options.has(conf.value)) {
+            return conf.value
+        }
+
+        return conf.computed
+    }
+
+    update(runs: RunUI[]) {
+        this.isSame = true
+        this.isEmpty = true
+
+        if (runs.length === 0) {
+            return
+        }
+        let value = this.getValue(runs[0])
+
+        for (let run of runs) {
+            let v = this.getValue(run)
+            if (v !== value) {
+                this.isSame = false
+            }
+            if (v != null) {
+                this.isEmpty = false
+            }
+        }
+    }
+}
+
 export class StepCell extends Cell {
     protected defaultWidth = '6em'
     protected align = 'right'
@@ -491,6 +571,8 @@ export class CellFactory {
                 return new ConfigComputedCell(opt)
             case "config_options":
                 return new ConfigOptionCell(opt)
+            case "config_calculated":
+                return new ConfigCalculatedCell(opt)
             default:
                 throw new Error("Unknown Cell Type" + opt.type)
         }
