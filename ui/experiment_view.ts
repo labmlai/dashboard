@@ -1,3 +1,6 @@
+/*
+This is no longer used
+ */
 import {ScreenView} from './screen'
 import {ROUTER, SCREEN} from './app'
 import {Weya as $, WeyaElement} from '../lib/weya/weya'
@@ -97,7 +100,7 @@ class RunView {
 export class RunsView {
     private readonly runs: Run[];
     private elem: HTMLDivElement;
-    private isShowExperimentName: boolean
+    private readonly isShowExperimentName: boolean
 
     constructor(runs: Run[], isShowExperimentName: boolean) {
         this.runs = runs
@@ -165,7 +168,7 @@ class ExperimentView implements ScreenView {
         this.elem = <HTMLElement>$('div.container', $ => {
             this.experimentView = <HTMLDivElement>$('div.experiment_single', '')
         })
-        this.renderExperiment()
+        this.renderExperiment().then()
         return this.elem
     }
 
@@ -179,7 +182,7 @@ class ExperimentView implements ScreenView {
         )
 
         this.runsView = new RunsView(this.experiment.runs, false)
-        this.runsView.render(this.experimentView)
+        this.runsView.render(this.experimentView).then()
     }
 }
 

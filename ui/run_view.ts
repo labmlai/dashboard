@@ -1,11 +1,11 @@
 import {ROUTER, SCREEN} from './app'
 import {Weya as $, WeyaElement} from '../lib/weya/weya'
 import {Run} from '../common/experiments'
-import {getExperiments, clearCache} from './cache'
+import {clearCache, getExperiments} from './cache'
 import {RunUI} from './run_ui'
 import {renderConfigs} from './configs'
 import {renderValues} from './indicators'
-import {InfoList, InfoItem} from './view_components/info_list'
+import {InfoItem, InfoList} from './view_components/info_list'
 import {formatSize} from './view_components/format'
 import {ScreenView} from "./screen";
 
@@ -123,21 +123,23 @@ class RunView implements ScreenView {
             })
 
             $('div', $ => {
-                $('i.fa.fa-folder.key_icon')
-                $('span', `${info.uuid}`)
+                new InfoList(
+                    [
+                        ['.key', 'UUID'],
+                        ['.value', info.uuid]
+                    ],
+                    ''
+                ).render($)
+
+                new InfoList(
+                    [
+                        ['.key', 'Date & Time'],
+                        ['.value', `${info.trial_date} ${info.trial_time}`]
+                    ],
+                    ''
+                ).render($)
             })
 
-            $('div', $ => {
-                $('i.fa.fa-history.key_icon')
-                $('span', info.commit_message)
-            })
-            $('div', $ => {
-                $('i.fa.fa-calendar.key_icon')
-                $('span', info.trial_date)
-                $('span.key_split', '')
-                $('i.fa.fa-clock.key_icon')
-                $('span', info.trial_time)
-            })
             if (info.load_run != null) {
                 $('div', $ => {
                     $('i.fa.fa-download.key_icon')
@@ -165,6 +167,14 @@ class RunView implements ScreenView {
                     ])
                 }
                 new InfoList(commit_info, '.mono').render($)
+
+                new InfoList(
+                    [
+                        ['.key', 'Commit message'],
+                        ['.value', info.commit_message]
+                    ],
+                    ''
+                ).render($)
 
                 new InfoList(
                     [
@@ -201,13 +211,20 @@ class RunView implements ScreenView {
 
 
             $('div.block', $ => {
-                $('i.fa.fa-save.key_icon')
+                $('h3', 'Storage space')
                 let size =
                     info.sqlite_size +
                     info.analytics_size +
                     info.checkpoints_size +
                     info.tensorboard_size
-                $('span', formatSize(size))
+
+                new InfoList(
+                    [
+                        ['.key', 'Total size'],
+                        ['.value', formatSize(size)]
+                    ],
+                    '.mono'
+                ).render($)
 
                 new InfoList(
                     [
@@ -242,16 +259,20 @@ class RunView implements ScreenView {
                 ).render($)
             })
 
-            this.indicatorsView = <HTMLDivElement>$('div.indicators.block')
+            this.indicatorsView = <HTMLDivElement>$('div.indicators.block', $ => {
+              $('h3', 'Indicators')
+            })
 
-            this.configsView = <HTMLDivElement>$('div.configs.block')
+            this.configsView = <HTMLDivElement>$('div.configs.block', $ => {
+                $('h3', 'Configurations')
+            })
         })
 
         this.commentInput.style.display = 'none'
 
-        this.renderIndicators()
-        this.renderConfigs()
-        this.renderAnalyticsBtns()
+        this.renderIndicators().then()
+        this.renderConfigs().then()
+        this.renderAnalyticsBtns().then()
 
         return this.elem
     }

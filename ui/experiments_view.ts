@@ -1,3 +1,7 @@
+/*
+This is not used anymore
+ */
+
 import {ScreenView} from './screen'
 import {ROUTER, SCREEN} from './app'
 import {Weya as $, WeyaElement} from '../lib/weya/weya'
