@@ -332,6 +332,7 @@ export class TableHandler {
     constructor() {
         ROUTER.route('table', [this.handleTableDefault])
         ROUTER.route('table/:dashboard', [this.handleTable])
+        ROUTER.route('table/:dashboard/', [this.handleTable])
         ROUTER.route('table/:dashboard/:search', [this.handleTable])
     }
 
