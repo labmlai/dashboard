@@ -449,11 +449,18 @@ export class ConfigCalculatedCell extends Cell {
 
         for (let run of runs) {
             let v = this.getValue(run)
-            if (v !== value) {
+            if (value == null) {
+                value = v
+            }
+            if (v != null && v !== value) {
                 this.isSame = false
             }
             if (v != null) {
-                this.isEmpty = false
+                let conf = run.configs.configs[this.key]
+                if (conf.is_hyperparam === true ||
+                    (conf.is_hyperparam == null && conf.is_explicitly_specified)) {
+                    this.isEmpty = false
+                }
             }
         }
     }

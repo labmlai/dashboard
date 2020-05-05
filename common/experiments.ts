@@ -38,6 +38,8 @@ export interface Config {
     options: string[]
     order: number
     type: string
+    is_hyperparam?: boolean
+    is_explicitly_specified: boolean
 }
 
 export interface ConfigsModel {
@@ -48,6 +50,11 @@ export class Configs {
     configs: ConfigsModel
 
     constructor(configs: ConfigsModel) {
+        for(let [k, v] of Object.entries(configs)) {
+            if(v.is_explicitly_specified == null) {
+                v.is_explicitly_specified = false
+            }
+        }
         this.configs = configs
     }
 
