@@ -6,9 +6,14 @@ clean:
 	rm -rf lab_dashboard/app
 
 compile:
+	rm -rf app
+	mkdir app
+	mkdir app/ui
+	cp ui/index.html app/ui/index.html
+	cp -r ui/images app/ui/
 	npm run build
 
-watch:
+watch: compile
 	npm run build
 	npm run watch
 

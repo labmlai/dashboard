@@ -19,7 +19,7 @@
     "yaml": "latest"
   },
   "scripts": {
-    "build": "$npm_execpath run build:server && $npm_execpath run build:ui && $npm_execpath run build:sass && $npm_execpath run build:html",
+    "build": "$npm_execpath run build:server && $npm_execpath run build:ui && $npm_execpath run build:sass",
     "watch": "$npm_execpath run watch:server & $npm_execpath run watch:ui & $npm_execpath run watch:sass",
     "build:ui": "tsc -p tsconfig.ui.json",
     "watch:ui": "tsc -w -p tsconfig.ui.json",
@@ -27,7 +27,6 @@
     "watch:server": "tsc -w -p tsconfig.server.json",
     "build:sass": "sass ui/style.scss:app/ui/css/style.css",
     "watch:sass": "sass --watch ui/style.scss:app/ui/css/style.css",
-    "build:html": "cp ui/index.html app/ui/index.html",
     "clean": "rm -rf app/"
   }
 }
