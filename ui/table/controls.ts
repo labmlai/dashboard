@@ -216,7 +216,7 @@ export class ControlsView implements SelectListeners {
             count++
         }
 
-        if(count === 0) {
+        if (count === 0) {
             this.tensorboardBtn.disabled = true
             this.cleanupBtn.disabled = true
             this.removeBtn.disabled = true
@@ -228,7 +228,13 @@ export class ControlsView implements SelectListeners {
             this.selectedCountElem.classList.add('items-selected')
         }
 
-        this.selectedCountElem.textContent = `${count} runs selected`
+        if (count === 0) {
+            this.selectedCountElem.textContent = `No runs selected`
+        } else if (count == 1) {
+            this.selectedCountElem.textContent = `One run selected`
+        } else {
+            this.selectedCountElem.textContent = `${count} runs selected`
+        }
     }
 
     private resetSelection() {
