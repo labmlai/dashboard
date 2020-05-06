@@ -8,6 +8,10 @@ clean:
 compile:
 	npm run build
 
+watch:
+	npm run build
+	npm run watch
+
 build: clean compile
 	cp package.json app/
 	cp package-lock.json app/

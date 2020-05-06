@@ -195,6 +195,7 @@ body {
 }
 
 button {
+  font-family: $normalFont;
   display: inline-block;
   color: $primary;
   text-align: center;
@@ -224,6 +225,12 @@ button {
     font-size: 0.8rem;
     padding: 0;
     border: none;
+  }
+
+  &.inline {
+    padding: 0;
+    border: none;
+    vertical-align: baseline;
   }
 
   &.danger {
@@ -415,12 +422,15 @@ div.control_panel {
 
     div.actions {
       display: inline-block;
-      vertical-align: middle;
+      vertical-align: baseline;
+      button {
+        vertical-align: baseline;
+      }
     }
 
     div.selected_count {
       display: inline-block;
-      vertical-align: middle;
+      vertical-align: baseline;
 
       &.items-selected {
         font-weight: bold;

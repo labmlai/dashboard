@@ -93,7 +93,7 @@ class RunView implements ScreenView {
 
             $('div.controls', $ => {
                 this.tensorboardBtn = <HTMLButtonElement>(
-                    $('button.small',
+                    $('button',
                         {on: {click: this.events.tensorboard}},
                         $ => {
                             $('i.fa.fa-chart-bar')
@@ -101,11 +101,9 @@ class RunView implements ScreenView {
                         })
                 )
 
-                this.analyticsBtns = <HTMLDivElement>$('div.analytics_buttons')
-            })
+                this.analyticsBtns = <HTMLDivElement>$('span.analytics_buttons')
 
-            $('div.controls', $ => {
-                $('button.small.danger',
+                $('button.danger',
                     {on: {click: this.events.remove}},
                     $ => {
                         $('i.fa.fa-trash')
@@ -113,7 +111,7 @@ class RunView implements ScreenView {
                     }
                 )
 
-                $('button.small.danger',
+                $('button.danger',
                     {on: {click: this.events.cleanupCheckpoints}},
                     $ => {
                         $('i.fa.fa-trash')
@@ -141,13 +139,27 @@ class RunView implements ScreenView {
             })
 
             if (info.load_run != null) {
-                $('div', $ => {
-                    $('i.fa.fa-download.key_icon')
-                    $('span', info.load_run)
-                    $('span.key_split', '')
-                    $('i.fa.fa-play.key_icon')
-                    $('span', `${info.start_step}`)
-                })
+                let load_info: InfoItem[] = [
+                    ['.key', 'Loaded run']
+                ]
+                load_info.push([
+                    '.link',
+                    $ => {
+                        $('span', ' ')
+                        $('button.inline', `${info.load_run}`, {
+                            on: {click: this.events.loadRun}
+                        })
+                    }
+                ])
+                new InfoList(load_info, '.mono').render($)
+
+                new InfoList(
+                    [
+                        ['.key', 'Starting step'],
+                        ['.value', `${info.start_step}`]
+                    ],
+                    ''
+                ).render($)
             }
 
             $('div.block', $ => {
@@ -160,7 +172,7 @@ class RunView implements ScreenView {
                         '.link',
                         $ => {
                             $('span', ' ')
-                            $('button.small', '[dirty]', {
+                            $('button.inline', '[dirty]', {
                                 on: {click: this.events.dirty}
                             })
                         }
@@ -192,7 +204,7 @@ class RunView implements ScreenView {
                     this.tagsList = <HTMLDivElement>$('span.tags')
                     this.renderTagList()
 
-                    $('button.small',
+                    $('button.inline',
                         {on: {click: this.events.editTags}},
                         $ => {
                             $('i.fa.fa-edit')
@@ -260,7 +272,7 @@ class RunView implements ScreenView {
             })
 
             this.indicatorsView = <HTMLDivElement>$('div.indicators.block', $ => {
-              $('h3', 'Indicators')
+                $('h3', 'Indicators')
             })
 
             this.configsView = <HTMLDivElement>$('div.configs.block', $ => {
@@ -282,7 +294,7 @@ class RunView implements ScreenView {
 
         $(this.tagsList, $ => {
             for (let tag of this.run.info.tags) {
-                $('button.small', tag,
+                $('button.inline', tag,
                     {on: {click: this.events.tag.bind(this, tag)}})
             }
         })
@@ -307,6 +319,12 @@ class RunView implements ScreenView {
         dirty: () => {
             ROUTER.navigate(
                 `/experiment/${this.run.experimentName}/${this.run.info.uuid}/diff`
+            )
+        },
+
+        loadRun: () => {
+            ROUTER.navigate(
+                `/experiment/${this.run.experimentName}/${this.run.info.load_run}`
             )
         },
 
@@ -411,7 +429,7 @@ class RunView implements ScreenView {
         let templates = await this.runUI.getAnalyticsTemplates()
         for (let t of templates) {
             $(this.analyticsBtns, $ => {
-                $('button.small',
+                $('button',
                     {
                         on: {click: this.events.jupyter},
                         data: {template: t}

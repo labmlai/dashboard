@@ -143,7 +143,7 @@ class ConfigsView {
 
             if (isCollapsible) {
                 this.showHideBtn = <HTMLButtonElement>(
-                    $('button.small', 'More...', {
+                    $('button.inline', 'More...', {
                         on: {
                             click: this.onShowHideClick
                         }

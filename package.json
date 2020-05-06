@@ -20,6 +20,7 @@
   },
   "scripts": {
     "build": "$npm_execpath run build:server && $npm_execpath run build:ui && $npm_execpath run build:sass && $npm_execpath run build:html",
+    "watch": "$npm_execpath run watch:server & $npm_execpath run watch:ui & $npm_execpath run watch:sass",
     "build:ui": "tsc -p tsconfig.ui.json",
     "watch:ui": "tsc -w -p tsconfig.ui.json",
     "build:server": "tsc -p tsconfig.server.json",
