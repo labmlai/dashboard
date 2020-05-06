@@ -4,7 +4,7 @@ This is no longer used
 import {ScreenView} from './screen'
 import {ROUTER, SCREEN} from './app'
 import {Weya as $, WeyaElement} from '../lib/weya/weya'
-import {Experiment, Run, ScalarsModel, Configs, RunModel} from '../common/experiments'
+import {Experiment, Run, ScalarsModel, Configs} from '../common/experiments'
 import {getExperiments} from './cache'
 import {RunUI} from './run_ui'
 import {renderConfigs} from './configs'
@@ -124,16 +124,16 @@ export class RunsView {
 
         let configs = {}
         let differentConfigs = new Set<string>()
-        for (let k in runViews[0].configs.configs) {
-            configs[k] = runViews[0].configs.configs[k].value
+        for (let [k, v] of Object.entries(runViews[0].configs.configs)) {
+            configs[k] = v.value
         }
 
         for (let rv of runViews) {
-            for (let k in rv.configs.configs) {
+            for (let [k, v] of Object.entries(rv.configs.configs)) {
                 if (differentConfigs.has(k)) {
                     continue
                 }
-                if (configs[k] !== rv.configs.configs[k].value) {
+                if (configs[k] !== v.value) {
                     differentConfigs.add(k)
                 }
             }

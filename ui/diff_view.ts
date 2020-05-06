@@ -9,14 +9,9 @@ class DiffView {
     run: Run
     runUI: RunUI
     elem: WeyaElement
-    tensorboardBtn: HTMLButtonElement
-    indicatorsView: HTMLDivElement
     experimentName: string
     runUuid: string
     diffView: HTMLDivElement
-    configsView: HTMLDivElement
-    jupyterBtn: HTMLButtonElement
-    analyticsBtns: HTMLDivElement
     diff: string
 
     constructor(experimentName: string, runUuid: string) {

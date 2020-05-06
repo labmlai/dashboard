@@ -137,7 +137,7 @@ export class Run {
             run.tags = experimentName.split('_')
         }
 
-        for (let k in DEFAULT_RUN_MODEL) {
+        for (let k of Object.keys(DEFAULT_RUN_MODEL)) {
             if (run[k] == null) {
                 run[k] = copy[k]
             }
@@ -212,8 +212,8 @@ export class Experiments {
 
     constructor(experiments: ExperimentsModel) {
         this.experiments = {}
-        for (let k in experiments) {
-            this.experiments[k] = new Experiment(experiments[k])
+        for (let [k, e] of Object.entries(experiments)) {
+            this.experiments[k] = new Experiment(e)
         }
     }
 

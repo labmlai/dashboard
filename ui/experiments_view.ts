@@ -3,7 +3,7 @@ This is not used anymore
  */
 
 import {ScreenView} from './screen'
-import {ROUTER, SCREEN} from './app'
+import {ROUTER} from './app'
 import {Weya as $, WeyaElement} from '../lib/weya/weya'
 import {Experiments, Experiment, Run} from '../common/experiments'
 import {getExperiments} from './cache'

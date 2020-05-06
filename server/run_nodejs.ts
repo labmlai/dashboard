@@ -152,8 +152,7 @@ export class RunNodeJS {
             return {}
         }
 
-        for (let k in indicators.indicators) {
-            let ind = indicators.indicators[k]
+        for (let [k, ind] of Object.entries(indicators.indicators)) {
             if (ind.class_name == null) {
                 continue
             }

@@ -6,15 +6,15 @@ import { formatScalar, formatInt } from './view_components/format'
 export function renderValues(elem: HTMLElement, values: ScalarsModel) {
     $(elem, $ => {
         let maxStep = 0
-        for (let k in values) {
+        for (let [k, v] of Object.entries(values)) {
             new InfoList(
                 [
                     ['.key', k],
-                    ['.value', formatScalar(values[k].value)]
+                    ['.value', formatScalar(v.value)]
                 ],
                 '.mono'
             ).render($)
-            maxStep = Math.max(values[k].step, maxStep)
+            maxStep = Math.max(v.step, maxStep)
         }
         new InfoList(
             [
@@ -30,10 +30,10 @@ export function renderIndicators(elem: HTMLElement, indicators: Indicators) {
     let inds = indicators.indicators
 
     $(elem, $ => {
-        for (let k in inds) {
+        for (let [k, ind] of Object.entries(inds)) {
             new InfoList([
                 ['.key', k],
-                ['.value', `${inds[k].class_name}`]
+                ['.value', `${ind.class_name}`]
             ]).render($)
         }
     })

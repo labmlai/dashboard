@@ -61,17 +61,16 @@ function mergeConfig(configs: any[]) {
             throw Error('Analyitics path in configs: ' + c.config_file_path)
         }
 
-        for (let k in c) {
-            let v = c[k]
+        for (let [k, v] of Object.entries(c)) {
             if (!(k in config)) {
                 throw Error('Unknown configs: ' + c.config_file_path)
             }
 
             if (k === 'analytics_templates') {
-                for (let t in v) {
-                    config.analytics_templates[t] = PATH.resolve(
+                for (let [name, template] of Object.entries(v)) {
+                    config.analytics_templates[name] = PATH.resolve(
                         c.config_file_path,
-                        v[t]
+                        template
                     )
                 }
             } else {

@@ -131,7 +131,7 @@ class ConfigsView {
 
         this.elem = $('div.configs', $ => {
             let keys = []
-            for (let k in conf) {
+            for (let k of Object.keys(conf)) {
                 keys.push(k)
             }
             keys.sort()
