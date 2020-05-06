@@ -20,7 +20,7 @@ export class Lab {
     async load() {
         let configsList = await getConfigFiles(this.currentPath)
         if (configsList.length == 0) {
-            throw Error('No .lab.yaml files found')
+            throw Error(`No .lab.yaml files found: ${this.currentPath}`)
         }
         let configs = mergeConfig(configsList)
 

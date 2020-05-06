@@ -140,7 +140,7 @@ class ApiServer extends Api {
             let run = await getRun(experimentName, runUuid)
             await run.remove()
             ExperimentsFactory.cacheReset(experimentName, runUuid)
-        } catch(e) {
+        } catch (e) {
         }
     }
 

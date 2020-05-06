@@ -3,7 +3,6 @@ import {Configs, Indicators, Run, RunModel, ScalarsModel} from '../common/experi
 import * as PATH from 'path'
 import * as YAML from 'yaml'
 import {LAB} from './consts'
-import {Lab} from './lab'
 import {exists, readdir, readFile, rmtree, writeFile} from './util'
 
 const UPDATABLE_KEYS = new Set(['comment', 'notes', 'tags'])
@@ -180,10 +179,11 @@ export class RunNodeJS {
     }
 
     async getLab() {
-        let lab = new Lab(this.run.info.python_file)
-        await lab.load()
-
-        return lab
+        // let lab = new Lab(this.run.info.python_file)
+        // await lab.load()
+        //
+        // return lab
+        return LAB
     }
 
     async remove() {
