@@ -12,7 +12,7 @@ This is the web dashboard for `Lab <https://github.com/lab-ml/lab/>`_.
 Install
 -------
 
-.. code-block::bash
+.. code-block:: console
     pip install machine_learning_lab_dashboard
 
 Running
@@ -20,5 +20,5 @@ Running
 
 Navigate to the path of the project and run the following command to start the server.
 
-.. code-block::bash
+.. code-block:: console
     lab dashboard

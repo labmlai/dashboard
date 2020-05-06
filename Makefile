@@ -3,6 +3,7 @@ clean:
 	rm -rf build
 	rm -rf *.egg-info
 	rm -rf app
+	rm -rf lab_dashboard/app
 
 compile:
 	npm run build
@@ -10,9 +11,10 @@ compile:
 build: clean compile
 	cp package.json app/
 	cp package-lock.json app/
-	python setup.py sdist
+	mv app/ lab_dashboard/
+	python setup.py sdist bdist_wheel
 
-check-content:
+check-content: build
 	tar -tvf dist/*.tar.gz
 
 check: build

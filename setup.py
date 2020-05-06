@@ -6,7 +6,7 @@ with open("readme.rst", "r") as f:
 
 setuptools.setup(
     name='machine_learning_lab_dashboard',
-    version='0.4.0',
+    version='0.4.5',
     author="Varuna Jayasiri",
     author_email="vpjayasiri@gmail.com",
     description="🧪 Organize Machine Learning Experiments",
@@ -16,7 +16,7 @@ setuptools.setup(
     project_urls={
         'Documentation': 'https://lab-ml.com/'
     },
-    install_requires=['machine_learning_lab==0.4.2'],
+    install_requires=['machine_learning_lab==0.4.3'],
     packages=['lab_dashboard'],
     include_package_data=True,
     classifiers=[
