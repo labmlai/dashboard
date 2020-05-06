@@ -1,12 +1,8 @@
-import shutil
-
 import setuptools
 
-with open("readme.md", "r") as f:
+with open("readme.rst", "r") as f:
     long_description = f.read()
 
-shutil.copy('package.json', 'app/')
-shutil.copy('package-lock.json', 'app/')
 
 setuptools.setup(
     name='machine_learning_lab_dashboard',
@@ -15,14 +11,13 @@ setuptools.setup(
     author_email="vpjayasiri@gmail.com",
     description="🧪 Organize Machine Learning Experiments",
     long_description=long_description,
-    long_description_content_type="text/markdown",
+    long_description_content_type="text/x-rst",
     url="https://github.com/lab-ml/dashboard",
-    # install_requires=['machine_learning_lab'],
-    install_requires=[],
-    packages=['lab_dashboard'],
-    entry_points={
-        'console_scripts': ['lab_dashboard=lab_dashboard:start_server'],
+    project_urls={
+        'Documentation': 'https://lab-ml.com/'
     },
+    install_requires=['machine_learning_lab==0.4.1'],
+    packages=['lab_dashboard'],
     include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
