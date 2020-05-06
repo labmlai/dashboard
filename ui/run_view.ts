@@ -39,6 +39,7 @@ class RunView implements ScreenView {
     commentInput: HTMLInputElement
     private tagsInput: HTMLInputElement;
     private tagsList: HTMLDivElement;
+    private commentInputContainer: HTMLElement;
 
     constructor(experimentName: string, runUuid: string) {
         this.experimentName = experimentName
@@ -81,12 +82,15 @@ class RunView implements ScreenView {
                     this.commentSpan = <HTMLSpanElement>$('span', comment, {
                         on: {click: this.events.editComment}
                     })
-                    this.commentInput = <HTMLInputElement>$('input', {
-                        type: 'text',
-                        on: {
-                            blur: this.events.saveComment,
-                            keydown: this.events.onCommentKeyDown_
-                        }
+                    this.commentInputContainer = <HTMLElement>$('div.input-container', $ => {
+                        $('i.input-icon.fa.fa-edit')
+                        this.commentInput = <HTMLInputElement>$('input', {
+                            type: 'text',
+                            on: {
+                                blur: this.events.saveComment,
+                                keydown: this.events.onCommentKeyDown_
+                            }
+                        })
                     })
                 })
             })
@@ -280,7 +284,7 @@ class RunView implements ScreenView {
             })
         })
 
-        this.commentInput.style.display = 'none'
+        this.commentInputContainer.style.display = 'none'
 
         this.renderIndicators().then()
         this.renderConfigs().then()
@@ -350,7 +354,7 @@ class RunView implements ScreenView {
 
         editComment: async (e: Event) => {
             this.commentSpan.style.display = 'none'
-            this.commentInput.style.display = null
+            this.commentInputContainer.style.display = null
             this.commentInput.value = this.run.info.comment
             this.commentInput.focus()
         },
@@ -404,7 +408,7 @@ class RunView implements ScreenView {
         await this.runUI.update({comment: comment})
 
         this.commentSpan.style.display = null
-        this.commentInput.style.display = 'none'
+        this.commentInputContainer.style.display = 'none'
         this.commentSpan.textContent = comment
     }
 
