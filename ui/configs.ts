@@ -120,6 +120,12 @@ class ConfigsView {
             isCollapsible = true
         }
 
+        if(!isCollapsible) {
+            classes.push('.not_collapsible')
+        } else {
+            classes.push('.collapsible')
+        }
+
         new InfoList(parts, classes.join('')).render($)
 
         return isCollapsible
@@ -141,6 +147,7 @@ class ConfigsView {
                 }
             }
 
+            isCollapsible = false
             if (isCollapsible) {
                 this.showHideBtn = <HTMLButtonElement>(
                     $('button.inline', 'More...', {

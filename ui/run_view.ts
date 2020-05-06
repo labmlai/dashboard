@@ -126,7 +126,7 @@ class RunView implements ScreenView {
                 )
             })
 
-            $('div', $ => {
+            $('div.block', $ => {
                 new InfoList(
                     [
                         ['.key', 'UUID'],
@@ -145,27 +145,29 @@ class RunView implements ScreenView {
             })
 
             if (info.load_run != null) {
-                let load_info: InfoItem[] = [
-                    ['.key', 'Loaded run']
-                ]
-                load_info.push([
-                    '.link',
-                    $ => {
-                        $('span', ' ')
-                        $('button.inline', `${info.load_run}`, {
-                            on: {click: this.events.loadRun}
-                        })
-                    }
-                ])
-                new InfoList(load_info, '.mono').render($)
+                $('div.block', $ => {
+                    let load_info: InfoItem[] = [
+                        ['.key', 'Loaded run']
+                    ]
+                    load_info.push([
+                        '.link',
+                        $ => {
+                            $('span', ' ')
+                            $('button.inline', `${info.load_run}`, {
+                                on: {click: this.events.loadRun}
+                            })
+                        }
+                    ])
+                    new InfoList(load_info, '.mono').render($)
 
-                new InfoList(
-                    [
-                        ['.key', 'Starting step'],
-                        ['.value', `${info.start_step}`]
-                    ],
-                    ''
-                ).render($)
+                    new InfoList(
+                        [
+                            ['.key', 'Starting step'],
+                            ['.value', `${info.start_step}`]
+                        ],
+                        ''
+                    ).render($)
+                })
             }
 
             $('div.block', $ => {
@@ -210,20 +212,23 @@ class RunView implements ScreenView {
                     this.tagsList = <HTMLDivElement>$('span.tags')
                     this.renderTagList()
 
-                    this.tagEditBtn = <HTMLButtonElement>$('button.inline',
-                        {on: {click: this.events.editTags}},
-                        $ => {
-                            $('i.fa.fa-edit')
-                        })
 
-                    this.tagsInputContainer = <HTMLElement>$('div.input-container', $ => {
-                        $('i.input-icon.fa.fa-edit')
-                        this.tagsInput = <HTMLInputElement>$('input', {
-                            type: 'text',
-                            on: {
-                                blur: this.events.saveTags,
-                                keydown: this.events.onTagsKeyDown_
-                            }
+                    $('span', $ => {
+                        this.tagEditBtn = <HTMLButtonElement>$('button.inline',
+                            {on: {click: this.events.editTags}},
+                            $ => {
+                                $('i.fa.fa-edit')
+                            })
+
+                        this.tagsInputContainer = <HTMLElement>$('div.input-container', $ => {
+                            $('i.input-icon.fa.fa-edit')
+                            this.tagsInput = <HTMLInputElement>$('input', {
+                                type: 'text',
+                                on: {
+                                    blur: this.events.saveTags,
+                                    keydown: this.events.onTagsKeyDown_
+                                }
+                            })
                         })
                     })
                     this.tagsInputContainer.style.display = 'none'
