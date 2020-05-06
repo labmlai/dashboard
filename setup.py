@@ -16,7 +16,7 @@ setuptools.setup(
     project_urls={
         'Documentation': 'https://lab-ml.com/'
     },
-    install_requires=['machine_learning_lab==0.4.1'],
+    install_requires=['machine_learning_lab==0.4.2'],
     packages=['lab_dashboard'],
     include_package_data=True,
     classifiers=[
