@@ -29,7 +29,7 @@ class DiffView {
             this.diffView = <HTMLDivElement>$('div.diff', '')
         })
 
-        this.renderRun()
+        this.renderRun().then()
 
         return this.elem
     }

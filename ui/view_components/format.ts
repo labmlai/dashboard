@@ -1,7 +1,7 @@
 import { WeyaElementFunction } from '../../lib/weya/weya'
 
 function numberWithCommas(x: string) {
-    var parts = x.split('.')
+    const parts = x.split('.')
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
     return parts.join('.')
 }

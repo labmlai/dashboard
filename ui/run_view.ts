@@ -356,12 +356,12 @@ class RunView implements ScreenView {
         },
 
         saveComment: async (e: Event) => {
-            this.saveComment(this.commentInput.value)
+            this.saveComment(this.commentInput.value).then()
         },
 
         onCommentKeyDown_: async (e: KeyboardEvent) => {
             if (e.key === 'Enter') {
-                this.saveComment(this.commentInput.value)
+                this.saveComment(this.commentInput.value).then()
             }
         },
 
@@ -383,12 +383,12 @@ class RunView implements ScreenView {
         },
 
         saveTags: async (e: Event) => {
-            this.saveTags(this.tagsInput.value)
+            this.saveTags(this.tagsInput.value).then()
         },
 
         onTagsKeyDown_: async (e: KeyboardEvent) => {
             if (e.key === 'Enter') {
-                this.saveTags(this.tagsInput.value)
+                this.saveTags(this.tagsInput.value).then()
             }
         }
 

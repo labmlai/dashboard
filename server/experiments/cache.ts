@@ -58,8 +58,7 @@ class RunModelCacheEntry extends CacheEntry<RunModel> {
 
     private getMaxStep(run: RunModel) {
         let maxStep = 0
-        for (let k in run.values) {
-            let value = run.values[k]
+        for (let [k, value] of Object.entries(run.values)) {
             maxStep = Math.max(maxStep, value.step)
         }
 
@@ -113,11 +112,11 @@ class ExperimentRunsSetCacheEntry extends CacheEntry<ExperimentRunsSet> {
     }
 
     protected isUpdated(original: ExperimentRunsSet, loaded: ExperimentRunsSet): boolean {
-        for (let e in loaded) {
-            if (original[e] == null) {
+        for (let [e, runs] of Object.entries(loaded)) {
+            if (runs == null) {
                 return true
             }
-            for (let r in loaded[e].keys()) {
+            for (let r of runs.keys()) {
                 if (original[e][r] == null) {
                     return true
                 }
@@ -172,7 +171,7 @@ class Cache {
     async getAll(): Promise<Experiments> {
         let promises: Promise<Experiment>[] = []
 
-        for (let e in await this.experimentRunsSet.get()) {
+        for (let e of Object.keys(await this.experimentRunsSet.get())) {
             promises.push(this.getExperiment(e))
         }
         let experimentsList = await Promise.all(promises)

@@ -20,7 +20,7 @@ class TagView implements ScreenView {
         this.elem = <HTMLElement>$('div.container', $ => {
             this.experimentView = <HTMLDivElement>$('div.tag_runs', '')
         })
-        this.renderTagRuns()
+        this.renderTagRuns().then()
         return this.elem
     }
 

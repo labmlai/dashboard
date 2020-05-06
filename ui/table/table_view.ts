@@ -136,7 +136,7 @@ class RunsView implements ScreenView, SyncListeners, FormatUpdateListener {
 
         this.cells = this.format.createCells()
 
-        this.renderTable()
+        this.renderTable().then()
     }
 
     onChanging() {
@@ -207,7 +207,7 @@ class RunsView implements ScreenView, SyncListeners, FormatUpdateListener {
         this.cells = this.format.createCells()
 
         console.log('Get Experiments', new Date().getTime() - start)
-        this.renderTable()
+        this.renderTable().then()
     }
 
     private sortRuns(runs: RunUI[]) {

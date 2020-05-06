@@ -497,8 +497,8 @@ export class StepCell extends Cell {
     private getMaxStep(run: RunUI) {
         let maxStep = 0
 
-        for (let k in run.values) {
-            maxStep = Math.max(run.values[k].step, maxStep)
+        for (let [k, v] of Object.entries(run.values)) {
+            maxStep = Math.max(v.step, maxStep)
         }
 
         return maxStep
