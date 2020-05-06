@@ -151,10 +151,10 @@ export class ControlsView implements SelectListeners {
     }
 
     onRemove = async (e: Event) => {
-        if (confirm('Are you sure')) {
+        let count = this.getSelectedRunsCount()
+        if (confirm(`Do you want to remove ${count} runs?`)) {
             this.syncListeners.onChanging()
-            for (let r in this.selectedRuns) {
-                let run = this.selectedRuns[r]
+            for (let run of Object.values(this.selectedRuns)) {
                 await run.remove()
             }
             this.resetSelection()
@@ -210,12 +210,17 @@ export class ControlsView implements SelectListeners {
         this.format.save().then()
     }
 
-    private updateSelectedRunsCount() {
+    private getSelectedRunsCount() {
         let count = 0
-        for (let r in this.selectedRuns) {
+        for (let r of Object.keys(this.selectedRuns)) {
             count++
         }
 
+        return count
+    }
+
+    private updateSelectedRunsCount() {
+        let count = this.getSelectedRunsCount()
         if (count === 0) {
             this.tensorboardBtn.disabled = true
             this.cleanupBtn.disabled = true
