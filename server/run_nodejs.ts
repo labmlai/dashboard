@@ -7,6 +7,8 @@ import {Lab} from './lab'
 import {exists, readdir, readFile, rmtree, writeFile} from './util'
 
 const UPDATABLE_KEYS = new Set(['comment', 'notes', 'tags'])
+const USE_CACHE = true
+const USE_VALUES_CACHE = false
 
 export class RunNodeJS {
     run: Run
@@ -36,13 +38,19 @@ export class RunNodeJS {
             this.run.info.uuid,
             'sqlite.db'
         )
+
         return new Promise((resolve, reject) => {
-            this.db = new sqlite3.Database(path, sqlite3.OPEN_READONLY, err => {
-                if (err) {
-                    reject(err)
-                } else {
-                    resolve()
+            exists(path).then((isExists) => {
+                if (!isExists) {
+                    return reject(false)
                 }
+                this.db = new sqlite3.Database(path, sqlite3.OPEN_READONLY, err => {
+                    if (err) {
+                        reject(err)
+                    } else {
+                        resolve()
+                    }
+                })
             })
         })
     }
@@ -74,7 +82,7 @@ export class RunNodeJS {
 
     async getIndicators(): Promise<Indicators> {
         // TODO: Caching
-        if (true && this.indicators == null) {
+        if (!USE_CACHE || this.indicators == null) {
             let contents = await readFile(
                 PATH.join(
                     LAB.experiments,
@@ -89,7 +97,7 @@ export class RunNodeJS {
     }
 
     async getConfigs(): Promise<Configs> {
-        if (true || this.configs == null) {
+        if (!USE_CACHE || this.configs == null) {
             try {
                 let contents = await readFile(
                     PATH.join(
@@ -118,7 +126,7 @@ export class RunNodeJS {
     }
 
     async getValues() {
-        if(false && this.values != null) {
+        if (USE_VALUES_CACHE && this.values != null) {
             return this.values
         }
 
@@ -128,12 +136,14 @@ export class RunNodeJS {
             await this.loadDatabase()
         } catch (e) {
             this.db = null
-            console.log(
-                'Couldnt connect to SQLite db',
-                this.run.experimentName,
-                this.run.info.uuid,
-                e
-            )
+            if (e === false) {
+                // console.log(
+                //     `SQLite db is missing ${this.run.experimentName} : ${this.run.info.uuid}`)
+            } else {
+                console.log(
+                    `SQLite connect failed ${this.run.experimentName} : ${this.run.info.uuid}`,
+                    e)
+            }
             return {}
         }
         let indicators = await this.getIndicators()
