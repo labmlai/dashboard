@@ -40,6 +40,8 @@ class RunView implements ScreenView {
     private tagsInput: HTMLInputElement;
     private tagsList: HTMLDivElement;
     private commentInputContainer: HTMLElement;
+    private tagsInputContainer: HTMLElement;
+    private tagEditBtn: HTMLButtonElement;
 
     constructor(experimentName: string, runUuid: string) {
         this.experimentName = experimentName
@@ -208,20 +210,23 @@ class RunView implements ScreenView {
                     this.tagsList = <HTMLDivElement>$('span.tags')
                     this.renderTagList()
 
-                    $('button.inline',
+                    this.tagEditBtn = <HTMLButtonElement>$('button.inline',
                         {on: {click: this.events.editTags}},
                         $ => {
                             $('i.fa.fa-edit')
                         })
 
-                    this.tagsInput = <HTMLInputElement>$('input', {
-                        type: 'text',
-                        on: {
-                            blur: this.events.saveTags,
-                            keydown: this.events.onTagsKeyDown_
-                        }
+                    this.tagsInputContainer = <HTMLElement>$('div.input-container', $ => {
+                        $('i.input-icon.fa.fa-edit')
+                        this.tagsInput = <HTMLInputElement>$('input', {
+                            type: 'text',
+                            on: {
+                                blur: this.events.saveTags,
+                                keydown: this.events.onTagsKeyDown_
+                            }
+                        })
                     })
-                    this.tagsInput.style.display = 'none'
+                    this.tagsInputContainer.style.display = 'none'
                 })
             })
 
@@ -381,7 +386,8 @@ class RunView implements ScreenView {
 
         editTags: async (e: Event) => {
             this.tagsList.style.display = 'none'
-            this.tagsInput.style.display = null
+            this.tagEditBtn.style.display = 'none'
+            this.tagsInputContainer.style.display = null
             this.tagsInput.value = this.run.info.tags.join(', ')
             this.tagsInput.focus()
         },
@@ -424,7 +430,8 @@ class RunView implements ScreenView {
         await this.runUI.update({tags: tagList})
 
         this.tagsList.style.display = null
-        this.tagsInput.style.display = 'none'
+        this.tagEditBtn.style.display = null
+        this.tagsInputContainer.style.display = 'none'
         this.run.info.tags = tagList
         this.renderTagList()
     }
