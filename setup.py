@@ -6,17 +6,17 @@ with open("readme.rst", "r") as f:
 
 setuptools.setup(
     name='machine_learning_lab_dashboard',
-    version='0.4.5',
+    version='0.4.6',
     author="Varuna Jayasiri",
     author_email="vpjayasiri@gmail.com",
-    description="🧪 Organize Machine Learning Experiments",
+    description="Dashboard for Lab: Organize Machine Learning Experiments",
     long_description=long_description,
     long_description_content_type="text/x-rst",
     url="https://github.com/lab-ml/dashboard",
     project_urls={
         'Documentation': 'https://lab-ml.com/'
     },
-    install_requires=['machine_learning_lab==0.4.3'],
+    install_requires=['machine_learning_lab==0.4.6'],
     packages=['lab_dashboard'],
     include_package_data=True,
     classifiers=[
