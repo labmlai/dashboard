@@ -12,6 +12,10 @@ This is the web dashboard for `Lab <https://github.com/lab-ml/lab/>`_.
 
 `📗 Documentation <http://lab-ml.com/>`_
 
+`📑 Articles & Tutorials <https://medium.com/@labml/>`_
+
+`👨‍🏫 Samples <https://github.com/lab-ml/samples>`_
+
 Here are some screenshots.
 
 .. image:: https://raw.githubusercontent.com/lab-ml/dashboard/master/images/screenshots/dashboard_table.png
