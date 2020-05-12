@@ -1,2 +1,2 @@
-recursive-include lab_dashboard *
+recursive-include labml_dashboard *
 include readme.rst

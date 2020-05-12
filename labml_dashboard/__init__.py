@@ -1,8 +1,8 @@
 import subprocess
 from pathlib import PurePath, Path
 
-from lab import logger, monit
-from lab.logger import Text, Style
+from labml import logger, monit
+from labml.logger import Text, Style
 
 
 def _no_node_js():

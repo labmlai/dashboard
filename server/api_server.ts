@@ -166,7 +166,7 @@ class ApiServer extends Api {
     async saveDashboard(name: string, cells: CellOptions[]): Promise<void> {
         let path = PATH.join(
             LAB.path,
-            ".lab_dashboard.yaml"
+            ".labml_dashboard.yaml"
         )
 
         let dashboards: { [dashboard: string]: CellOptions[] }
@@ -184,7 +184,7 @@ class ApiServer extends Api {
     async loadDashboards(): Promise<{ [dashboard: string]: CellOptions[] }> {
         let path = PATH.join(
             LAB.path,
-            ".lab_dashboard.yaml"
+            ".labml_dashboard.yaml"
         )
 
         let dashboards: { [dashboard: string]: CellOptions[] }

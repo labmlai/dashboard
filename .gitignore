@@ -9,5 +9,4 @@ dist/
 app/
 build/
 .idea/*
-lab
 !.idea/dictionaries

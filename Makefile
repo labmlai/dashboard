@@ -3,7 +3,7 @@ clean: ## Clean
 	rm -rf build
 	rm -rf *.egg-info
 	rm -rf app
-	rm -rf lab_dashboard/app
+	rm -rf labml_dashboard/app
 
 compile: ## Compile JS
 	rm -rf app
@@ -20,7 +20,7 @@ watch: compile ## Watch and Compile JS
 build: clean compile ## Build PIPy Package
 	cp package.json app/
 	cp package-lock.json app/
-	mv app/ lab_dashboard/
+	mv app/ labml_dashboard/
 	python setup.py sdist bdist_wheel
 
 check-content: build  ## List contents of PIPy Package
@@ -36,7 +36,7 @@ install:  ## Install from repo
 	pip install -e .
 
 uninstall: ## Uninstall
-	pip uninstall machine_learning_lab_dashboard machine_learning_lab
+	pip uninstall labml_dashboard labml
 
 help: ## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'

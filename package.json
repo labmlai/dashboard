@@ -1,7 +1,7 @@
 {
-  "name": "lab_dashboard",
-  "version": "0.4.0",
-  "description": "Lab Dashboard",
+  "name": "labml_dashboard",
+  "version": "0.4.7",
+  "description": "LabML Dashboard",
   "main": "app.js",
   "repository": "https://github.com/lab-ml/dashboard",
   "author": "Varuna Jayasiri",

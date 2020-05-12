@@ -2,7 +2,7 @@ import * as PATH from 'path'
 import * as YAML from 'yaml'
 import {exists, lstat, readFile} from "./util";
 
-const CONFIG_FILE_NAME = '.lab.yaml'
+const CONFIG_FILE_NAME = '.labml.yaml'
 
 export class Lab {
     path: string
@@ -20,7 +20,7 @@ export class Lab {
     async load() {
         let configsList = await getConfigFiles(this.currentPath)
         if (configsList.length == 0) {
-            throw Error(`No .lab.yaml files found: ${this.currentPath}`)
+            throw Error(`No .labml.yaml files found: ${this.currentPath}`)
         }
         let configs = mergeConfig(configsList)
 
