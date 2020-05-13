@@ -8,7 +8,7 @@ LabML Dashboard
 
 This is the web dashboard for `LabML <https://github.com/lab-ml/labml/>`_.
 
-`💬 Slack workspace for discussions <https://join.slack.com/t/labforml/shared_invite/zt-cg5iui5u-4cJPT7DUwRGqup9z8RHwhQ/>`_
+`💬 Slack workspace for discussions <https://join.slack.com/t/labforml/shared_invite/zt-egj9zvq9-Dl3hhZqobexgT7aVKnD14g/>`_
 
 `📗 Documentation <http://lab-ml.com/>`_
 
