@@ -179,11 +179,11 @@ export class InfoCell extends Cell {
     }
 
     protected getString(run: RunUI): string {
-        return `${run.run.info[this.key]}`
+        return `${run.run.get(this.key)}`
     }
 
     protected getValue(run: RunUI): any {
-        return run.run.info[this.key]
+        return run.run.get(this.key)
     }
 }
 
@@ -518,7 +518,7 @@ export class DateTimeCell extends Cell {
     protected cssClasses = '.date-time'
 
     protected getString(run: RunUI): string {
-        return `${run.run.info.trial_date} ${run.run.info.trial_time}`
+        return `${run.run.trial_date} ${run.run.trial_time}`
     }
 }
 
@@ -527,7 +527,7 @@ export class CommentCell extends Cell {
     protected cssClasses = '.comment'
 
     protected getString(run: RunUI): string {
-        return run.run.info.comment
+        return run.run.comment
     }
 }
 
@@ -537,7 +537,7 @@ export class SizeCell extends Cell {
     protected align = 'right'
 
     private getSize(run: RunUI) {
-        let info = run.run.info
+        let info = run.run
         let size: number
         if (this.key === '') {
             size =
@@ -566,7 +566,7 @@ export class ExperimentNameCell extends Cell {
     protected cssClasses = '.experiment-name'
 
     protected getString(run: RunUI): string {
-        return run.run.experimentName
+        return run.run.name
     }
 }
 

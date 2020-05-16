@@ -2,10 +2,10 @@ import {Format} from "./format";
 import {RunUI} from "../run_ui";
 import {Weya as $} from "../../lib/weya/weya";
 import {CodeMirror} from "../codemirror";
-import {RunIdentifier} from "../../common/experiments";
 import {clearCache} from "../cache";
 import {SelectListeners, SyncListeners} from "./table_view";
 import {API} from "../app";
+import {Run} from "../../common/experiments";
 
 export class ControlsView implements SelectListeners {
     private elem: HTMLElement
@@ -136,10 +136,10 @@ export class ControlsView implements SelectListeners {
     }
 
     onTensorboard = async () => {
-        let runs: RunIdentifier[] = []
+        let runs: string[] = []
         for (let r in this.selectedRuns) {
-            let run = this.selectedRuns[r].run
-            runs.push({experimentName: run.experimentName, runUuid: run.info.uuid})
+            let run: Run = this.selectedRuns[r].run
+            runs.push(run.uuid)
         }
 
         let url = await API.launchTensorboards(runs)

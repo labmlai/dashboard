@@ -1,8 +1,9 @@
+/*
 import {ScreenView} from './screen'
 import {ROUTER, SCREEN} from './app'
 import {Weya as $, WeyaElement} from '../lib/weya/weya'
 import {Run} from '../common/experiments'
-import {getExperiments} from './cache'
+import {getRuns} from './cache'
 import {RunsView} from "./experiment_view";
 
 class TagView implements ScreenView {
@@ -25,7 +26,7 @@ class TagView implements ScreenView {
     }
 
     private async renderTagRuns() {
-        this.runs = (await getExperiments()).getByTag(this.name)
+        this.runs = (await getRuns()).getByTag(this.name)
 
         this.experimentView.append(
             $('div.info', $ => {
@@ -47,3 +48,4 @@ export class TagHandler {
         SCREEN.setView(new TagView(name))
     }
 }
+*/

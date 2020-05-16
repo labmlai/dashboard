@@ -1,94 +1,65 @@
 import {
     IndicatorsModel,
-    ExperimentsModel,
     ConfigsModel,
-    ScalarsModel, RunIdentifier
+    ScalarsModel,
+    RunModel
 } from './experiments'
 import {CellOptions} from "./cell";
 
 export class Api {
-    async getExperiments(): Promise<ExperimentsModel> {
+    async getRuns(): Promise<RunModel[]> {
         return null
     }
 
-    async getIndicators(
-        experimentName: string,
-        runUuid: string
-    ): Promise<IndicatorsModel> {
+    async getIndicators(uuid: string): Promise<IndicatorsModel> {
         return null
     }
 
-    async getConfigs(
-        experimentName: string,
-        runUuid: string
-    ): Promise<ConfigsModel> {
+    async getConfigs(uuid: string): Promise<ConfigsModel> {
         return null
     }
 
-    async getDiff(experimentName: string, runUuid: string): Promise<string> {
+    async getDiff(uuid: string): Promise<string> {
         return null
     }
 
-    async getValues(
-        experimentName: string,
-        runUuid: string
-    ): Promise<ScalarsModel> {
+    async getValues(uuid: string): Promise<ScalarsModel> {
         return null
     }
 
-    async launchTensorboard(
-        experimentName: string,
-        runUuid: string
-    ): Promise<string> {
+    async launchTensorboard(uuid: string): Promise<string> {
         return null
     }
 
-    async launchTensorboards(runs: RunIdentifier[]): Promise<string> {
+    async launchTensorboards(uuids: string[]): Promise<string> {
         return null
     }
 
-    async launchJupyter(
-        experimentName: string,
-        runUuid: string,
-        analyticsTemplate: string
-    ): Promise<string> {
+    async launchJupyter(uuid: string, analyticsTemplate: string): Promise<string> {
         return null
     }
 
-    async getAnalyticsTemplates(
-        experimentName: string,
-        runUuid: string
-    ): Promise<string[]> {
+    async getAnalyticsTemplates(uuid: string): Promise<string[]> {
         return null
     }
 
-    async removeRun(experimentName: string, runUuid: string): Promise<void> {
+    async removeRun(uuid: string): Promise<void> {
         return null
     }
 
-    async cleanupCheckpoints(
-        experimentName: string,
-        runUuid: string
-    ): Promise<void> {
+    async cleanupCheckpoints(uuid: string): Promise<void> {
         return null
     }
 
-    async updateRun(
-        experimentName: string,
-        runUuid: string,
-        data: { [key: string]: string }
-    ): Promise<void> {
+    async updateRun(uuid: string, data: { [key: string]: string }): Promise<void> {
         return null
     }
 
-    async saveDashboard(
-        name: string,
-        cells: CellOptions[]
-    ): Promise<void> {
+    async saveDashboard(name: string, cells: CellOptions[]): Promise<void> {
         return null
     }
 
-    async loadDashboards(): Promise<{[dashboard: string]: CellOptions[]}> {
+    async loadDashboards(): Promise<{ [dashboard: string]: CellOptions[] }> {
         return null
     }
 }

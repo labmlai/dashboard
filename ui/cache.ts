@@ -1,19 +1,12 @@
 import {API} from './app'
-import {Experiments} from '../common/experiments'
+import {RunCollection} from '../common/experiments'
 import {RunUI} from "./run_ui";
 
-let EXPERIMENTS = null
-
-export async function getExperiments(): Promise<Experiments> {
-    if (EXPERIMENTS != null) {
-        return EXPERIMENTS
-    }
-
+export async function getRuns(): Promise<RunCollection> {
     console.log("Reloading all")
-    return new Experiments(await API.getExperiments())
+    return new RunCollection(await API.getRuns())
 }
 
 export function clearCache() {
-    EXPERIMENTS = null
     RunUI.clearCache()
 }

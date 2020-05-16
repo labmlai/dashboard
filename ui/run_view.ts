@@ -1,7 +1,7 @@
 import {ROUTER, SCREEN} from './app'
 import {Weya as $, WeyaElement} from '../lib/weya/weya'
 import {Run} from '../common/experiments'
-import {clearCache, getExperiments} from './cache'
+import {clearCache, getRuns} from './cache'
 import {RunUI} from './run_ui'
 import {renderConfigs} from './configs'
 import {renderValues} from './indicators'
@@ -30,7 +30,7 @@ class RunView implements ScreenView {
     tensorboardBtn: HTMLButtonElement
     indicatorsView: HTMLDivElement
     experimentName: string
-    runUuid: string
+    uuid: string
     runView: HTMLDivElement
     configsView: HTMLDivElement
     jupyterBtn: HTMLButtonElement
@@ -43,9 +43,8 @@ class RunView implements ScreenView {
     private tagsInputContainer: HTMLElement;
     private tagEditBtn: HTMLButtonElement;
 
-    constructor(experimentName: string, runUuid: string) {
-        this.experimentName = experimentName
-        this.runUuid = runUuid
+    constructor(uuid: string) {
+        this.uuid = uuid
 
         let events = []
         for (let k in this.events) {
@@ -69,16 +68,13 @@ class RunView implements ScreenView {
     }
 
     private async renderRun() {
-        let experiment = (await getExperiments()).get(this.experimentName)
-        this.run = experiment.getRun(this.runUuid)
+        this.run = (await getRuns()).getRun(this.uuid)
         this.runUI = RunUI.create(this.run)
 
-        let info = this.run.info
-        let comment = info.comment.trim() === '' ? '[comment]' : info.comment
+        let comment = this.run.comment.trim() === '' ? '[comment]' : this.run.comment
         $(this.runView, $ => {
             $('h1', $ => {
-                $('label', `${this.run.experimentName}`,
-                    {on: {click: this.events.experiment}})
+                $('label', `${this.run.name}`)
                 $('span', ":" + ' ')
                 $('span', $ => {
                     this.commentSpan = <HTMLSpanElement>$('span', comment, {
@@ -130,7 +126,7 @@ class RunView implements ScreenView {
                 new InfoList(
                     [
                         ['.key', 'UUID'],
-                        ['.value', info.uuid]
+                        ['.value', this.run.uuid]
                     ],
                     ''
                 ).render($)
@@ -138,13 +134,13 @@ class RunView implements ScreenView {
                 new InfoList(
                     [
                         ['.key', 'Date & Time'],
-                        ['.value', `${info.trial_date} ${info.trial_time}`]
+                        ['.value', `${this.run.trial_date} ${this.run.trial_time}`]
                     ],
                     ''
                 ).render($)
             })
 
-            if (info.load_run != null) {
+            if (this.run.load_run != null) {
                 $('div.block', $ => {
                     let load_info: InfoItem[] = [
                         ['.key', 'Loaded run']
@@ -153,7 +149,7 @@ class RunView implements ScreenView {
                         '.link',
                         $ => {
                             $('span', ' ')
-                            $('button.inline', `${info.load_run}`, {
+                            $('button.inline', `${this.run.load_run}`, {
                                 on: {click: this.events.loadRun}
                             })
                         }
@@ -163,7 +159,7 @@ class RunView implements ScreenView {
                     new InfoList(
                         [
                             ['.key', 'Starting step'],
-                            ['.value', `${info.start_step}`]
+                            ['.value', `${this.run.start_step}`]
                         ],
                         ''
                     ).render($)
@@ -173,9 +169,9 @@ class RunView implements ScreenView {
             $('div.block', $ => {
                 let commit_info: InfoItem[] = [
                     ['.key', 'Commit'],
-                    ['.value', info.commit]
+                    ['.value', this.run.commit]
                 ]
-                if (info.is_dirty) {
+                if (this.run.is_dirty) {
                     commit_info.push([
                         '.link',
                         $ => {
@@ -191,7 +187,7 @@ class RunView implements ScreenView {
                 new InfoList(
                     [
                         ['.key', 'Commit message'],
-                        ['.value', info.commit_message]
+                        ['.value', this.run.commit_message]
                     ],
                     ''
                 ).render($)
@@ -199,7 +195,7 @@ class RunView implements ScreenView {
                 new InfoList(
                     [
                         ['.key', 'Python File'],
-                        ['.value', info.python_file]
+                        ['.value', this.run.python_file]
                     ],
                     '.mono'
                 ).render($)
@@ -239,10 +235,10 @@ class RunView implements ScreenView {
             $('div.block', $ => {
                 $('h3', 'Storage space')
                 let size =
-                    info.sqlite_size +
-                    info.analytics_size +
-                    info.checkpoints_size +
-                    info.tensorboard_size
+                    this.run.sqlite_size +
+                    this.run.analytics_size +
+                    this.run.checkpoints_size +
+                    this.run.tensorboard_size
 
                 new InfoList(
                     [
@@ -255,7 +251,7 @@ class RunView implements ScreenView {
                 new InfoList(
                     [
                         ['.key', 'Checkpoints'],
-                        ['.value', formatSize(info.checkpoints_size)]
+                        ['.value', formatSize(this.run.checkpoints_size)]
                     ],
                     '.mono'
                 ).render($)
@@ -263,7 +259,7 @@ class RunView implements ScreenView {
                 new InfoList(
                     [
                         ['.key', 'SQLite'],
-                        ['.value', formatSize(info.sqlite_size)]
+                        ['.value', formatSize(this.run.sqlite_size)]
                     ],
                     '.mono'
                 ).render($)
@@ -271,7 +267,7 @@ class RunView implements ScreenView {
                 new InfoList(
                     [
                         ['.key', 'Analytics'],
-                        ['.value', formatSize(info.analytics_size)]
+                        ['.value', formatSize(this.run.analytics_size)]
                     ],
                     '.mono'
                 ).render($)
@@ -279,7 +275,7 @@ class RunView implements ScreenView {
                 new InfoList(
                     [
                         ['.key', 'TensorBoard'],
-                        ['.value', formatSize(info.tensorboard_size)]
+                        ['.value', formatSize(this.run.tensorboard_size)]
                     ],
                     '.mono'
                 ).render($)
@@ -307,7 +303,7 @@ class RunView implements ScreenView {
         this.tagsList.innerHTML = ''
 
         $(this.tagsList, $ => {
-            for (let tag of this.run.info.tags) {
+            for (let tag of this.run.tags) {
                 $('button.inline', tag,
                     {on: {click: this.events.tag.bind(this, tag)}})
             }
@@ -317,7 +313,7 @@ class RunView implements ScreenView {
     private events = {
         tag: (tag) => {
             ROUTER.navigate(
-                `/tag/${tag}`
+                `/table/default/${tag}`
             )
         },
 
@@ -331,21 +327,11 @@ class RunView implements ScreenView {
         },
 
         dirty: () => {
-            ROUTER.navigate(
-                `/experiment/${this.run.experimentName}/${this.run.info.uuid}/diff`
-            )
+            ROUTER.navigate(`/run/${this.run.uuid}/diff`)
         },
 
         loadRun: () => {
-            ROUTER.navigate(
-                `/experiment/${this.run.experimentName}/${this.run.info.load_run}`
-            )
-        },
-
-        experiment: () => {
-            ROUTER.navigate(
-                `/experiment/${this.run.experimentName}`
-            )
+            ROUTER.navigate(`/run/${this.run.load_run}`)
         },
 
         remove: async (e: Event) => {
@@ -365,7 +351,7 @@ class RunView implements ScreenView {
         editComment: async (e: Event) => {
             this.commentSpan.style.display = 'none'
             this.commentInputContainer.style.display = null
-            this.commentInput.value = this.run.info.comment
+            this.commentInput.value = this.run.comment
             this.commentInput.focus()
         },
 
@@ -393,7 +379,7 @@ class RunView implements ScreenView {
             this.tagsList.style.display = 'none'
             this.tagEditBtn.style.display = 'none'
             this.tagsInputContainer.style.display = null
-            this.tagsInput.value = this.run.info.tags.join(', ')
+            this.tagsInput.value = this.run.tags.join(', ')
             this.tagsInput.focus()
         },
 
@@ -410,11 +396,9 @@ class RunView implements ScreenView {
     }
 
     private async saveComment(comment: string) {
-        if (this.run.info.comment === comment) {
+        if (this.run.comment === comment) {
             return
         }
-
-        this.run.info.comment = comment
 
         await this.runUI.update({comment: comment})
 
@@ -437,7 +421,6 @@ class RunView implements ScreenView {
         this.tagsList.style.display = null
         this.tagEditBtn.style.display = null
         this.tagsInputContainer.style.display = 'none'
-        this.run.info.tags = tagList
         this.renderTagList()
     }
 
@@ -472,10 +455,10 @@ class RunView implements ScreenView {
 
 export class RunHandler {
     constructor() {
-        ROUTER.route('experiment/:name/:runUuid', [this.handleRun])
+        ROUTER.route('run/:uuid', [this.handleRun])
     }
 
-    handleRun = (name: string, runUuid: string) => {
-        SCREEN.setView(new RunView(name, runUuid))
+    handleRun = (uuid: string) => {
+        SCREEN.setView(new RunView(uuid))
     }
 }

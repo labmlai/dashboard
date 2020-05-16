@@ -9,8 +9,8 @@ interface RunNode {
 export class RunsTree {
     private readonly runs: RunUI[];
     private readonly tree: RunNode[]
-    private readonly fullMap: { [p: string]: { [p: string]: RunUI } };
-    private readonly treeMap: { [p: string]: { [p: string]: RunNode } };
+    private readonly fullMap: { [p: string]: RunUI }
+    private readonly treeMap: { [p: string]: RunNode }
 
     constructor(allRuns: RunUI[], runs: RunUI[]) {
         this.runs = runs;
@@ -19,15 +19,12 @@ export class RunsTree {
         this.tree = []
     }
 
-    private static getRunIndexes(runs: RunUI[]): { [p: string]: { [p: string]: RunUI } } {
+    private static getRunIndexes(runs: RunUI[]): { [p: string]: RunUI } {
         let indexes = {}
 
         for (let runUI of runs) {
             let r = runUI.run
-            if (indexes[r.experimentName] == null) {
-                indexes[r.experimentName] = {}
-            }
-            indexes[r.experimentName][r.info.uuid] = runUI
+            indexes[r.uuid] = runUI
         }
 
         return indexes
@@ -46,17 +43,16 @@ export class RunsTree {
     }
 
     private getParent(run: RunUI): RunUI {
-        let uuid = run.run.info.load_run
+        let uuid = run.run.load_run
         if (uuid == null) {
             return null
         }
-        return this.fullMap[run.run.experimentName][uuid]
+        return this.fullMap[uuid]
     }
 
     private addRun(run: RunUI) {
-        let exp = run.run.experimentName
-        let uuid = run.run.info.uuid
-        if (this.treeMap[exp] != null && this.treeMap[exp][uuid] != null) {
+        let uuid = run.run.uuid
+        if (this.treeMap[uuid] != null) {
             return
         }
 
@@ -70,13 +66,10 @@ export class RunsTree {
             run.generations = parentRun.generations + 1
             parentRun.children++
             this.addRun(parentRun)
-            this.treeMap[parentRun.run.experimentName][parentRun.run.info.uuid].children.push(node)
+            this.treeMap[parentRun.run.uuid].children.push(node)
         }
 
-        if (this.treeMap[exp] == null) {
-            this.treeMap[exp] = {}
-        }
-        this.treeMap[exp][uuid] = node
+        this.treeMap[uuid] = node
     }
 
     private buildTree() {

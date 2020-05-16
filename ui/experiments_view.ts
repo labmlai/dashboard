@@ -2,11 +2,13 @@
 This is not used anymore
  */
 
-import {ScreenView} from './screen'
 import {ROUTER} from './app'
+
+/*
+import {ScreenView} from './screen'
 import {Weya as $, WeyaElement} from '../lib/weya/weya'
 import {Experiments, Experiment, Run} from '../common/experiments'
-import {getExperiments} from './cache'
+import {getRuns} from './cache'
 import {RunUI} from './run_ui'
 import {renderValues} from './indicators'
 
@@ -82,7 +84,7 @@ class ExperimentsView implements ScreenView {
     }
 
     private async renderExperiments() {
-        this.experiments = await getExperiments()
+        this.experiments = await getRuns()
 
         let views: ExperimentView[] = []
         for (let e of this.experiments.sorted()) {
@@ -94,7 +96,7 @@ class ExperimentsView implements ScreenView {
         }
     }
 }
-
+*/
 export class ExperimentsHandler {
     constructor() {
         ROUTER.route('', [this.handleExperiments])

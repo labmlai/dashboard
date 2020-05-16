@@ -67,7 +67,7 @@ function mergeConfig(configs: any[]) {
             }
 
             if (k === 'analytics_templates') {
-                for (let [name, template] of Object.entries(v)) {
+                for (let [name, template] of Object.entries(<{ [name: string]: string }>v)) {
                     config.analytics_templates[name] = PATH.resolve(
                         c.config_file_path,
                         template

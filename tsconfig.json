@@ -3,6 +3,10 @@
     "target": "es6",
     "module": "commonjs",
     "sourceMap": false,
-    "outDir": "app"
+    "outDir": "app",
+    "lib": [
+      "es2017",
+      "dom"
+    ]
   }
 }

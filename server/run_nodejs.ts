@@ -33,8 +33,8 @@ export class RunNodeJS {
 
         let path = PATH.join(
             LAB.experiments,
-            this.run.experimentName,
-            this.run.info.uuid,
+            this.run.name,
+            this.run.uuid,
             'sqlite.db'
         )
 
@@ -85,8 +85,8 @@ export class RunNodeJS {
             let contents = await readFile(
                 PATH.join(
                     LAB.experiments,
-                    this.run.experimentName,
-                    this.run.info.uuid,
+                    this.run.name,
+                    this.run.uuid,
                     'indicators.yaml'
                 ))
             this.indicators = new Indicators(YAML.parse(contents))
@@ -101,8 +101,8 @@ export class RunNodeJS {
                 let contents = await readFile(
                     PATH.join(
                         LAB.experiments,
-                        this.run.experimentName,
-                        this.run.info.uuid,
+                        this.run.name,
+                        this.run.uuid,
                         'configs.yaml'
                     ))
                 this.configs = new Configs(YAML.parse(contents))
@@ -118,8 +118,8 @@ export class RunNodeJS {
         return await readFile(
             PATH.join(
                 LAB.experiments,
-                this.run.experimentName,
-                this.run.info.uuid,
+                this.run.name,
+                this.run.uuid,
                 'source.diff'
             ))
     }
@@ -140,7 +140,7 @@ export class RunNodeJS {
                 //     `SQLite db is missing ${this.run.experimentName} : ${this.run.info.uuid}`)
             } else {
                 console.log(
-                    `SQLite connect failed ${this.run.experimentName} : ${this.run.info.uuid}`,
+                    `SQLite connect failed ${this.run.name} : ${this.run.uuid}`,
                     e)
             }
             return {}
@@ -154,8 +154,8 @@ export class RunNodeJS {
         } catch (e) {
             console.log(
                 'Couldnt read from SQLite db',
-                this.run.experimentName,
-                this.run.info.uuid,
+                this.run.name,
+                this.run.uuid,
                 e
             )
             return {}
@@ -189,14 +189,14 @@ export class RunNodeJS {
     async remove() {
         let path = PATH.join(
             LAB.experiments,
-            this.run.experimentName,
-            this.run.info.uuid
+            this.run.name,
+            this.run.uuid
         )
         await rmtree(path)
         let analytics = PATH.join(
             LAB.analytics,
-            this.run.experimentName,
-            this.run.info.uuid
+            this.run.name,
+            this.run.uuid
         )
         await rmtree(analytics)
     }
@@ -210,13 +210,13 @@ export class RunNodeJS {
 
         let path = PATH.join(
             LAB.experiments,
-            this.run.experimentName,
-            this.run.info.uuid,
+            this.run.name,
+            this.run.uuid,
             'run.yaml'
         )
         let contents = await readFile(path)
         let run: RunModel = YAML.parse(contents)
-        run = Run.fixRunModel(this.run.experimentName, run)
+        run = Run.fixRunModel(run)
 
         for (let k in data) {
             run[k] = data[k]
@@ -228,8 +228,8 @@ export class RunNodeJS {
     async cleanupCheckpoints() {
         let path = PATH.join(
             LAB.experiments,
-            this.run.experimentName,
-            this.run.info.uuid,
+            this.run.name,
+            this.run.uuid,
             'checkpoints'
         )
 

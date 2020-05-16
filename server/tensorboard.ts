@@ -25,11 +25,11 @@ export class Tensorboard {
             try {
                 await symlink(PATH.join(
                     LAB.experiments,
-                    r.experimentName,
-                    r.info.uuid,
+                    r.name,
+                    r.uuid,
                     'tensorboard'
                     ),
-                    PATH.join(path, `${r.experimentName}_${r.info.uuid}`))
+                    PATH.join(path, `${r.uuid}`))
             } catch (e) {
                 console.log(e)
             }

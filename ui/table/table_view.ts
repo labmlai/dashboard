@@ -1,8 +1,7 @@
 import {ScreenView} from '../screen'
 import {ROUTER, SCREEN} from '../app'
 import {Weya as $, WeyaElement} from '../../lib/weya/weya'
-import {Experiments} from '../../common/experiments'
-import {getExperiments} from '../cache'
+import {getRuns} from '../cache'
 import {RunUI} from "../run_ui";
 import {Cell} from "./cell";
 import {CellOptions} from "../../common/cell";
@@ -12,6 +11,7 @@ import {RunRowView} from "./run_row";
 import {RunsTree} from "./tree";
 import {RunsRenderer} from "./renderer";
 import {FormatUpdateListener, HeaderControls} from "./header_controls";
+import {RunCollection} from "../../common/experiments";
 
 
 export interface SelectListeners {
@@ -60,12 +60,10 @@ class RunsView implements ScreenView, SyncListeners, FormatUpdateListener {
         }
     }
 
-    private static getRuns(experiments: Experiments) {
+    private static getRuns(runs: RunCollection) {
         let runUIs = []
-        for (let e of experiments.sorted()) {
-            for (let r of e.runs) {
-                runUIs.push(RunUI.create(r))
-            }
+        for (let r of runs.runs) {
+            runUIs.push(RunUI.create(r))
         }
 
         return runUIs
@@ -125,7 +123,7 @@ class RunsView implements ScreenView, SyncListeners, FormatUpdateListener {
     }
 
     async onReload() {
-        this.runs = RunsView.getRuns(await getExperiments())
+        this.runs = RunsView.getRuns(await getRuns())
         let promises = []
         for (let r of this.runs) {
             promises.push(r.loadConfigs())
@@ -193,7 +191,7 @@ class RunsView implements ScreenView, SyncListeners, FormatUpdateListener {
         let start = new Date().getTime()
         await this.format.load()
 
-        this.runs = RunsView.getRuns(await getExperiments())
+        this.runs = RunsView.getRuns(await getRuns())
         let promises = []
         for (let r of this.runs) {
             promises.push(r.loadConfigs())

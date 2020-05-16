@@ -32,16 +32,13 @@ export class RunUI {
             return this.indicators
         }
 
-        if (this.run.info.indicators != null) {
-            this.indicators = new Indicators(this.run.info.indicators)
+        if (this.run.indicators != null) {
+            this.indicators = new Indicators(this.run.indicators)
             return this.indicators
         }
 
         this.indicators = new Indicators(
-            await API.getIndicators(
-                this.run.experimentName,
-                this.run.info.uuid
-            )
+            await API.getIndicators(this.run.uuid)
         )
 
         return this.indicators
@@ -52,16 +49,13 @@ export class RunUI {
             return this.configs
         }
 
-        if (this.run.info.configs != null) {
-            this.configs = new Configs(this.run.info.configs)
+        if (this.run.configs != null) {
+            this.configs = new Configs(this.run.configs)
             return this.configs
         }
 
         this.configs = new Configs(
-            await API.getConfigs(
-                this.run.experimentName,
-                this.run.info.uuid
-            )
+            await API.getConfigs(this.run.uuid)
         )
 
         return this.configs
@@ -69,10 +63,7 @@ export class RunUI {
 
     async loadDiff(): Promise<string> {
         if (this.diff == null) {
-            this.diff = await API.getDiff(
-                this.run.experimentName,
-                this.run.info.uuid
-            )
+            this.diff = await API.getDiff(this.run.uuid)
         }
 
         return this.diff
@@ -83,59 +74,44 @@ export class RunUI {
             return this.values
         }
 
-        if (this.run.info.values != null) {
-            this.values = this.run.info.values
+        if (this.run.values != null) {
+            this.values = this.run.values
             return this.values
         }
 
-        this.values = await API.getValues(
-            this.run.experimentName,
-            this.run.info.uuid
-        )
+        this.values = await API.getValues(this.run.uuid)
 
         return this.values
     }
 
     async launchTensorboard(): Promise<string> {
-        return await API.launchTensorboard(
-            this.run.experimentName,
-            this.run.info.uuid
-        )
+        return await API.launchTensorboard(this.run.uuid)
     }
 
     async launchJupyter(templateName: string): Promise<string> {
         return await API.launchJupyter(
-            this.run.experimentName,
-            this.run.info.uuid,
+            this.run.uuid,
             templateName
         )
     }
 
     async getAnalyticsTemplates(): Promise<string[]> {
-        return await API.getAnalyticsTemplates(
-            this.run.experimentName,
-            this.run.info.uuid
-        )
+        return await API.getAnalyticsTemplates(this.run.uuid)
     }
 
     async remove() {
-        return await API.removeRun(this.run.experimentName, this.run.info.uuid)
+        return await API.removeRun(this.run.uuid)
     }
 
     async cleanupCheckpoints() {
-        return await API.cleanupCheckpoints(
-            this.run.experimentName,
-            this.run.info.uuid
-        )
+        return await API.cleanupCheckpoints(this.run.uuid)
     }
 
     async update(data: { [key: string]: any }) {
         clearCache()
 
-        return await API.updateRun(
-            this.run.experimentName,
-            this.run.info.uuid,
-            data
-        )
+        this.run.update(data)
+
+        return await API.updateRun(this.run.uuid, data)
     }
 }

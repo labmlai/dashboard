@@ -1,11 +1,12 @@
 /*
 This is no longer used
  */
+/*
 import {ScreenView} from './screen'
 import {ROUTER, SCREEN} from './app'
 import {Weya as $, WeyaElement} from '../lib/weya/weya'
 import {Experiment, Run, ScalarsModel, Configs} from '../common/experiments'
-import {getExperiments} from './cache'
+import {getRuns} from './cache'
 import {RunUI} from './run_ui'
 import {renderConfigs} from './configs'
 import {renderValues} from './indicators'
@@ -173,7 +174,7 @@ class ExperimentView implements ScreenView {
     }
 
     private async renderExperiment() {
-        this.experiment = (await getExperiments()).get(this.name)
+        this.experiment = (await getRuns()).get(this.name)
 
         this.experimentView.append(
             $('div.info', $ => {
@@ -195,3 +196,4 @@ export class ExperimentHandler {
         SCREEN.setView(new ExperimentView(name))
     }
 }
+*/

@@ -1,11 +1,4 @@
-import {
-    ConfigsModel,
-    ExperimentsModel,
-    IndicatorsModel,
-    Run,
-    RunIdentifier,
-    ScalarsModel
-} from '../common/experiments'
+import {ConfigsModel, IndicatorsModel, Run, RunModel, ScalarsModel} from '../common/experiments'
 import {Api} from '../common/api'
 import {ExperimentsFactory} from './experiments/cache'
 import {RunNodeJS} from './run_nodejs'
@@ -20,54 +13,42 @@ import * as YAML from "yaml";
 let TENSORBOARD: Tensorboard = null
 let JUPYTER: Jupyter = null
 
-async function getRun(experimentName: string, runUuid: string) {
-    let experiment = await ExperimentsFactory.loadExperiment(experimentName)
-    return RunNodeJS.create(experiment.getRun(runUuid))
+async function getRun(runUuid: string) {
+    let runs = await ExperimentsFactory.load()
+    return RunNodeJS.create(runs.getRun(runUuid))
 }
 
 class ApiServer extends Api {
-    async getExperiments(): Promise<ExperimentsModel> {
-        let experiments = await ExperimentsFactory.load()
-        return experiments.toJSON()
+    async getRuns(): Promise<RunModel[]> {
+        let runs = await ExperimentsFactory.load()
+        return runs.toJSON()
     }
 
-    async getIndicators(
-        experimentName: string,
-        runUuid: string
-    ): Promise<IndicatorsModel> {
-        let run = await getRun(experimentName, runUuid)
+    async getIndicators(uuid: string): Promise<IndicatorsModel> {
+        let run = await getRun(uuid)
         let indicators = await run.getIndicators()
         return indicators.toJSON()
     }
 
-    async getConfigs(
-        experimentName: string,
-        runUuid: string
-    ): Promise<ConfigsModel> {
-        let run = await getRun(experimentName, runUuid)
+    async getConfigs(uuid: string): Promise<ConfigsModel> {
+        let run = await getRun(uuid)
         let configs = await run.getConfigs()
         return configs.toJSON()
     }
 
-    async getDiff(experimentName: string, runUuid: string): Promise<string> {
-        let run = await getRun(experimentName, runUuid)
+    async getDiff(uuid: string): Promise<string> {
+        let run = await getRun(uuid)
         return await run.getDiff()
     }
 
-    async getValues(
-        experimentName: string,
-        runUuid: string
-    ): Promise<ScalarsModel> {
-        let run = await getRun(experimentName, runUuid)
+    async getValues(uuid: string): Promise<ScalarsModel> {
+        let run = await getRun(uuid)
         return await run.getValues()
     }
 
-    async launchTensorboard(
-        experimentName: string,
-        runUuid: string
-    ): Promise<string> {
-        let experiment = await ExperimentsFactory.loadExperiment(experimentName)
-        let run = experiment.getRun(runUuid)
+    async launchTensorboard(uuid: string): Promise<string> {
+        let runs = await ExperimentsFactory.load()
+        let run = runs.getRun(uuid)
         if (TENSORBOARD != null) {
             TENSORBOARD.stop()
         }
@@ -82,11 +63,11 @@ class ApiServer extends Api {
         }
     }
 
-    async launchTensorboards(runs: RunIdentifier[]): Promise<string> {
+    async launchTensorboards(uuids: string[]): Promise<string> {
         let runsList: Run[] = []
-        for (let r of runs) {
-            let experiment = await ExperimentsFactory.loadExperiment(r.experimentName)
-            runsList.push(experiment.getRun(r.runUuid))
+        for (let r of uuids) {
+            let runs = await ExperimentsFactory.load()
+            runsList.push(runs.getRun(r))
         }
         if (TENSORBOARD != null) {
             TENSORBOARD.stop()
@@ -101,13 +82,9 @@ class ApiServer extends Api {
         }
     }
 
-    async launchJupyter(
-        experimentName: string,
-        runUuid: string,
-        analyticsTemplate: string
-    ): Promise<string> {
-        let experiment = await ExperimentsFactory.loadExperiment(experimentName)
-        let run = experiment.getRun(runUuid)
+    async launchJupyter(uuid: string, analyticsTemplate: string): Promise<string> {
+        let runs = await ExperimentsFactory.load()
+        let run = runs.getRun(uuid)
 
         if (JUPYTER == null) {
             JUPYTER = new Jupyter()
@@ -122,11 +99,8 @@ class ApiServer extends Api {
         return await JUPYTER.setupTemplate(run, analyticsTemplate)
     }
 
-    async getAnalyticsTemplates(
-        experimentName: string,
-        runUuid: string
-    ): Promise<string[]> {
-        let run = await getRun(experimentName, runUuid)
+    async getAnalyticsTemplates(uuid: string): Promise<string[]> {
+        let run = await getRun(uuid)
         let templateNames = []
         let lab = await run.getLab()
         for (let k in lab.analyticsTemplates) {
@@ -135,32 +109,25 @@ class ApiServer extends Api {
         return templateNames
     }
 
-    async removeRun(experimentName: string, runUuid: string): Promise<void> {
+    async removeRun(uuid: string): Promise<void> {
         try {
-            let run = await getRun(experimentName, runUuid)
+            let run = await getRun(uuid)
             await run.remove()
-            ExperimentsFactory.cacheReset(experimentName, runUuid)
+            ExperimentsFactory.cacheReset(uuid)
         } catch (e) {
         }
     }
 
-    async cleanupCheckpoints(
-        experimentName: string,
-        runUuid: string
-    ): Promise<void> {
-        let run = await getRun(experimentName, runUuid)
+    async cleanupCheckpoints(uuid: string): Promise<void> {
+        let run = await getRun(uuid)
         await run.cleanupCheckpoints()
-        ExperimentsFactory.cacheReset(experimentName, runUuid)
+        ExperimentsFactory.cacheReset(uuid)
     }
 
-    async updateRun(
-        experimentName: string,
-        runUuid: string,
-        data: { [key: string]: string }
-    ): Promise<void> {
-        let run = await getRun(experimentName, runUuid)
+    async updateRun(uuid: string, data: { [key: string]: string }): Promise<void> {
+        let run = await getRun(uuid)
         await run.update(data)
-        ExperimentsFactory.cacheReset(experimentName, runUuid)
+        ExperimentsFactory.cacheReset(uuid)
     }
 
     async saveDashboard(name: string, cells: CellOptions[]): Promise<void> {

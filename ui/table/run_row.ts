@@ -40,7 +40,7 @@ export class RunRowView {
             this.selectIcon = <HTMLElement>$('i.fa.fa-square', {on: {click: this.onSelect}})
             $('a', {
                 on: {click: this.onOpen},
-                href: `/experiment/${this.run.run.experimentName}/${this.run.run.info.uuid}`
+                href: `/run/${this.run.run.name}/${this.run.run.uuid}`
             }, $ => {
                 $('i.fa.fa-file')
             })
@@ -74,7 +74,7 @@ export class RunRowView {
         e.preventDefault()
         e.stopPropagation()
 
-        ROUTER.navigate(`/experiment/${this.run.run.experimentName}/${this.run.run.info.uuid}`)
+        ROUTER.navigate(`/run/${this.run.run.uuid}`)
     }
 
 }

@@ -1,6 +1,6 @@
 import * as YAML from 'yaml'
 import * as PATH from 'path'
-import {Experiment, Experiments, Run, RunModel} from '../../common/experiments'
+import {Run, RunCollection, RunModel} from '../../common/experiments'
 import {LAB} from '../consts'
 import {getDiskUsage, readdir, readFile} from '../util'
 import {RunNodeJS} from "../run_nodejs";
@@ -47,13 +47,13 @@ abstract class CacheEntry<T> {
 }
 
 class RunModelCacheEntry extends CacheEntry<RunModel> {
-    private readonly experimentName: string;
-    private readonly runUuid: string;
+    private readonly name: string;
+    private readonly uuid: string;
 
-    constructor(experimentName: string, runUuid: string) {
+    constructor(name: string, uuid: string) {
         super();
-        this.experimentName = experimentName;
-        this.runUuid = runUuid;
+        this.name = name;
+        this.uuid = uuid;
     }
 
     private getMaxStep(run: RunModel) {
@@ -72,26 +72,27 @@ class RunModelCacheEntry extends CacheEntry<RunModel> {
     protected async load(): Promise<RunModel> {
         // console.log("loaded", this.experimentName, this.runUuid)
         let contents = await readFile(
-            PATH.join(LAB.experiments, this.experimentName, this.runUuid, 'run.yaml'),
+            PATH.join(LAB.experiments, this.name, this.uuid, 'run.yaml'),
         )
         let res: RunModel = YAML.parse(contents)
-        res = Run.fixRunModel(this.experimentName, res)
+        res.name = this.name
+        res = Run.fixRunModel(res)
 
-        res.uuid = this.runUuid
+        res.uuid = this.uuid
         res.checkpoints_size = await getDiskUsage(
-            PATH.join(LAB.experiments, this.experimentName, this.runUuid, 'checkpoints')
+            PATH.join(LAB.experiments, this.name, this.uuid, 'checkpoints')
         )
         res.tensorboard_size = await getDiskUsage(
-            PATH.join(LAB.experiments, this.experimentName, this.runUuid, 'tensorboard')
+            PATH.join(LAB.experiments, this.name, this.uuid, 'tensorboard')
         )
         res.sqlite_size = await getDiskUsage(
-            PATH.join(LAB.experiments, this.experimentName, this.runUuid, 'sqlite.db')
+            PATH.join(LAB.experiments, this.name, this.uuid, 'sqlite.db')
         )
         res.analytics_size = await getDiskUsage(
-            PATH.join(LAB.analytics, this.experimentName, this.runUuid)
+            PATH.join(LAB.analytics, this.name, this.uuid)
         )
 
-        let run = RunNodeJS.create(new Run(this.experimentName, res))
+        let run = RunNodeJS.create(new Run(res))
         res.values = await run.getValues()
         res.configs = (await run.getConfigs()).configs
 
@@ -140,54 +141,49 @@ class ExperimentRunsSetCacheEntry extends CacheEntry<ExperimentRunsSet> {
 
 class Cache {
     experimentRunsSet: ExperimentRunsSetCacheEntry
-    runs: { [name: string]: { [runUUID: string]: RunModelCacheEntry } }
+    runs: { [uuid: string]: RunModelCacheEntry }
 
     constructor() {
         this.experimentRunsSet = new ExperimentRunsSetCacheEntry()
         this.runs = {}
     }
 
-    async getRun(experimentName: string, runUuid: string): Promise<RunModel> {
-        if (this.runs[experimentName] == null) {
-            this.runs[experimentName] = {}
+    async getRun(uuid: string): Promise<RunModel> {
+        if (this.runs[uuid] == null) {
+            let expSet = await this.experimentRunsSet.get()
+            for (let [expName, runs] of Object.entries(expSet)) {
+                if (runs.has(uuid)) {
+                    this.runs[uuid] = new RunModelCacheEntry(expName, uuid)
+                }
+            }
         }
-        if (this.runs[experimentName][runUuid] == null) {
-            this.runs[experimentName][runUuid] = new RunModelCacheEntry(experimentName, runUuid)
-        }
-
-        return await this.runs[experimentName][runUuid].get()
+        return await this.runs[uuid].get()
     }
 
-    async getExperiment(name: string): Promise<Experiment> {
+    private async getExperiment(name: string): Promise<Promise<RunModel>[]> {
         let promises: Promise<RunModel>[] = []
 
         for (let r of (await this.experimentRunsSet.get())[name].keys()) {
-            promises.push(this.getRun(name, r))
+            promises.push(this.getRun(r))
         }
-        let data: RunModel[] = await Promise.all(promises)
-        return new Experiment({name: name, runs: data})
+        return promises
     }
 
-    async getAll(): Promise<Experiments> {
-        let promises: Promise<Experiment>[] = []
+    async getAll(): Promise<RunCollection> {
+        let promises: Promise<RunModel>[] = []
 
         for (let e of Object.keys(await this.experimentRunsSet.get())) {
-            promises.push(this.getExperiment(e))
+            promises = promises.concat(await this.getExperiment(e))
         }
-        let experimentsList = await Promise.all(promises)
+        let runs = await Promise.all(promises)
 
-        let experiments = {}
-        for (let e of experimentsList) {
-            experiments[e.name] = e
-        }
-
-        return new Experiments(experiments)
+        return new RunCollection(runs)
     }
 
-    resetRun(experimentName: string, runUuid: string) {
-        if (this.runs[experimentName] != null && this.runs[experimentName][runUuid] != null) {
+    resetRun(uuid: string) {
+        if (this.runs[uuid] != null) {
             // console.log('resetCache', experimentName, runUuid)
-            this.runs[experimentName][runUuid].reset()
+            this.runs[uuid].reset()
         }
         this.experimentRunsSet.reset()
     }
@@ -196,17 +192,13 @@ class Cache {
 const _CACHE = new Cache()
 
 class ExperimentsFactory {
-    static async loadExperiment(name: string): Promise<Experiment> {
-        return await _CACHE.getExperiment(name)
-    }
-
-    static async load(): Promise<Experiments> {
+    static async load(): Promise<RunCollection> {
         return await _CACHE.getAll()
     }
 
-    static cacheReset(experimentName: string, runUuid: string) {
+    static cacheReset(uuid: string) {
         // console.log('reset', experimentName, runUuid)
-        _CACHE.resetRun(experimentName, runUuid)
+        _CACHE.resetRun(uuid)
     }
 }
 
