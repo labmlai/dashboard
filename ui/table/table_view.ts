@@ -328,6 +328,7 @@ class RunsView implements ScreenView, SyncListeners, FormatUpdateListener {
 
 export class TableHandler {
     constructor() {
+        ROUTER.route('', [this.handleRoot])
         ROUTER.route('table', [this.handleTableDefault])
         ROUTER.route('table/:dashboard', [this.handleTable])
         ROUTER.route('table/:dashboard/', [this.handleTable])
@@ -340,5 +341,8 @@ export class TableHandler {
 
     handleTable = (dashboard: string, search: string = '') => {
         SCREEN.setView(new RunsView(dashboard, search))
+    }
+    handleRoot = () => {
+        ROUTER.navigate('table', {replace: true, trigger: true})
     }
 }

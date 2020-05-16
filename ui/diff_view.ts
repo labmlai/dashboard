@@ -9,14 +9,12 @@ class DiffView {
     run: Run
     runUI: RunUI
     elem: WeyaElement
-    experimentName: string
-    runUuid: string
+    uuid: string
     diffView: HTMLDivElement
     diff: string
 
-    constructor(experimentName: string, runUuid: string) {
-        this.experimentName = experimentName
-        this.runUuid = runUuid
+    constructor(uuid: string) {
+        this.uuid = uuid
     }
 
     render() {
@@ -30,7 +28,7 @@ class DiffView {
     }
 
     private async renderRun() {
-        this.run = (await getRuns()).getRun(this.runUuid)
+        this.run = (await getRuns()).getRun(this.uuid)
         this.runUI = RunUI.create(this.run)
         this.diff = await this.runUI.loadDiff()
 
@@ -46,10 +44,10 @@ class DiffView {
 
 export class DiffHandler {
     constructor() {
-        ROUTER.route('experiment/:name/:runUuid/diff', [this.handleRun])
+        ROUTER.route('run/:uuid/diff', [this.handleRun])
     }
 
-    handleRun = (name: string, runUuid: string) => {
-        SCREEN.setView(new DiffView(name, runUuid))
+    handleRun = (uuid: string) => {
+        SCREEN.setView(new DiffView(uuid))
     }
 }
