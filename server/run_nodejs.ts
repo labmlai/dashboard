@@ -3,7 +3,8 @@ import {Configs, Indicators, Run, RunModel, ScalarsModel} from '../common/experi
 import * as PATH from 'path'
 import * as YAML from 'yaml'
 import {LAB} from './consts'
-import {exists, readdir, readFile, rmtree, writeFile} from './util'
+import {exists, mkdir, readdir, readFile, rename, rmtree, writeFile} from './util'
+import {ExperimentsFactory} from "./experiments/cache";
 
 const UPDATABLE_KEYS = new Set(['comment', 'notes', 'tags'])
 const USE_CACHE = true
@@ -202,10 +203,9 @@ export class RunNodeJS {
     }
 
     async update(data: { [key: string]: string }) {
-        for (let k in data) {
-            if (!UPDATABLE_KEYS.has(k)) {
-                return
-            }
+        let name: string = null
+        if (data['name'] != null) {
+            name = data['name']
         }
 
         let path = PATH.join(
@@ -216,13 +216,45 @@ export class RunNodeJS {
         )
         let contents = await readFile(path)
         let run: RunModel = YAML.parse(contents)
-        run = Run.fixRunModel(run)
+        run = Run.fixRunModel(this.run.name, run)
 
         for (let k in data) {
-            run[k] = data[k]
+            if (UPDATABLE_KEYS.has(k)) {
+                run[k] = data[k]
+            }
         }
 
         await writeFile(path, YAML.stringify(run))
+
+        if (name != null) {
+            await this.rename(name)
+        }
+    }
+
+    async rename(name) {
+        let oldPath = PATH.join(
+            LAB.experiments,
+            this.run.name,
+            this.run.uuid
+        )
+
+        let folder = PATH.join(
+            LAB.experiments,
+            name,
+        )
+
+        let newPath = PATH.join(
+            LAB.experiments,
+            name,
+            this.run.uuid
+        )
+
+        if (!await exists(folder)) {
+            await mkdir(folder, {recursive: true})
+        }
+
+        await rename(oldPath, newPath)
+        ExperimentsFactory.cacheReset(this.run.uuid)
     }
 
     async cleanupCheckpoints() {

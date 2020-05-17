@@ -2,6 +2,7 @@ import * as UTIL from 'util'
 import * as FS from 'fs'
 import {MakeDirectoryOptions} from 'fs'
 import * as PATH from 'path'
+import exp = require("constants");
 
 export let readdir = UTIL.promisify(FS.readdir)
 
@@ -43,6 +44,18 @@ export function mkdir(path: string, options: MakeDirectoryOptions | null = null)
 
 export let copyFile = UTIL.promisify(FS.copyFile)
 export let symlink = UTIL.promisify(FS.symlink)
+
+export async function rename(oldPath: string, newPath: string) {
+    return new Promise<void>(((resolve, reject) => {
+        FS.rename(oldPath, newPath, (err) => {
+            if (err != null) {
+                reject(err)
+            } else {
+                resolve()
+            }
+        })
+    }))
+}
 
 export async function exists(path: string) {
     try {

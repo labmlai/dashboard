@@ -212,11 +212,12 @@ export class Run {
         return `${this.info.uuid}`
     }
 
-    static fixRunModel(run: RunModel) {
+    static fixRunModel(name: string, run: RunModel) {
         let copy = JSON.parse(JSON.stringify(DEFAULT_RUN_MODEL))
         if (run == null) {
             return copy
         }
+        run.name = name
 
         if (run.tags == null) {
             run.tags = run.name.split('_')

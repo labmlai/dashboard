@@ -8,6 +8,7 @@ import {renderValues} from './indicators'
 import {InfoItem, InfoList} from './view_components/info_list'
 import {formatSize} from './view_components/format'
 import {ScreenView} from "./screen";
+import {EditableField} from "./view_components/editable_field";
 
 function wrapEvent(eventName: string, func: Function) {
     function wrapper() {
@@ -29,19 +30,16 @@ class RunView implements ScreenView {
     elem: WeyaElement
     tensorboardBtn: HTMLButtonElement
     indicatorsView: HTMLDivElement
-    experimentName: string
     uuid: string
     runView: HTMLDivElement
     configsView: HTMLDivElement
-    jupyterBtn: HTMLButtonElement
     analyticsBtns: HTMLDivElement
-    commentSpan: HTMLSpanElement
-    commentInput: HTMLInputElement
     private tagsInput: HTMLInputElement;
     private tagsList: HTMLDivElement;
-    private commentInputContainer: HTMLElement;
     private tagsInputContainer: HTMLElement;
     private tagEditBtn: HTMLButtonElement;
+    private commentField: EditableField;
+    private nameField: EditableField;
 
     constructor(uuid: string) {
         this.uuid = uuid
@@ -74,22 +72,16 @@ class RunView implements ScreenView {
         let comment = this.run.comment.trim() === '' ? '[comment]' : this.run.comment
         $(this.runView, $ => {
             $('h1', $ => {
-                $('label', `${this.run.name}`)
+                $('span', $ => {
+                    this.nameField = new EditableField(this.run.name,
+                        this.saveName, '[name]')
+                    this.nameField.render($)
+                })
                 $('span', ":" + ' ')
                 $('span', $ => {
-                    this.commentSpan = <HTMLSpanElement>$('span', comment, {
-                        on: {click: this.events.editComment}
-                    })
-                    this.commentInputContainer = <HTMLElement>$('div.input-container', $ => {
-                        $('i.input-icon.fa.fa-edit')
-                        this.commentInput = <HTMLInputElement>$('input', {
-                            type: 'text',
-                            on: {
-                                blur: this.events.saveComment,
-                                keydown: this.events.onCommentKeyDown_
-                            }
-                        })
-                    })
+                    this.commentField = new EditableField(this.run.comment,
+                        this.saveComment, '[comment]')
+                    this.commentField.render($)
                 })
             })
 
@@ -290,7 +282,6 @@ class RunView implements ScreenView {
             })
         })
 
-        this.commentInputContainer.style.display = 'none'
 
         this.renderIndicators().then()
         this.renderConfigs().then()
@@ -348,23 +339,6 @@ class RunView implements ScreenView {
             ROUTER.back()
         },
 
-        editComment: async (e: Event) => {
-            this.commentSpan.style.display = 'none'
-            this.commentInputContainer.style.display = null
-            this.commentInput.value = this.run.comment
-            this.commentInput.focus()
-        },
-
-        saveComment: async (e: Event) => {
-            this.saveComment(this.commentInput.value).then()
-        },
-
-        onCommentKeyDown_: async (e: KeyboardEvent) => {
-            if (e.key === 'Enter') {
-                this.saveComment(this.commentInput.value).then()
-            }
-        },
-
         jupyter: async (e: Event) => {
             let target = <any>e.currentTarget
             let url = await this.runUI.launchJupyter(target.template)
@@ -395,16 +369,24 @@ class RunView implements ScreenView {
 
     }
 
-    private async saveComment(comment: string) {
+    saveComment = async (comment: string) => {
         if (this.run.comment === comment) {
             return
         }
 
         await this.runUI.update({comment: comment})
+    }
 
-        this.commentSpan.style.display = null
-        this.commentInputContainer.style.display = 'none'
-        this.commentSpan.textContent = comment
+    saveName = async (name: string) => {
+        if (this.run.name === name) {
+            return
+        }
+        if (name.trim() === '') {
+            this.nameField.change(this.run.name)
+            return
+        }
+
+        await this.runUI.update({name: name})
     }
 
     private async saveTags(tags: string) {

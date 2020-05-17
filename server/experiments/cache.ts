@@ -71,12 +71,18 @@ class RunModelCacheEntry extends CacheEntry<RunModel> {
 
     protected async load(): Promise<RunModel> {
         // console.log("loaded", this.experimentName, this.runUuid)
-        let contents = await readFile(
-            PATH.join(LAB.experiments, this.name, this.uuid, 'run.yaml'),
-        )
+        let contents: string
+        try {
+            contents = await readFile(
+                PATH.join(LAB.experiments, this.name, this.uuid, 'run.yaml'),
+            )
+        } catch (e) {
+            console.log(`Failed to read run ${this.name} - ${this.uuid}`)
+            return null
+        }
+
         let res: RunModel = YAML.parse(contents)
-        res.name = this.name
-        res = Run.fixRunModel(res)
+        res = Run.fixRunModel(this.name, res)
 
         res.uuid = this.uuid
         res.checkpoints_size = await getDiskUsage(
@@ -177,14 +183,21 @@ class Cache {
         }
         let runs = await Promise.all(promises)
 
-        return new RunCollection(runs)
+        let filteredRuns = []
+        for(let r of runs) {
+            if(r != null) {
+                filteredRuns.push(r)
+            }
+        }
+        return new RunCollection(filteredRuns)
     }
 
     resetRun(uuid: string) {
         if (this.runs[uuid] != null) {
             // console.log('resetCache', experimentName, runUuid)
-            this.runs[uuid].reset()
+            delete this.runs[uuid]
         }
+
         this.experimentRunsSet.reset()
     }
 }
