@@ -125,6 +125,14 @@ export class RunNodeJS {
             ))
     }
 
+    async getCode(): Promise<string> {
+        try {
+            return await readFile(this.run.python_file)
+        } catch (e) {
+            return '# File missing'
+        }
+    }
+
     async getValues() {
         if (USE_VALUES_CACHE && this.values != null) {
             return this.values

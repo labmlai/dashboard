@@ -23,6 +23,10 @@ export class Api {
         return null
     }
 
+    async getCode(uuid: string): Promise<string> {
+        return null
+    }
+
     async getValues(uuid: string): Promise<ScalarsModel> {
         return null
     }

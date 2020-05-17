@@ -42,12 +42,55 @@ class DiffView {
     }
 }
 
+
+class CodeView {
+    run: Run
+    runUI: RunUI
+    elem: WeyaElement
+    uuid: string
+    diffView: HTMLDivElement
+    diff: string
+
+    constructor(uuid: string) {
+        this.uuid = uuid
+    }
+
+    render() {
+        this.elem = <HTMLElement>$('div.container', $ => {
+            this.diffView = <HTMLDivElement>$('div.diff', '')
+        })
+
+        this.renderRun().then()
+
+        return this.elem
+    }
+
+    private async renderRun() {
+        this.run = (await getRuns()).getRun(this.uuid)
+        this.runUI = RunUI.create(this.run)
+        this.diff = await this.runUI.loadCode()
+
+        let h = highlight('python', this.diff, true, null)
+        let diffPre: HTMLElement
+        $(this.diffView, $ => {
+            diffPre = <HTMLElement>$('pre')
+        })
+
+        diffPre.innerHTML = h.value
+    }
+}
+
 export class DiffHandler {
     constructor() {
         ROUTER.route('run/:uuid/diff', [this.handleRun])
+        ROUTER.route('run/:uuid/code', [this.handleRunCode])
     }
 
     handleRun = (uuid: string) => {
         SCREEN.setView(new DiffView(uuid))
+    }
+
+    handleRunCode = (uuid: string) => {
+        SCREEN.setView(new CodeView(uuid))
     }
 }

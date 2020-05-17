@@ -184,13 +184,21 @@ class RunView implements ScreenView {
                     ''
                 ).render($)
 
-                new InfoList(
-                    [
-                        ['.key', 'Python File'],
-                        ['.value', this.run.python_file]
-                    ],
-                    '.mono'
-                ).render($)
+                let python_file: InfoItem[] = [
+                    ['.key', 'Python File'],
+                    ['.value', this.run.python_file]
+                ]
+
+                python_file.push([
+                    '.link',
+                    $ => {
+                        $('span', ' ')
+                        $('button.inline', '[view]', {
+                            on: {click: this.events.code}
+                        })
+                    }
+                ])
+                new InfoList(python_file, '.mono').render($)
             })
 
             $('div.block', $ => {
@@ -320,6 +328,11 @@ class RunView implements ScreenView {
         dirty: () => {
             ROUTER.navigate(`/run/${this.run.uuid}/diff`)
         },
+
+        code: () => {
+            ROUTER.navigate(`/run/${this.run.uuid}/code`)
+        },
+
 
         loadRun: () => {
             ROUTER.navigate(`/run/${this.run.load_run}`)

@@ -11,6 +11,7 @@ export class RunUI {
     diff: string
     generations: number = 0
     children: number = 0
+    private code: string;
 
     private constructor(run: Run) {
         this.run = run
@@ -67,6 +68,14 @@ export class RunUI {
         }
 
         return this.diff
+    }
+
+    async loadCode(): Promise<string> {
+        if (this.code == null) {
+            this.code = await API.getCode(this.run.uuid)
+        }
+
+        return this.code
     }
 
     async loadValues(): Promise<ScalarsModel> {

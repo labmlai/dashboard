@@ -41,6 +41,11 @@ class ApiServer extends Api {
         return await run.getDiff()
     }
 
+    async getCode(uuid: string): Promise<string> {
+        let run = await getRun(uuid)
+        return await run.getCode()
+    }
+
     async getValues(uuid: string): Promise<ScalarsModel> {
         let run = await getRun(uuid)
         return await run.getValues()
