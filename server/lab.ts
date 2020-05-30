@@ -93,6 +93,9 @@ async function getConfigFiles(path: string) {
             if (await exists(config_file)) {
                 let contents = await readFile(config_file)
                 let configs = YAML.parse(contents)
+                if(configs == null) {
+                    configs = {}
+                }
                 configs.config_file_path = path
                 configsList.push(configs)
             }
