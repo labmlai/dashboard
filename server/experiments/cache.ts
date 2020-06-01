@@ -70,7 +70,6 @@ class RunModelCacheEntry extends CacheEntry<RunModel> {
     }
 
     protected async load(): Promise<RunModel> {
-        // console.log("loaded", this.experimentName, this.runUuid)
         let contents: string
         try {
             contents = await readFile(

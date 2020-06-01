@@ -193,13 +193,17 @@ export class ValueCell extends Cell {
     protected align = 'right'
 
     renderCellContent($: WeyaElementFunction, run: RunUI) {
-        if (run.values[this.key] != null) {
+        if (!this.isNull(run)) {
             $('span', formatFixed(run.values[this.key].value, this.decimals))
         }
     }
 
+    private isNull(run: RunUI): boolean {
+        return run.values[this.key] == null || run.values[this.key].value == null
+    }
+
     protected getValue(run: RunUI): any {
-        if (run.values[this.key] != null) {
+        if (!this.isNull(run)) {
             return run.values[this.key].value
         } else {
             return null
