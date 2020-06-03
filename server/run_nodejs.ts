@@ -224,7 +224,6 @@ export class RunNodeJS {
         )
         let contents = await readFile(path)
         let run: RunModel = YAML.parse(contents)
-        run = Run.fixRunModel(this.run.name, run)
 
         for (let k in data) {
             if (UPDATABLE_KEYS.has(k)) {
