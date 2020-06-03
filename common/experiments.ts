@@ -79,7 +79,9 @@ export interface RunModel {
 
     load_run?: string
 
+    total_size: number
     tensorboard_size: number // folder size
+    artifacts_size: number
     checkpoints_size: number
     sqlite_size: number
     analytics_size: number
@@ -102,6 +104,8 @@ export const DEFAULT_RUN_MODEL: RunModel = {
     trial_date: '2000-01-01',
     trial_time: '00:00:00',
     tensorboard_size: 0,
+    total_size: 0,
+    artifacts_size: 0,
     checkpoints_size: 0,
     sqlite_size: 0,
     analytics_size: 0
@@ -164,6 +168,14 @@ export class Run {
 
     get load_run(): string {
         return this.info.load_run
+    }
+
+    get total_size(): number {
+        return this.info.total_size
+    }
+
+    get artifacts_size(): number {
+        return this.info.artifacts_size
     }
 
     get tensorboard_size(): number {

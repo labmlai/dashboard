@@ -234,16 +234,11 @@ class RunView implements ScreenView {
 
             $('div.block', $ => {
                 $('h3', 'Storage space')
-                let size =
-                    this.run.sqlite_size +
-                    this.run.analytics_size +
-                    this.run.checkpoints_size +
-                    this.run.tensorboard_size
 
                 new InfoList(
                     [
                         ['.key', 'Total size'],
-                        ['.value', formatSize(size)]
+                        ['.value', formatSize(this.run.total_size)]
                     ],
                     '.mono'
                 ).render($)
@@ -252,6 +247,14 @@ class RunView implements ScreenView {
                     [
                         ['.key', 'Checkpoints'],
                         ['.value', formatSize(this.run.checkpoints_size)]
+                    ],
+                    '.mono'
+                ).render($)
+
+                new InfoList(
+                    [
+                        ['.key', 'Artifacts'],
+                        ['.value', formatSize(this.run.artifacts_size)]
                     ],
                     '.mono'
                 ).render($)

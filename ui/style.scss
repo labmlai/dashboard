@@ -95,7 +95,9 @@ body {
 
 .block {
   margin: 10px 0;
-  box-shadow: 0 -5px 10px -9px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 5px 10px -9px rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 
   > h3 {
     margin: 0;

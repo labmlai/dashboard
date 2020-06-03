@@ -84,6 +84,12 @@ class RunModelCacheEntry extends CacheEntry<RunModel> {
         res = Run.fixRunModel(this.name, res)
 
         res.uuid = this.uuid
+        res.total_size = await getDiskUsage(
+            PATH.join(LAB.experiments, this.name, this.uuid)
+        )
+        res.artifacts_size = await getDiskUsage(
+            PATH.join(LAB.experiments, this.name, this.uuid, 'artifacts')
+        )
         res.checkpoints_size = await getDiskUsage(
             PATH.join(LAB.experiments, this.name, this.uuid, 'checkpoints')
         )

@@ -151,11 +151,12 @@ class RunsView implements ScreenView, SyncListeners, FormatUpdateListener {
             {type: 'info', name: 'Commit Message', 'key': 'commit_message'},
             {type: 'info', name: 'Dirty', 'key': 'is_dirty', visible: false},
             {type: 'info', name: 'Tags', 'key': 'tags'},
-            {type: 'size', name: 'Size', 'key': ''},
+            {type: 'size', name: 'Size', 'key': 'total_size'},
             {type: 'size', name: 'Checkpoints', 'key': 'checkpoints_size', visible: false},
             {type: 'size', name: 'SQLite', 'key': 'sqlite_size', visible: false},
             {type: 'size', name: 'Analytics', 'key': 'analytics_size', visible: false},
             {type: 'size', name: 'Tensorboard', 'key': 'tensorboard_size', visible: false},
+            {type: 'size', name: 'Artifacts', 'key': 'artifacts_size', visible: false},
         ]
 
         format.push({type: 'step', name: 'Step', 'key': ''})

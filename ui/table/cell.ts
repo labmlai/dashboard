@@ -542,16 +542,7 @@ export class SizeCell extends Cell {
 
     private getSize(run: RunUI) {
         let info = run.run
-        let size: number
-        if (this.key === '') {
-            size =
-                info.sqlite_size +
-                info.analytics_size +
-                info.checkpoints_size +
-                info.tensorboard_size
-        } else {
-            size = info[this.key]
-        }
+        let size: number = info.get(this.key)
 
         return size
     }
