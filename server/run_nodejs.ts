@@ -57,14 +57,13 @@ export class RunNodeJS {
 
     private getLastValue(): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.db.all(
-                    `SELECT a.* FROM scalars AS a
+            let sql = `SELECT a.* FROM scalars AS a
             INNER JOIN (
                 SELECT indicator, MAX(step) AS step 
                 FROM scalars
                 GROUP BY indicator
-            ) b ON a.indicator = b.indicator AND a.step = b.step`,
-                (err, rows) => {
+            ) b ON a.indicator = b.indicator AND a.step = b.step`
+            this.db.all(sql, (err, rows) => {
                     if (err) {
                         reject(err)
                     } else {
@@ -162,7 +161,7 @@ export class RunNodeJS {
             values = await this.getLastValue()
         } catch (e) {
             console.log(
-                'Couldnt read from SQLite db',
+                'Could not read from SQLite db',
                 this.run.name,
                 this.run.uuid,
                 e
@@ -170,7 +169,7 @@ export class RunNodeJS {
             return {}
         }
 
-        for (let [k, ind] of Object.entries(indicators.indicators)) {
+        for (let ind of Object.values(indicators.indicators)) {
             if (ind.class_name == null) {
                 continue
             }
