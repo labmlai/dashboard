@@ -1,6 +1,6 @@
 import * as YAML from 'yaml'
 import * as PATH from 'path'
-import {Run, RunCollection, RunModel} from '../../common/experiments'
+import {Run, RunCollection, RunModel, ScalarsModel} from '../../common/experiments'
 import {LAB} from '../consts'
 import {getDiskUsage, readdir, readFile} from '../util'
 import {RunNodeJS} from "../run_nodejs";
@@ -18,22 +18,21 @@ abstract class CacheEntry<T> {
         this.delay = this.minDelay
     }
 
-    protected abstract async load(): Promise<T>
-
-    protected abstract isUpdated(original: T, loaded: T): boolean
+    protected abstract async loadIfUpdated(original: T): Promise<T>
 
     async get(): Promise<T> {
         let now = (new Date()).getTime()
         if (this.cached == null || this.lastLoaded + this.delay < now) {
-            let loaded = await this.load()
-            if (this.cached == null || this.isUpdated(this.cached, loaded)) {
+            let updated = await this.loadIfUpdated(this.cached)
+            if (updated != null) {
+                this.cached = updated
                 this.delay = Math.max(this.minDelay, this.delay / this.exponentialFactor)
                 // console.log("Reduced checking time to ", this.delay)
             } else {
-                this.delay = Math.min(this.maxDelay, this.delay * this.exponentialFactor)
+                let delay = now - this.lastLoaded
+                this.delay = Math.min(this.maxDelay, delay * this.exponentialFactor)
                 // console.log("Extended checking time to ", this.delay)
             }
-            this.cached = loaded
 
             this.lastLoaded = now
         }
@@ -47,8 +46,8 @@ abstract class CacheEntry<T> {
 }
 
 class RunModelCacheEntry extends CacheEntry<RunModel> {
-    private readonly name: string;
-    private readonly uuid: string;
+    public readonly name: string;
+    public readonly uuid: string;
 
     constructor(name: string, uuid: string) {
         super();
@@ -56,20 +55,34 @@ class RunModelCacheEntry extends CacheEntry<RunModel> {
         this.uuid = uuid;
     }
 
-    private getMaxStep(run: RunModel) {
+    private static getMaxStep(values: ScalarsModel) {
         let maxStep = 0
-        for (let [k, value] of Object.entries(run.values)) {
+        for (let value of Object.values(values)) {
             maxStep = Math.max(maxStep, value.step)
         }
 
         return maxStep
     }
 
-    protected isUpdated(original: RunModel, loaded: RunModel): boolean {
-        return this.getMaxStep(original) !== this.getMaxStep(loaded)
+    protected async loadIfUpdated(original?: RunModel): Promise<RunModel> {
+        if (original == null) {
+            // console.log('not cached', this.uuid)
+            return await this.load()
+        }
+
+        let run = RunNodeJS.create(new Run(original))
+        let values = await run.getValues()
+        if (RunModelCacheEntry.getMaxStep(original.values) !==
+            RunModelCacheEntry.getMaxStep(values)) {
+            // console.log('updated', this.uuid)
+            return await this.load()
+        }
+
+        // console.log('cached', this.uuid)
+        return null
     }
 
-    protected async load(): Promise<RunModel> {
+    private async load(): Promise<RunModel> {
         let contents: string
         try {
             contents = await readFile(
@@ -123,7 +136,20 @@ class ExperimentRunsSetCacheEntry extends CacheEntry<ExperimentRunsSet> {
         super()
     }
 
-    protected isUpdated(original: ExperimentRunsSet, loaded: ExperimentRunsSet): boolean {
+    protected async loadIfUpdated(original?: ExperimentRunsSet): Promise<ExperimentRunsSet> {
+        if (original == null) {
+            return await ExperimentRunsSetCacheEntry.load()
+        }
+
+        let loaded = await ExperimentRunsSetCacheEntry.load()
+        if (ExperimentRunsSetCacheEntry.isUpdated(original, loaded)) {
+            return loaded
+        }
+
+        return null
+    }
+
+    private static isUpdated(original: ExperimentRunsSet, loaded: ExperimentRunsSet): boolean {
         for (let [e, runs] of Object.entries(loaded)) {
             if (runs == null) {
                 return true
@@ -138,7 +164,7 @@ class ExperimentRunsSetCacheEntry extends CacheEntry<ExperimentRunsSet> {
         return false
     }
 
-    protected async load(): Promise<ExperimentRunsSet> {
+    private static async load(): Promise<ExperimentRunsSet> {
         let experiments = await readdir(LAB.experiments)
         let res: ExperimentRunsSet = {}
 
@@ -164,7 +190,14 @@ class Cache {
             let expSet = await this.experimentRunsSet.get()
             for (let [expName, runs] of Object.entries(expSet)) {
                 if (runs.has(uuid)) {
-                    this.runs[uuid] = new RunModelCacheEntry(expName, uuid)
+                    if (this.runs[uuid] != null) {
+                        if (this.runs[uuid].name != expName) {
+                            this.runs[uuid] = new RunModelCacheEntry(expName, uuid)
+
+                        }
+                    } else {
+                        this.runs[uuid] = new RunModelCacheEntry(expName, uuid)
+                    }
                 }
             }
         }
@@ -189,8 +222,8 @@ class Cache {
         let runs = await Promise.all(promises)
 
         let filteredRuns = []
-        for(let r of runs) {
-            if(r != null) {
+        for (let r of runs) {
+            if (r != null) {
                 filteredRuns.push(r)
             }
         }
@@ -198,8 +231,8 @@ class Cache {
     }
 
     resetRun(uuid: string) {
+        // console.log('resetCache', uuid)
         if (this.runs[uuid] != null) {
-            // console.log('resetCache', experimentName, runUuid)
             delete this.runs[uuid]
         }
 
