@@ -129,6 +129,12 @@ class ApiServer extends Api {
         ExperimentsFactory.cacheReset(uuid)
     }
 
+    async cleanupArtifacts(uuid: string): Promise<void> {
+        let run = await getRun(uuid)
+        await run.cleanupArtifacts()
+        ExperimentsFactory.cacheReset(uuid)
+    }
+
     async updateRun(uuid: string, data: { [key: string]: string }): Promise<void> {
         let run = await getRun(uuid)
         await run.update(data)

@@ -55,6 +55,10 @@ export class Api {
         return null
     }
 
+    async cleanupArtifacts(uuid: string): Promise<void> {
+        return null
+    }
+
     async updateRun(uuid: string, data: { [key: string]: string }): Promise<void> {
         return null
     }

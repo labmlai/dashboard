@@ -116,6 +116,10 @@ export class RunUI {
         return await API.cleanupCheckpoints(this.run.uuid)
     }
 
+    async cleanupArtifacts() {
+        return await API.cleanupArtifacts(this.run.uuid)
+    }
+
     async update(data: { [key: string]: any }) {
         clearCache()
 

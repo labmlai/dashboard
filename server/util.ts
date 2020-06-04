@@ -3,6 +3,7 @@ import * as FS from 'fs'
 import {MakeDirectoryOptions} from 'fs'
 import * as PATH from 'path'
 import exp = require("constants");
+import * as sqlite3 from 'sqlite3'
 
 export let readdir = UTIL.promisify(FS.readdir)
 
@@ -67,6 +68,15 @@ export async function exists(path: string) {
     return true
 }
 
+export async function safeRemove(path: string): Promise<void> {
+    if (!await exists(path)) {
+        return
+    }
+
+    await unlink(path)
+}
+
+
 export async function rmtree(path: string) {
     let stats: FS.Stats
 
@@ -106,4 +116,28 @@ export async function getDiskUsage(path: string): Promise<number> {
     } else {
         return stats.size
     }
+}
+
+export async function sqliteRun(db: sqlite3.Database, sql: string) {
+    return new Promise(((resolve, reject) => {
+        db.run(sql, (res, err) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve(res)
+            }
+        })
+    }))
+}
+
+export async function sqliteClose(db: sqlite3.Database) {
+    return new Promise(((resolve, reject) => {
+        db.close(err => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve()
+            }
+        })
+    }))
 }

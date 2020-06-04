@@ -112,6 +112,14 @@ class RunView implements ScreenView {
                         $('span', ' Cleanup Checkpoints')
                     }
                 )
+
+                $('button.danger',
+                    {on: {click: this.events.cleanupArtifacts}},
+                    $ => {
+                        $('i.fa.fa-trash')
+                        $('span', ' Cleanup Artifacts')
+                    }
+                )
             })
 
             $('div.block', $ => {
@@ -351,6 +359,12 @@ class RunView implements ScreenView {
 
         cleanupCheckpoints: async (e: Event) => {
             await this.runUI.cleanupCheckpoints()
+            clearCache()
+            ROUTER.back()
+        },
+
+        cleanupArtifacts: async (e: Event) => {
+            await this.runUI.cleanupArtifacts()
             clearCache()
             ROUTER.back()
         },

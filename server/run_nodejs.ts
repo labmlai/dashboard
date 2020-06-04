@@ -3,12 +3,27 @@ import {Configs, Indicators, Run, RunModel, ScalarsModel} from '../common/experi
 import * as PATH from 'path'
 import * as YAML from 'yaml'
 import {LAB} from './consts'
-import {exists, mkdir, readdir, readFile, rename, rmtree, writeFile} from './util'
+import {
+    exists,
+    mkdir,
+    readdir,
+    readFile,
+    rename,
+    rmtree,
+    safeRemove,
+    sqliteClose, sqliteRun,
+    writeFile
+} from './util'
 import {ExperimentsFactory} from "./experiments/cache";
 
 const UPDATABLE_KEYS = new Set(['comment', 'notes', 'tags'])
 const USE_CACHE = true
 const USE_VALUES_CACHE = false
+
+interface ArtifactFilename {
+    step: number
+    filename: string
+}
 
 export class RunNodeJS {
     run: Run
@@ -42,10 +57,15 @@ export class RunNodeJS {
         return new Promise((resolve, reject) => {
             exists(path).then((isExists) => {
                 if (!isExists) {
+                    this.db = null
                     return reject(false)
                 }
-                this.db = new sqlite3.Database(path, sqlite3.OPEN_READONLY, err => {
+                this.db = new sqlite3.Database(path, sqlite3.OPEN_READONLY, (err: any) => {
                     if (err) {
+                        console.log(
+                            `SQLite connect failed ${this.run.name} : ${this.run.uuid}`,
+                            err)
+                        this.db = null
                         reject(err)
                     } else {
                         resolve()
@@ -56,13 +76,14 @@ export class RunNodeJS {
     }
 
     private getLastValue(): Promise<any> {
-        return new Promise((resolve, reject) => {
-            let sql = `SELECT a.* FROM scalars AS a
+        let sql = `SELECT a.* FROM scalars AS a
             INNER JOIN (
                 SELECT indicator, MAX(step) AS step 
                 FROM scalars
                 GROUP BY indicator
             ) b ON a.indicator = b.indicator AND a.step = b.step`
+
+        return new Promise((resolve, reject) => {
             this.db.all(sql, (err, rows) => {
                     if (err) {
                         reject(err)
@@ -142,15 +163,6 @@ export class RunNodeJS {
         try {
             await this.loadDatabase()
         } catch (e) {
-            this.db = null
-            if (e === false) {
-                // console.log(
-                //     `SQLite db is missing ${this.run.experimentName} : ${this.run.info.uuid}`)
-            } else {
-                console.log(
-                    `SQLite connect failed ${this.run.name} : ${this.run.uuid}`,
-                    e)
-            }
             return {}
         }
         let indicators = await this.getIndicators()
@@ -291,5 +303,149 @@ export class RunNodeJS {
                 await rmtree(PATH.join(path, c))
             }
         }
+    }
+
+    private getArtifactFiles(): Promise<{ [name: string]: ArtifactFilename[] }> {
+        let sql = 'SELECT indicator, step, filename FROM tensors'
+
+        return new Promise((resolve, reject) => {
+            this.db.all(sql, (err, rows) => {
+                    if (err) {
+                        reject(err)
+                    } else {
+                        let files: { [name: string]: ArtifactFilename[] } = {}
+                        for (let row of rows) {
+                            if (files[row.indicator] == null) {
+                                files[row.indicator] = []
+                            }
+                            files[row.indicator].push({
+                                step: row.step,
+                                filename: row.filename
+                            })
+                        }
+
+                        resolve(files)
+                    }
+                }
+            )
+        })
+    }
+
+    async cleanupArtifacts() {
+        try {
+            await this.loadDatabase()
+        } catch (e) {
+            return
+        }
+
+
+        let files = await this.getArtifactFiles()
+        let stepsCount = {}
+        let indicatorsCount = 0
+
+        for (let fileList of Object.values(files)) {
+            for (let file of fileList) {
+                if (stepsCount[file.step] == null) {
+                    stepsCount[file.step] = 0
+                }
+                stepsCount[file.step]++
+            }
+            indicatorsCount++
+        }
+
+        let steps = []
+        for (let [s, c] of Object.entries(stepsCount)) {
+            if (c === indicatorsCount) {
+                steps.push(parseInt(s))
+            }
+        }
+
+        steps.sort((a, b) => {
+            return a - b
+        })
+
+        if (steps.length == 0) {
+            return await this.removeArtifactsExcept(files, steps)
+        }
+
+        let last = steps[steps.length - 1]
+        let interval = Math.max(1, Math.floor(last / 99))
+        let condensed = [steps[0]]
+
+        for (let i = 1; i < steps.length; ++i) {
+            let s = steps[i]
+            if (s - condensed[condensed.length - 1] >= interval) {
+                condensed.push(s)
+            }
+        }
+
+        if (last != condensed[condensed.length - 1]) {
+            condensed.push(last)
+        }
+
+        return await this.removeArtifactsExcept(files, condensed)
+    }
+
+    private async removeArtifactsExcept(files: { [name: string]: ArtifactFilename[] },
+                                        steps: number[]) {
+        let stepSet = new Set()
+        for (let s of steps) {
+            stepSet.add(s)
+        }
+        let path = PATH.join(
+            LAB.experiments,
+            this.run.name,
+            this.run.uuid,
+            'sqlite.db'
+        )
+
+        let db: sqlite3.Database = await new Promise(((resolve, reject) => {
+            let db = new sqlite3.Database(path, sqlite3.OPEN_READWRITE, (err: any) => {
+                if (err) {
+                    console.log(
+                        `SQLite connect failed ${this.run.name} : ${this.run.uuid}`,
+                        err)
+                    this.db = null
+                    reject(err)
+                } else {
+                    resolve(db)
+                }
+            })
+        }))
+
+        console.log('Cleaning up artifacts', (new Date()).getTime())
+        db.run('BEGIN TRANSACTION')
+        let promises = []
+        for (let [name, fileList] of Object.entries(files)) {
+            for (let file of fileList) {
+                if (stepSet.has(file.step)) {
+                    continue
+                }
+
+                let path = PATH.join(
+                    LAB.experiments,
+                    this.run.name,
+                    this.run.uuid,
+                    'artifacts',
+                    file.filename
+                )
+
+                promises.push(safeRemove(path))
+                let sql = 'DELETE FROM tensors WHERE indicator = ? AND step = ?'
+                db.run(sql, name, file.step)
+            }
+        }
+
+        console.log('Committing', (new Date()).getTime())
+        await sqliteRun(db, 'COMMIT')
+        console.log("Closing db", (new Date()).getTime())
+        try {
+            await sqliteClose(db)
+        } catch (err) {
+            console.log('Error closing db', this.run.uuid)
+        }
+        console.log('Deleting files', promises.length, (new Date()).getTime())
+        await Promise.all(promises)
+        console.log('Deleted files', (new Date()).getTime())
     }
 }

@@ -22,7 +22,8 @@ export class ControlsView implements SelectListeners {
     private actionsElem: HTMLElement;
     private actionsContainer: HTMLElement;
     private removeBtn: HTMLButtonElement;
-    private cleanupBtn: HTMLButtonElement;
+    private cleanupCheckpointsBtn: HTMLButtonElement;
+    private cleanupArtifactsBtn: HTMLButtonElement;
 
     constructor(format: Format, syncListeners: SyncListeners) {
         this.format = format
@@ -82,11 +83,19 @@ export class ControlsView implements SelectListeners {
                         }
                     )
 
-                    this.cleanupBtn = <HTMLButtonElement>$('button.danger',
+                    this.cleanupCheckpointsBtn = <HTMLButtonElement>$('button.danger',
                         {on: {click: this.onCleanupCheckpoints}},
                         $ => {
                             $('i.fa.fa-trash')
                             $('span', ' Cleanup Checkpoints')
+                        }
+                    )
+
+                    this.cleanupArtifactsBtn = <HTMLButtonElement>$('button.danger',
+                        {on: {click: this.onCleanupArtifacts}},
+                        $ => {
+                            $('i.fa.fa-trash')
+                            $('span', ' Cleanup Artifacts')
                         }
                     )
                 })
@@ -166,8 +175,19 @@ export class ControlsView implements SelectListeners {
     onCleanupCheckpoints = async (e: Event) => {
         this.syncListeners.onChanging()
         for (let r in this.selectedRuns) {
-            let run = this.selectedRuns[r]
+            let run: RunUI = this.selectedRuns[r]
             await run.cleanupCheckpoints()
+        }
+        this.resetSelection()
+        clearCache()
+        this.syncListeners.onReload()
+    }
+
+    onCleanupArtifacts = async (e: Event) => {
+        this.syncListeners.onChanging()
+        for (let r in this.selectedRuns) {
+            let run: RunUI = this.selectedRuns[r]
+            await run.cleanupArtifacts()
         }
         this.resetSelection()
         clearCache()
@@ -223,12 +243,14 @@ export class ControlsView implements SelectListeners {
         let count = this.getSelectedRunsCount()
         if (count === 0) {
             this.tensorboardBtn.disabled = true
-            this.cleanupBtn.disabled = true
+            this.cleanupCheckpointsBtn.disabled = true
+            this.cleanupArtifactsBtn.disabled = true
             this.removeBtn.disabled = true
             this.selectedCountElem.classList.remove('items-selected')
         } else {
             this.tensorboardBtn.disabled = false
-            this.cleanupBtn.disabled = false
+            this.cleanupCheckpointsBtn.disabled = false
+            this.cleanupArtifactsBtn.disabled = false
             this.removeBtn.disabled = false
             this.selectedCountElem.classList.add('items-selected')
         }
