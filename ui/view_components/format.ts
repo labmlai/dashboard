@@ -1,4 +1,4 @@
-import { WeyaElementFunction } from '../../lib/weya/weya'
+import {WeyaElementFunction} from '../../lib/weya/weya'
 
 function numberWithCommas(x: string) {
     const parts = x.split('.')
@@ -43,31 +43,36 @@ export function formatSize(size: number) {
     }
 }
 
-export function formatValue(value: any) {
+function formatValueWithBuilder(value: any, $: WeyaElementFunction) {
     if (typeof value === 'boolean') {
         let str = (<boolean>value).toString()
-        return ($: WeyaElementFunction) => {
-            $('span.boolean', str)
-        }
+        $('span.boolean', str)
     } else if (typeof value === 'number') {
         if (value - Math.floor(value) < 1e-9) {
             let str = formatInt(value)
-            return ($: WeyaElementFunction) => {
-                $('span.int', str)
-            }
+            $('span.int', str)
         } else {
             let str = formatInt(value)
-            return ($: WeyaElementFunction) => {
-                $('span.float', str)
-            }
+            $('span.float', str)
         }
     } else if (typeof value === 'string') {
-        return ($: WeyaElementFunction) => {
-            $('span.string', value)
+        $('span.string', value)
+    } else if (value instanceof Array) {
+        $('span.subtle', "[")
+        for (let i = 0; i < value.length; ++i) {
+            if (i > 0) {
+                $('span.subtle', ', ')
+            }
+            formatValueWithBuilder(value[i], $)
         }
+        $('span.subtle', "]")
     } else {
-        return ($: WeyaElementFunction) => {
-            $('span.unknown', `${value}`)
-        }
+        $('span.unknown', `${value}`)
+    }
+}
+
+export function formatValue(value: any) {
+    return ($: WeyaElementFunction) => {
+        formatValueWithBuilder(value, $)
     }
 }

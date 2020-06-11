@@ -126,7 +126,13 @@ export class RunNodeJS {
                         this.run.uuid,
                         'configs.yaml'
                     ))
-                this.configs = new Configs(YAML.parse(contents))
+                const doc = YAML.parseDocument(contents);
+                if (doc.errors.length > 0) {
+                    throw doc.errors[0];
+                }
+                let configs = doc.toJSON();
+                this.configs = new Configs(doc.toJSON())
+                // this.configs = new Configs(YAML.parse(contents))
             } catch (e) {
                 return new Configs({})
             }
