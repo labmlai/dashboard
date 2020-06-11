@@ -154,6 +154,9 @@ class ExperimentRunsSetCacheEntry extends CacheEntry<ExperimentRunsSet> {
             if (runs == null) {
                 return true
             }
+            if (original[e] == null) {
+                return true
+            }
             for (let r of runs.keys()) {
                 if (original[e][r] == null) {
                     return true
