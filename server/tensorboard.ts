@@ -16,8 +16,7 @@ export class Tensorboard {
     }
 
     async start(): Promise<void> {
-        let path = PATH.join(LAB.analytics,
-            LAB.tensorboardLogDir)
+        let path = LAB.tensorboardLogDir
         await rmtree(path)
         await mkdir(path, {recursive: true})
 

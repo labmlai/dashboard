@@ -2,6 +2,7 @@
   <dictionary name="varuna">
     <words>
       <w>logdir</w>
+      <w>rmtree</w>
       <w>tensorboard</w>
       <w>tensorboards</w>
       <w>updatable</w>

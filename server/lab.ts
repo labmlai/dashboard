@@ -11,7 +11,7 @@ export class Lab {
     analyticsPath: string
     analyticsTemplates: { [name: string]: string }
     currentPath: string
-    tensorboardLogDir: string = '_tensorboard'
+    tensorboardLogDir: string
 
     constructor(path: string) {
         this.currentPath = path
@@ -29,6 +29,7 @@ export class Lab {
         this.analytics = PATH.join(this.path, configs.analytics_path)
         this.analyticsPath = configs.analytics_path
         this.analyticsTemplates = configs.analytics_templates
+        this.tensorboardLogDir = PATH.join(this.experiments, '_tensorboard')
     }
 }
 

@@ -169,7 +169,9 @@ class ExperimentRunsSetCacheEntry extends CacheEntry<ExperimentRunsSet> {
         let res: ExperimentRunsSet = {}
 
         for (let e of experiments) {
-            res[e] = new Set<string>(await readdir(PATH.join(LAB.experiments, e)))
+            if (!e.startsWith('_')) {
+                res[e] = new Set<string>(await readdir(PATH.join(LAB.experiments, e)))
+            }
         }
 
         return res
