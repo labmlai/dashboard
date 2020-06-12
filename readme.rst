@@ -1,7 +1,6 @@
-.. image:: https://raw.githubusercontent.com/lab-ml/dashboard/master/images/dashboard_logo.png
-   :width: 150
-   :alt: Dashboard Logo
-   :align: center
+.. image:: https://badge.fury.io/py/labml-dashboard.svg
+    :target: https://badge.fury.io/py/labml-dashboard
+
 
 LabML Dashboard
 ================
