@@ -6,7 +6,7 @@ with open("readme.rst", "r") as f:
 
 setuptools.setup(
     name='labml_dashboard',
-    version='0.4.16',
+    version='0.4.17',
     author="Varuna Jayasiri",
     author_email="vpjayasiri@gmail.com",
     description="Dashboard for Lab: Organize Machine Learning Experiments",
