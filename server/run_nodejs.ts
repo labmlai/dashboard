@@ -100,17 +100,52 @@ export class RunNodeJS {
         })
     }
 
+    private async migrateIndicatorsToSingleFile(): Promise<void> {
+        console.log("Migrating indicators to a single file: ", this.run.name, this.run.uuid)
+        let indicatorsFile = PATH.join(
+            LAB.experiments,
+            this.run.name,
+            this.run.uuid,
+            'indicators.yaml')
+        let artifactsFile = PATH.join(
+            LAB.experiments,
+            this.run.name,
+            this.run.uuid,
+            'artifacts.yaml')
+
+        let indicators = YAML.parse(await readFile(indicatorsFile))
+
+        let artifacts = YAML.parse(await readFile(artifactsFile))
+
+        for (let [k, v] of Object.entries(artifacts)) {
+            indicators[k] = v
+        }
+
+        await writeFile(indicatorsFile, YAML.stringify({'indicators': indicators}))
+        await safeRemove(artifactsFile)
+    }
+
     async getIndicators(): Promise<Indicators> {
         // TODO: Caching
         if (!USE_CACHE || this.indicators == null) {
-            let contents = await readFile(
+            let contents = YAML.parse(await readFile(
                 PATH.join(
                     LAB.experiments,
                     this.run.name,
                     this.run.uuid,
                     'indicators.yaml'
-                ))
-            this.indicators = new Indicators(YAML.parse(contents))
+                )))
+            if (contents['indicators'] == null) {
+                try {
+                    await this.migrateIndicatorsToSingleFile()
+                    return this.getIndicators()
+                } catch (e) {
+                    this.indicators = new Indicators({})
+                    return this.indicators
+                }
+            }
+
+            this.indicators = new Indicators(contents['indicators'])
         }
 
         return this.indicators
