@@ -113,9 +113,19 @@ export class RunNodeJS {
             this.run.uuid,
             'artifacts.yaml')
 
-        let indicators = YAML.parse(await readFile(indicatorsFile))
+        let indicators
+        try {
+            indicators = YAML.parse(await readFile(indicatorsFile))
+        } catch (e) {
+            indicators = {}
+        }
 
-        let artifacts = YAML.parse(await readFile(artifactsFile))
+        let artifacts
+        try {
+            artifacts = YAML.parse(await readFile(artifactsFile))
+        } catch (e) {
+            artifacts = {}
+        }
 
         for (let [k, v] of Object.entries(artifacts)) {
             indicators[k] = v
@@ -136,8 +146,9 @@ export class RunNodeJS {
                     'indicators.yaml'
                 )))
             if (contents['indicators'] == null) {
+                await this.migrateIndicatorsToSingleFile()
+
                 try {
-                    await this.migrateIndicatorsToSingleFile()
                     return this.getIndicators()
                 } catch (e) {
                     this.indicators = new Indicators({})
