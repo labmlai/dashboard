@@ -75,31 +75,6 @@ export class RunNodeJS {
         })
     }
 
-    private getLastValue(): Promise<any> {
-        let sql = `SELECT a.* FROM scalars AS a
-            INNER JOIN (
-                SELECT indicator, MAX(step) AS step 
-                FROM scalars
-                GROUP BY indicator
-            ) b ON a.indicator = b.indicator AND a.step = b.step`
-
-        return new Promise((resolve, reject) => {
-            this.db.all(sql, (err, rows) => {
-                    if (err) {
-                        reject(err)
-                    } else {
-                        let values = {}
-                        for (let row of rows) {
-                            values[row.indicator] = row
-                        }
-
-                        resolve(values)
-                    }
-                }
-            )
-        })
-    }
-
     private collectLastValue(to_collect: string[]): Promise<any> {
         for(let i = 0; i < to_collect.length; ++i) {
             to_collect[i] = `"${to_collect[i]}"`
@@ -259,8 +234,6 @@ export class RunNodeJS {
                     : `${ind.name}.mean`
             if (ind.is_print) {
                 to_collect.push(key)
-            } else {
-                // delete values[key]
             }
         }
 
