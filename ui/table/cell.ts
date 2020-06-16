@@ -498,23 +498,12 @@ export class StepCell extends Cell {
     protected defaultWidth = '6em'
     protected align = 'right'
 
-    private getMaxStep(run: RunUI) {
-        let maxStep = 0
-
-        for (let [k, v] of Object.entries(run.values)) {
-            maxStep = Math.max(v.step, maxStep)
-        }
-
-        return maxStep
-    }
-
     renderCellContent($: WeyaElementFunction, run: RunUI) {
-        let maxStep = this.getMaxStep(run)
-        $('span', formatInt(maxStep))
+        $('span', formatInt(run.values['step'].step))
     }
 
     protected getValue(run: RunUI): any {
-        return this.getMaxStep(run)
+        return run.values['step'].step
     }
 }
 
@@ -541,8 +530,7 @@ export class SizeCell extends Cell {
     protected align = 'right'
 
     private getSize(run: RunUI) {
-        let info = run.run
-        let size: number = info.get(this.key)
+        let size: number = run.run.get(this.key)
 
         return size
     }

@@ -233,11 +233,11 @@ export class RunNodeJS {
         }
 
         // console.log("loading values")
-
+        let empty = {step: {indicator: 'step', value: 0, step: 0}}
         try {
             await this.loadDatabase()
         } catch (e) {
-            return {}
+            return empty
         }
         let indicators = await this.getIndicators()
 
@@ -255,7 +255,7 @@ export class RunNodeJS {
             }
         }
 
-        let values = {}
+        let values = empty
         try {
             values = await this.collectLastValue(to_collect)
         } catch (e) {
@@ -265,11 +265,13 @@ export class RunNodeJS {
                 this.run.uuid,
                 e
             )
-            return {}
+
+            return empty
         }
 
+
+        values['step'] = {indicator: 'step', value: 0, step: await this.getLastStep()}
         this.values = values
-        values['step'] = await this.getLastStep()
         return values
     }
 

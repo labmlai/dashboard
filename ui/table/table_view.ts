@@ -143,33 +143,37 @@ class RunsView implements ScreenView, SyncListeners, FormatUpdateListener {
 
     private getFormat(): CellOptions[] {
         let format: CellOptions[] = [
-            {type: 'controls', name: '', 'key': ''},
-            {type: 'generations', name: '', 'key': ''},
-            {type: 'experiment_name', name: 'Experiment', 'key': ''},
-            {type: 'comment', name: 'Comment', 'key': ''},
-            {type: 'date_time', name: 'Date Time', 'key': ''},
-            {type: 'info', name: 'Commit Message', 'key': 'commit_message'},
-            {type: 'info', name: 'Dirty', 'key': 'is_dirty', visible: false},
-            {type: 'info', name: 'Tags', 'key': 'tags'},
-            {type: 'size', name: 'Size', 'key': 'total_size'},
-            {type: 'size', name: 'Checkpoints', 'key': 'checkpoints_size', visible: false},
-            {type: 'size', name: 'SQLite', 'key': 'sqlite_size', visible: false},
-            {type: 'size', name: 'Analytics', 'key': 'analytics_size', visible: false},
-            {type: 'size', name: 'Tensorboard', 'key': 'tensorboard_size', visible: false},
-            {type: 'size', name: 'Artifacts', 'key': 'artifacts_size', visible: false},
+            {type: 'controls', name: '', key: ''},
+            {type: 'generations', name: '', key: ''},
+            {type: 'experiment_name', name: 'Experiment', key: ''},
+            {type: 'comment', name: 'Comment', key: ''},
+            {type: 'date_time', name: 'Date Time', key: ''},
+            {type: 'info', name: 'Commit Message', key: 'commit_message'},
+            {type: 'info', name: 'Dirty', key: 'is_dirty', visible: false},
+            {type: 'info', name: 'Tags', key: 'tags'},
+            {type: 'size', name: 'Size', key: 'total_size'},
+            {type: 'size', name: 'Checkpoints', key: 'checkpoints_size', visible: false},
+            {type: 'size', name: 'SQLite', key: 'sqlite_size', visible: false},
+            {type: 'size', name: 'Analytics', key: 'analytics_size', visible: false},
+            {type: 'size', name: 'Tensorboard', key: 'tensorboard_size', visible: false},
+            {type: 'size', name: 'Artifacts', key: 'artifacts_size', visible: false},
         ]
 
-        format.push({type: 'step', name: 'Step', 'key': ''})
+        format.push({type: 'step', name: 'Step', key: ''})
 
         let indicators = new Set<string>()
         for (let r of this.runs) {
             for (let k of Object.keys(r.values)) {
-                indicators.add(k)
+                if(k !== 'step') {
+                    indicators.add(k)
+                }
             }
         }
 
+        let indicator_count = 0
         for (let k of indicators.keys()) {
-            format.push({type: 'value', name: k, 'key': k})
+            format.push({type: 'value', name: k, key: k, visible: indicator_count < 10})
+            indicator_count++
         }
 
         let configs = new Set<string>()
@@ -179,10 +183,12 @@ class RunsView implements ScreenView, SyncListeners, FormatUpdateListener {
             }
         }
 
+        let configs_count = 0
         for (let k of configs.keys()) {
-            format.push({type: 'config_calculated', name: k, 'key': k})
+            format.push({type: 'config_calculated', name: k, key: k, visible: configs_count < 10})
             // format.push({type: 'config_computed', name: k, 'key': k})
             // format.push({type: 'config_options', name: `${k} Options`, 'key': k})
+            configs_count++
         }
 
         return format
