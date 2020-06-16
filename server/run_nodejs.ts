@@ -100,6 +100,35 @@ export class RunNodeJS {
         })
     }
 
+    private collectLastValue(to_collect: string[]): Promise<any> {
+        for(let i = 0; i < to_collect.length; ++i) {
+            to_collect[i] = `"${to_collect[i]}"`
+        }
+        let sql = `SELECT a.* FROM scalars AS a
+            INNER JOIN (
+                SELECT indicator, MAX(step) AS step 
+                FROM scalars
+                WHERE indicator IN (${to_collect.join(',')})
+                GROUP BY indicator
+            ) b ON a.indicator = b.indicator AND a.step = b.step`
+
+        return new Promise((resolve, reject) => {
+            this.db.all(sql, (err, rows) => {
+                    if (err) {
+                        reject(err)
+                    } else {
+                        let values = {}
+                        for (let row of rows) {
+                            values[row.indicator] = row
+                        }
+
+                        resolve(values)
+                    }
+                }
+            )
+        })
+    }
+
     private async migrateIndicatorsToSingleFile(): Promise<void> {
         console.log("Migrating indicators to a single file: ", this.run.name, this.run.uuid)
         let indicatorsFile = PATH.join(
@@ -219,20 +248,7 @@ export class RunNodeJS {
         }
         let indicators = await this.getIndicators()
 
-        // console.log(indicators)
-        let values = {}
-        try {
-            values = await this.getLastValue()
-        } catch (e) {
-            console.log(
-                'Could not read from SQLite db',
-                this.run.name,
-                this.run.uuid,
-                e
-            )
-            return {}
-        }
-
+        let to_collect = []
         for (let ind of Object.values(indicators.indicators)) {
             if (ind.class_name == null) {
                 continue
@@ -241,9 +257,24 @@ export class RunNodeJS {
                 ind.class_name.indexOf('Scalar') !== -1
                     ? ind.name
                     : `${ind.name}.mean`
-            if (!ind.is_print) {
-                delete values[key]
+            if (ind.is_print) {
+                to_collect.push(key)
+            } else {
+                // delete values[key]
             }
+        }
+
+        let values = {}
+        try {
+            values = await this.collectLastValue(to_collect)
+        } catch (e) {
+            console.log(
+                'Could not read from SQLite db',
+                this.run.name,
+                this.run.uuid,
+                e
+            )
+            return {}
         }
 
         this.values = values
