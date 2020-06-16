@@ -76,7 +76,7 @@ export class RunNodeJS {
     }
 
     private collectLastValue(to_collect: string[]): Promise<any> {
-        for(let i = 0; i < to_collect.length; ++i) {
+        for (let i = 0; i < to_collect.length; ++i) {
             to_collect[i] = `"${to_collect[i]}"`
         }
         let sql = `SELECT a.* FROM scalars AS a
@@ -89,18 +89,36 @@ export class RunNodeJS {
 
         return new Promise((resolve, reject) => {
             this.db.all(sql, (err, rows) => {
-                    if (err) {
-                        reject(err)
-                    } else {
-                        let values = {}
-                        for (let row of rows) {
-                            values[row.indicator] = row
-                        }
-
-                        resolve(values)
+                if (err) {
+                    reject(err)
+                } else {
+                    let values = {}
+                    for (let row of rows) {
+                        values[row.indicator] = row
                     }
+
+                    resolve(values)
                 }
-            )
+            })
+        })
+    }
+
+    private getLastStep(): Promise<any> {
+        let sql = `SELECT MAX(step) as step FROM scalars`
+
+        return new Promise((resolve, reject) => {
+            this.db.all(sql, (err, rows) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    let step = 0
+                    for (let row of rows) {
+                        step = row.step
+                    }
+
+                    resolve(step)
+                }
+            })
         })
     }
 
@@ -251,14 +269,11 @@ export class RunNodeJS {
         }
 
         this.values = values
+        values['step'] = await this.getLastStep()
         return values
     }
 
     async getLab() {
-        // let lab = new Lab(this.run.info.python_file)
-        // await lab.load()
-        //
-        // return lab
         return LAB
     }
 
