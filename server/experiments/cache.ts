@@ -66,20 +66,30 @@ class RunModelCacheEntry extends CacheEntry<RunModel> {
 
     protected async loadIfUpdated(original?: RunModel): Promise<RunModel> {
         if (original == null) {
-            // console.log('not cached', this.uuid)
-            return await this.load()
+            return await this.watchedLoad()
         }
 
         let run = RunNodeJS.create(new Run(original))
         let values = await run.getValues()
         if (RunModelCacheEntry.getMaxStep(original.values) !==
             RunModelCacheEntry.getMaxStep(values)) {
-            // console.log('updated', this.uuid)
-            return await this.load()
+            return await this.watchedLoad()
         }
 
         // console.log('cached', this.uuid)
         return null
+    }
+
+    private async watchedLoad(): Promise<RunModel> {
+        // console.log(`Loading run ${this.name} ${this.uuid}`)
+        let start = (new Date()).getTime()
+        let loaded = await this.load()
+        let end = (new Date()).getTime()
+        if (end - start > 100) {
+            console.log(`Loaded run ${this.name} ${this.uuid} in ${(end - start)} ms`)
+        }
+
+        return loaded
     }
 
     private async load(): Promise<RunModel> {
@@ -137,12 +147,16 @@ class ExperimentRunsSetCacheEntry extends CacheEntry<ExperimentRunsSet> {
     }
 
     protected async loadIfUpdated(original?: ExperimentRunsSet): Promise<ExperimentRunsSet> {
-        if (original == null) {
-            return await ExperimentRunsSetCacheEntry.load()
-        }
-
         let loaded = await ExperimentRunsSetCacheEntry.load()
+
         if (ExperimentRunsSetCacheEntry.isUpdated(original, loaded)) {
+            let count = 0
+            for (let runs of Object.values(loaded)) {
+                for (let r of runs.keys()) {
+                    count++
+                }
+            }
+            console.log(`Found ${count} runs`)
             return loaded
         }
 
@@ -150,6 +164,10 @@ class ExperimentRunsSetCacheEntry extends CacheEntry<ExperimentRunsSet> {
     }
 
     private static isUpdated(original: ExperimentRunsSet, loaded: ExperimentRunsSet): boolean {
+        if (original == null) {
+            return true
+        }
+
         for (let [e, runs] of Object.entries(loaded)) {
             if (runs == null) {
                 return true
@@ -209,7 +227,16 @@ class Cache {
         return await this.runs[uuid].get()
     }
 
-    private async getExperiment(name: string): Promise<Promise<RunModel>[]> {
+    private async getExperiment(name: string): Promise<RunModel[]> {
+        let runs: RunModel[] = []
+
+        for (let r of (await this.experimentRunsSet.get())[name].keys()) {
+            runs.push(await this.getRun(r))
+        }
+        return runs
+    }
+
+    private async getExperimentAsync(name: string): Promise<Promise<RunModel>[]> {
         let promises: Promise<RunModel>[] = []
 
         for (let r of (await this.experimentRunsSet.get())[name].keys()) {
@@ -218,13 +245,30 @@ class Cache {
         return promises
     }
 
-    async getAll(): Promise<RunCollection> {
+
+    async getAllAsync(): Promise<RunCollection> {
         let promises: Promise<RunModel>[] = []
 
         for (let e of Object.keys(await this.experimentRunsSet.get())) {
-            promises = promises.concat(await this.getExperiment(e))
+            promises = promises.concat(await this.getExperimentAsync(e))
         }
         let runs = await Promise.all(promises)
+
+        let filteredRuns = []
+        for (let r of runs) {
+            if (r != null) {
+                filteredRuns.push(r)
+            }
+        }
+        return new RunCollection(filteredRuns)
+    }
+
+    async getAll(): Promise<RunCollection> {
+        let runs: RunModel[] = []
+
+        for (let e of Object.keys(await this.experimentRunsSet.get())) {
+            runs = runs.concat(await this.getExperiment(e))
+        }
 
         let filteredRuns = []
         for (let r of runs) {
@@ -249,7 +293,12 @@ const _CACHE = new Cache()
 
 class ExperimentsFactory {
     static async load(): Promise<RunCollection> {
-        return await _CACHE.getAll()
+        let start = (new Date()).getTime()
+        let all = await _CACHE.getAll()
+        let end = (new Date()).getTime()
+        console.log(`Loaded runs in ${(end - start)} ms`)
+
+        return all
     }
 
     static cacheReset(uuid: string) {
