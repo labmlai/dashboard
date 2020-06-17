@@ -164,7 +164,7 @@ class RunsView implements ScreenView, SyncListeners, FormatUpdateListener {
         let indicators = new Set<string>()
         for (let r of this.runs) {
             for (let k of Object.keys(r.values)) {
-                if(k !== 'step') {
+                if (k !== 'step') {
                     indicators.add(k)
                 }
             }
@@ -178,14 +178,17 @@ class RunsView implements ScreenView, SyncListeners, FormatUpdateListener {
 
         let configs = new Set<string>()
         for (let r of this.runs) {
-            for (let k of Object.keys(r.configs.configs)) {
-                configs.add(k)
+            for (let [k, conf] of Object.entries(r.configs.configs)) {
+                if (conf.is_hyperparam === true ||
+                    (conf.is_hyperparam == null && conf.is_explicitly_specified)) {
+                    configs.add(k)
+                }
             }
         }
 
         let configs_count = 0
         for (let k of configs.keys()) {
-            format.push({type: 'config_calculated', name: k, key: k, visible: configs_count < 10})
+            format.push({type: 'config_calculated', name: k, key: k, visible: configs_count < 15})
             // format.push({type: 'config_computed', name: k, 'key': k})
             // format.push({type: 'config_options', name: `${k} Options`, 'key': k})
             configs_count++
