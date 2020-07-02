@@ -19,6 +19,7 @@ $primary: #00a8ff;
 
 $tableOdd: $baseBackground;
 $tableEven: #353b48;
+$tableSelected: #151b18;
 $tableHighlight: #555b68;
 $tableConfig: #fbc531;
 $tableValue: #4cd137;
@@ -403,6 +404,10 @@ div.table {
 
     &.odd {
       @include row-colors($tableOdd);
+    }
+
+    &.selected {
+      @include row-colors($tableSelected);
     }
   }
 

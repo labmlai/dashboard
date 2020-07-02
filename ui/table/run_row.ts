@@ -62,9 +62,11 @@ export class RunRowView {
         this.selectIcon.classList.remove('fa-square')
         this.selectIcon.classList.remove('fa-check-square')
         if (this.isSelected) {
+            this.elem.classList.add('selected')
             this.selectListeners.onSelect(this.run)
             this.selectIcon.classList.add('fa-check-square')
         } else {
+            this.elem.classList.remove('selected')
             this.selectListeners.onUnSelect(this.run)
             this.selectIcon.classList.add('fa-square')
         }
