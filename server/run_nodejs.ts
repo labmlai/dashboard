@@ -160,13 +160,18 @@ export class RunNodeJS {
     async getIndicators(): Promise<Indicators> {
         // TODO: Caching
         if (!USE_CACHE || this.indicators == null) {
-            let contents = YAML.parse(await readFile(
-                PATH.join(
-                    LAB.experiments,
-                    this.run.name,
-                    this.run.uuid,
-                    'indicators.yaml'
-                )))
+            let file = PATH.join(
+                LAB.experiments,
+                this.run.name,
+                this.run.uuid,
+                'indicators.yaml'
+            )
+            let contents = YAML.parse(await readFile(file))
+            if (contents == null) {
+                console.log(`Missing indicators file: ${file}`)
+                this.indicators = new Indicators({})
+                return this.indicators
+            }
             if (contents['indicators'] == null) {
                 await this.migrateIndicatorsToSingleFile()
 

@@ -42,7 +42,8 @@ function mergeConfig(configs: any[]) {
         data_path: 'data',
         experiments_path: 'logs',
         analytics_path: 'analytics',
-        analytics_templates: {}
+        analytics_templates: {},
+        web_api: null
     }
 
     for (let i = configs.length - 1; i >= 0; --i) {
