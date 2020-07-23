@@ -13,6 +13,7 @@
     "sass": "latest"
   },
   "dependencies": {
+    "@types/d3": "latest",
     "sqlite3": "latest",
     "yaml": "latest"
   },
