@@ -120,8 +120,8 @@ class ConfigsView {
         let isCollapsible = false
 
         let classes = ['.config']
-        let conf_modules = key.split('.')
 
+        let conf_modules = key.split('.')
         let prefix = ''
         let parentKey = ''
         let parentOnlyOption = false
