@@ -1,9 +1,16 @@
-import { Weya as $, WeyaElement, WeyaElementFunction } from '../lib/weya/weya'
-import { Configs, Config } from '../common/experiments'
-import { InfoList, InfoItem } from './view_components/info_list'
-import { formatValue } from './view_components/format'
+import {Weya as $, WeyaElement, WeyaElementFunction} from '../lib/weya/weya'
+import {Configs, Config, ConfigsModel} from '../common/experiments'
+import {InfoList, InfoItem} from './view_components/info_list'
+import {formatValue} from './view_components/format'
 
 const CONFIG_PRINT_LEN = 50
+
+interface OptionInfo {
+    isCustom: boolean
+    isOnlyOption: boolean
+    value: string
+    otherOptions: any
+}
 
 class ConfigsView {
     configs: Configs
@@ -47,71 +54,115 @@ class ConfigsView {
             parts.append((']', Text.subtle))
     */
 
-    private renderConfigValue(
-        conf: Config,
-        isCommon: boolean,
-        $: WeyaElementFunction
-    ): boolean {
-        let isCollapsible = false
+    private renderComputed(conf: Config) {
+        if (typeof conf.computed === 'string') {
+            let computed: string = conf.computed
+            computed = computed.replace('\n', '')
+            if (computed.length < CONFIG_PRINT_LEN) {
+                return computed
+            } else {
+                return ($: WeyaElementFunction) => {
+                    $(
+                        'span',
+                        computed.substr(0, CONFIG_PRINT_LEN) + '...',
+                        {title: computed}
+                    )
+                }
+            }
+        } else {
+            return formatValue(conf.computed)
+        }
 
-        let classes = ['.config']
-        let parts: InfoItem[] = [['.key', conf.name]]
+    }
 
+    private renderOption(conf: Config): OptionInfo {
         let options = new Set()
         for (let opt of conf.options) {
             options.add(opt)
         }
 
+        let res: OptionInfo = {
+            isCustom: false,
+            isOnlyOption: false,
+            value: conf.value,
+            otherOptions: null
+        }
+
+        if (options.has(conf.value)) {
+            options.delete(conf.value)
+            if (options.size === 0) {
+                res.isOnlyOption = true
+            }
+        } else {
+            res.isCustom = true
+        }
+        if (options.size > 0) {
+            res.otherOptions = ($: WeyaElementFunction) => {
+                for (let opt of options.keys()) {
+                    if (typeof opt !== 'string') {
+                        continue
+                    }
+                    $('span', <string>opt)
+                }
+            }
+        }
+
+        return res
+    }
+
+    private renderConfigValue(
+        key: string,
+        conf: Config,
+        isCommon: boolean,
+        $: WeyaElementFunction,
+        configs: ConfigsModel,
+    ): boolean {
+        let isCollapsible = false
+
+        let classes = ['.config']
+        let conf_modules = key.split('.')
+
+        let prefix = ''
+        let parentKey = ''
+        let parentOnlyOption = false
+        for (let i = 0; i < conf_modules.length - 1; ++i) {
+            parentKey += conf_modules[i]
+            let optInfo = this.renderOption(configs[parentKey])
+            if (optInfo.isOnlyOption) {
+                parentOnlyOption = true
+            }
+            parentKey += '.'
+            prefix += '--- '
+        }
+        let parts: InfoItem[] = [['.key', prefix + conf.name]]
+
         if (conf.order < 0) {
             classes.push('.ignored')
             isCollapsible = true
         } else {
-            if (typeof conf.computed === 'string') {
-                let computed: string = conf.computed
-                computed = computed.replace('\n', '')
-                if (computed.length < CONFIG_PRINT_LEN) {
-                    parts.push(['.computed', computed])
-                } else {
-                    parts.push([
-                        '.computed',
-                        ($: WeyaElementFunction) => {
-                            $(
-                                'span',
-                                computed.substr(0, CONFIG_PRINT_LEN) + '...',
-                                { title: computed }
-                            )
-                        }
-                    ])
-                }
-            } else {
-                parts.push(['.computed', formatValue(conf.computed)])
-            }
+            parts.push(['.computed', this.renderComputed(conf)])
 
-            if (options.has(conf.value)) {
-                options.delete(conf.value)
-                if (options.size === 0) {
+            let optionInfo = this.renderOption(conf)
+
+            if (optionInfo.isCustom) {
+                if (parentOnlyOption && !conf.is_explicitly_specified && !conf.is_hyperparam) {
                     classes.push('.only_option')
                     isCollapsible = true
-                    parts.push(['.option', conf.value])
+                } else {
+                    classes.push('.custom')
+                }
+
+            } else {
+                parts.push(['.option', conf.value])
+                if (parentOnlyOption || optionInfo.isOnlyOption) {
+                    classes.push('.only_option')
+                    isCollapsible = true
                 } else {
                     classes.push('.picked')
-                    parts.push(['.option', conf.value])
                 }
-            } else {
-                classes.push('.custom')
             }
-            if (options.size > 0) {
-                parts.push([
-                    '.options',
-                    ($: WeyaElementFunction) => {
-                        for (let opt of options.keys()) {
-                            if (typeof opt !== 'string') {
-                                continue
-                            }
-                            $('span', <string>opt)
-                        }
-                    }
-                ])
+            if (optionInfo.otherOptions != null) {
+                parts.push(['.options', optionInfo.otherOptions])
             }
         }
 
@@ -120,7 +171,7 @@ class ConfigsView {
             isCollapsible = true
         }
 
-        if(!isCollapsible) {
+        if (!isCollapsible) {
             classes.push('.not_collapsible')
         } else {
             classes.push('.collapsible')
@@ -142,7 +193,7 @@ class ConfigsView {
             }
             keys.sort()
             for (let k of keys) {
-                if (this.renderConfigValue(conf[k], this.common.has(k), $)) {
+                if (this.renderConfigValue(k, conf[k], this.common.has(k), $, conf)) {
                     isCollapsible = true
                 }
             }
