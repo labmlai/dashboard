@@ -1,6 +1,6 @@
 import {Weya as $, WeyaElement, WeyaElementFunction} from '../lib/weya/weya'
-import {Configs, Config, ConfigsModel} from '../common/experiments'
-import {InfoList, InfoItem} from './view_components/info_list'
+import {Config, Configs, ConfigsModel} from '../common/experiments'
+import {InfoItem, InfoList} from './view_components/info_list'
 import {formatValue} from './view_components/format'
 
 const CONFIG_PRINT_LEN = 50
@@ -9,6 +9,7 @@ interface OptionInfo {
     isCustom: boolean
     isOnlyOption: boolean
     value: string
+    isDefault: boolean
     otherOptions: any
 }
 
@@ -22,37 +23,6 @@ class ConfigsView {
         this.configs = configs
         this.common = common
     }
-
-    /*
-        if is_ignored:
-            parts.append((key, Text.subtle))
-            return parts
-
-        parts.append((key, Text.key))
-
-        if value is not None:
-            value_str = str(value)
-            value_str = value_str.replace('\n', '')
-            if len(value_str) < _CONFIG_PRINT_LEN:
-                parts.append((f"{value_str}", Text.value))
-            else:
-                parts.append((f"{value_str[:_CONFIG_PRINT_LEN]}...", Text.value))
-            parts.append('\t')
-
-        if option is not None:
-            if len(other_options) == 0:
-                parts.append((option, Text.subtle))
-            else:
-                parts.append((option, Text.none))
-
-        if len(other_options) > 0:
-            parts.append(('\t[', Text.subtle))
-            for i, opt in enumerate(other_options):
-                if i > 0:
-                    parts.append((', ', Text.subtle))
-                parts.append(opt)
-            parts.append((']', Text.subtle))
-    */
 
     private renderComputed(conf: Config) {
         if (typeof conf.computed === 'string') {
@@ -85,16 +55,21 @@ class ConfigsView {
             isCustom: false,
             isOnlyOption: false,
             value: conf.value,
-            otherOptions: null
+            otherOptions: null,
+            isDefault: false
         }
 
         if (options.has(conf.value)) {
             options.delete(conf.value)
             if (options.size === 0) {
                 res.isOnlyOption = true
+                res.isDefault = true
             }
         } else {
             res.isCustom = true
+            if(conf.is_explicitly_specified !== true) {
+                res.isDefault = true
+            }
         }
         if (options.size > 0) {
             res.otherOptions = ($: WeyaElementFunction) => {
@@ -124,12 +99,12 @@ class ConfigsView {
         let conf_modules = key.split('.')
         let prefix = ''
         let parentKey = ''
-        let parentOnlyOption = false
+        let isParentDefault = false
         for (let i = 0; i < conf_modules.length - 1; ++i) {
             parentKey += conf_modules[i]
             let optInfo = this.renderOption(configs[parentKey])
-            if (optInfo.isOnlyOption) {
-                parentOnlyOption = true
+            if (optInfo.isDefault) {
+                isParentDefault = true
             }
             parentKey += '.'
             prefix += '--- '
@@ -143,9 +118,11 @@ class ConfigsView {
             parts.push(['.computed', this.renderComputed(conf)])
 
             let optionInfo = this.renderOption(conf)
+            console.log(key, isParentDefault)
 
             if (optionInfo.isCustom) {
-                if (parentOnlyOption && !conf.is_explicitly_specified && !conf.is_hyperparam) {
+                console.log(key, isParentDefault)
+                if (isParentDefault && !conf.is_explicitly_specified && !conf.is_hyperparam) {
                     classes.push('.only_option')
                     isCollapsible = true
                 } else {
@@ -154,7 +131,7 @@ class ConfigsView {
 
             } else {
                 parts.push(['.option', conf.value])
-                if (parentOnlyOption || optionInfo.isOnlyOption) {
+                if (isParentDefault || optionInfo.isOnlyOption) {
                     classes.push('.only_option')
                     isCollapsible = true
                 } else {
