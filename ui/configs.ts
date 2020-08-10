@@ -122,7 +122,7 @@ class ConfigsView {
 
             if (optionInfo.isCustom) {
                 console.log(key, isParentDefault)
-                if (isParentDefault && !conf.is_explicitly_specified && !conf.is_hyperparam) {
+                if (isParentDefault && !conf.is_explicitly_specified && !conf.is_hyperparam && !conf.is_hyperparam) {
                     classes.push('.only_option')
                     isCollapsible = true
                 } else {
@@ -131,7 +131,7 @@ class ConfigsView {
 
             } else {
                 parts.push(['.option', conf.value])
-                if (isParentDefault || optionInfo.isOnlyOption) {
+                if (!conf.is_explicitly_specified && !conf.is_hyperparam && (isParentDefault || optionInfo.isOnlyOption)) {
                     classes.push('.only_option')
                     isCollapsible = true
                 } else {
