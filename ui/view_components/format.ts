@@ -22,6 +22,9 @@ export function formatFixed(value: number, decimals: number) {
 }
 
 export function formatInt(value: number) {
+    if(value == null) {
+        return '-'
+    }
     let str = value.toString()
     return numberWithCommas(str)
 }
