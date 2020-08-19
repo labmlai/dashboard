@@ -60,12 +60,12 @@ function mergeConfig(configs: any[]) {
             throw Error('Experiment path in configs: ' + c.config_file_path)
         }
         if (i > 0 && 'analytics_path' in c) {
-            throw Error('Analyitics path in configs: ' + c.config_file_path)
+            throw Error('Analytics path in configs: ' + c.config_file_path)
         }
 
         for (let [k, v] of Object.entries(c)) {
             if (!(k in config)) {
-                throw Error('Unknown configs: ' + c.config_file_path)
+                throw Error(`Unknown configs: ${k} in ${c.config_file_path}`)
             }
 
             if (k === 'analytics_templates') {
