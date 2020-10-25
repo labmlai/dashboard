@@ -37,13 +37,16 @@ function mergeConfig(configs: any[]) {
     let config = {
         path: null,
         check_repo_dirty: true,
-        is_log_python_file: true,
         config_file_path: null,
         data_path: 'data',
         experiments_path: 'logs',
         analytics_path: 'analytics',
         analytics_templates: {},
-        web_api: null
+        web_api: null,
+        web_api_frequency:60,
+        web_api_verify_connection:true,
+        web_api_open_browser: false,
+        indicators: []
     }
 
     for (let i = configs.length - 1; i >= 0; --i) {
