@@ -32,7 +32,7 @@ check: build  ## Check PIPy Package
 upload: build  ## Upload PIPy Package
 	twine upload dist/*
 
-install:  ## Install from repo
+install: compile  ## Install from repo
 	pip install -e .
 
 uninstall: ## Uninstall
