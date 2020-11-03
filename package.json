@@ -9,8 +9,8 @@
   "devDependencies": {
     "@types/node": "latest",
     "@types/sqlite3": "latest",
-    "typescript": "latest",
-    "sass": "latest"
+    "sass": "latest",
+    "typescript": "latest"
   },
   "dependencies": {
     "@types/d3": "latest",
