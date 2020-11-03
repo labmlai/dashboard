@@ -40,3 +40,16 @@ Navigate to the path of the project and run the following command to start the s
 .. code-block:: console
 
     labml dashboard
+
+Building from source
+--------------------
+
+.. code-block:: console
+
+    git clone ...
+    git submodule init
+    git submodule update
+    npm install
+    make compile
+    make install
+
