@@ -6,7 +6,7 @@ with open("readme.rst", "r") as f:
 
 setuptools.setup(
     name='labml_dashboard',
-    version='0.4.21',
+    version='0.4.87',
     author="Varuna Jayasiri",
     author_email="vpjayasiri@gmail.com",
     description="Dashboard for Lab: Organize Machine Learning Experiments",
@@ -16,7 +16,7 @@ setuptools.setup(
     project_urls={
         'Documentation': 'https://lab-ml.com/'
     },
-    install_requires=['labml'],
+    install_requires=['labml>=0.4.87'],
     packages=['labml_dashboard'],
     include_package_data=True,
     classifiers=[

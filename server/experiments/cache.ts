@@ -2,7 +2,7 @@ import * as YAML from 'yaml'
 import * as PATH from 'path'
 import {Run, RunCollection, RunModel, ScalarsModel} from '../../common/experiments'
 import {LAB} from '../consts'
-import {getDiskUsage, readdir, readFile} from '../util'
+import {getDiskUsage, lstat, readdir, readFile} from '../util'
 import {RunNodeJS} from "../run_nodejs";
 
 abstract class CacheEntry<T> {
@@ -190,8 +190,15 @@ class ExperimentRunsSetCacheEntry extends CacheEntry<ExperimentRunsSet> {
         let res: ExperimentRunsSet = {}
 
         for (let e of experiments) {
+            let expPath = PATH.join(LAB.experiments, e)
+
+            let stats = await lstat(expPath)
+            if (!stats.isDirectory()) {
+                continue
+            }
+
             if (!e.startsWith('_')) {
-                res[e] = new Set<string>(await readdir(PATH.join(LAB.experiments, e)))
+                res[e] = new Set<string>(await readdir(expPath))
             }
         }
 

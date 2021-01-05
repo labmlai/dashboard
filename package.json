@@ -1,6 +1,6 @@
 {
   "name": "labml_dashboard",
-  "version": "0.4.7",
+  "version": "0.4.87",
   "description": "LabML Dashboard",
   "main": "app.js",
   "repository": "https://github.com/lab-ml/dashboard",
