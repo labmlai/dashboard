@@ -197,7 +197,7 @@ class ExperimentRunsSetCacheEntry extends CacheEntry<ExperimentRunsSet> {
                 continue
             }
 
-            if (!e.startsWith('_')) {
+            if (!e.startsWith('_') && !e.startsWith('.')) {
                 res[e] = new Set<string>(await readdir(expPath))
             }
         }
