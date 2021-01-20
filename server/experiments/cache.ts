@@ -198,7 +198,13 @@ class ExperimentRunsSetCacheEntry extends CacheEntry<ExperimentRunsSet> {
             }
 
             if (!e.startsWith('_') && !e.startsWith('.')) {
-                res[e] = new Set<string>(await readdir(expPath))
+                let runs = await readdir(expPath)
+                res[e] = new Set<string>()
+                for(let r of runs) {
+                    if(!r.startsWith('.')) {
+                        res[e].add(r)
+                    }
+                }
             }
         }
 
